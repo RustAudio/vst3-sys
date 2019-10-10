@@ -1,0 +1,10 @@
+[package]
+name = "vst3-sys"
+version = "0.1.0"
+authors = ["m-hilgendorf <mike@hilgendorf.audio>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+com = {path="../com-rs"}
