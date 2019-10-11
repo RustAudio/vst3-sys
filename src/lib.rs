@@ -4,5 +4,6 @@
 #![allow(unused_imports)]
 pub mod base;
 pub mod gui;
+pub mod vst;
 
 use com::*;
