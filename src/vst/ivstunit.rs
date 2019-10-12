@@ -1,4 +1,5 @@
 use crate::base::{tchar, tresult, CStringA, IBStream};
+use crate::vst::{CString, String128};
 use com::com_interface;
 use com::interfaces::iunknown::IUnknown;
 //todo: ivstunit constants
@@ -8,7 +9,7 @@ use com::interfaces::iunknown::IUnknown;
 pub struct UnitInfo {
     id: i32,
     parent_id: i32,
-    name: [tchar; 128],
+    name: String128,
     program_list_id: i32,
 }
 
@@ -16,7 +17,7 @@ pub struct UnitInfo {
 #[derive(Copy, Clone)]
 pub struct ProgramListInfo {
     id: i32,
-    name: [tchar; 128],
+    name: String128,
     program_count: i32,
 }
 
@@ -42,7 +43,7 @@ pub trait IUnitInfo: IUnknown {
         &self,
         id: i32,
         idx: i32,
-        attribute_id: CStringA,
+        attribute_id: CString,
         attribute_value: *mut tchar,
     ) -> tresult;
     unsafe fn has_program_pitch_names(&self, id: i32, idx: i32) -> tresult;

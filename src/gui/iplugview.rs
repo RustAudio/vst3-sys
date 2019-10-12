@@ -11,8 +11,7 @@ pub struct ViewRect {
     pub bottom: i32,
 }
 
-//todo: fix the parsing error
-//#[com_interface(5bc32507-d060-49ea-a615-1b522b755b29)]
+#[com_interface("5bc32507-d060-49ea-a615-1b522b755b29")]
 pub trait IPlugView: IUnknown {
     unsafe fn is_platform_type_supported(&self, type_: FIDString) -> tresult;
     unsafe fn attached(&self, parent: *mut c_void, type_: FIDString) -> tresult;
