@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 com = {path="../com-rs"}
+bitflags = "1.2.0"
