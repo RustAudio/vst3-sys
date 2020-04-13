@@ -1,6 +1,17 @@
 use crate::base::{char16, char8, tresult};
+use bitflags::bitflags;
 use com::interfaces::iunknown::IUnknown;
 use com::{c_void, com_interface, IID};
+
+bitflags! {
+    pub struct FactoryFlags: i32 {
+        const kNoFlags = 0;
+        const kClassesDiscardable = 1;
+        const kLicenseCheck = 2;
+        const kComponentNonDiscardable = 4;
+        const kUnicode = 8;
+    }
+}
 
 #[repr(align(16))]
 pub struct PFactoryInfo {
@@ -43,9 +54,9 @@ pub struct PClassInfoW {
     version: [char16; 64],
     sdk_version: [char16; 64],
 }
-
+/// Renamed from IPLuginBase
 #[com_interface(22888DDB-156E-45AE-8358-B34808190625)]
-pub trait IPluginBase: IUnknown {
+pub trait IPlugin: IUnknown {
     unsafe fn initialize(&self, context: *mut dyn IUnknown) -> tresult;
     unsafe fn terminate(&self) -> tresult;
 }
