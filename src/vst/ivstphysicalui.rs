@@ -16,7 +16,7 @@ pub struct PhysicalUIMapList {
     map: *mut PhysicalUIMap,
 }
 
-#[com_interface(B03078FF-94D2-4AC8-90CC-D303D4133324)]
+#[com_interface("B03078FF-94D2-4AC8-90CC-D303D4133324")]
 pub trait INoteExpressionPhysicalUIMapping: IUnknown {
     unsafe fn get_physical_ui_mapping(
         &self,

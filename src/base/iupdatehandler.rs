@@ -2,21 +2,21 @@ use crate::base::tresult;
 use com::com_interface;
 use com::interfaces::iunknown::IUnknown;
 
-#[com_interface(F5246D56-8654-4d60-B026-AFB57B697B37)]
+#[com_interface("F5246D56-8654-4d60-B026-AFB57B697B37")]
 pub trait IUpdateHandler: IUnknown {
-    fn add_dependent(&self, object: *mut dyn IUnknown, dependent: *mut dyn IDependent) -> tresult;
-    fn remove_dependent(
+    unsafe fn add_dependent(&self, object: *mut dyn IUnknown, dependent: *mut dyn IDependent) -> tresult;
+    unsafe fn remove_dependent(
         &self,
         object: *mut dyn IUnknown,
         dependent: *mut dyn IDependent,
     ) -> tresult;
-    fn trigger_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
-    fn defer_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
+    unsafe fn trigger_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
+    unsafe fn defer_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
 }
 
-#[com_interface(F52B7AAE-DE72-416d-8AF1-8ACE9DD7BD5E)]
+#[com_interface("F52B7AAE-DE72-416d-8AF1-8ACE9DD7BD5E")]
 pub trait IDependent: IUnknown {
-    fn update(&self, changed_unknown: *mut dyn IUnknown, message: i32);
+    unsafe fn update(&self, changed_unknown: *mut dyn IUnknown, message: i32);
 }
 
 const kWillChange: i32 = 0;

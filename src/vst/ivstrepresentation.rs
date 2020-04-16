@@ -11,7 +11,7 @@ pub struct RepresentationInfo {
     host: [char8; 64],
 }
 
-#[com_interface(A81A0471-48C3-4DC4-AC30-C9E13C8393D5)]
+#[com_interface("A81A0471-48C3-4DC4-AC30-C9E13C8393D5")]
 pub trait IXmlRepresentationController: IUnknown {
     unsafe fn get_xml_representation(&self, info: *mut RepresentationInfo) -> tresult;
 }

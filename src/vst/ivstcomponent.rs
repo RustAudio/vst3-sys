@@ -56,12 +56,12 @@ pub struct RoutingInfo {
 /// different busses, and get/set the state of t
 #[com_interface("E831FF31-F2D5-4301-928E-BBEE25697802")]
 pub trait IComponent: IPlugin {
-    fn get_controller_class_id(&self, tuid: REFIID) -> tresult;
-    fn set_io_mode(&self, mode: i32) -> tresult;
-    fn get_bus_count(&self, type_: i32, dir: i32) -> i32;
-    fn get_bus_info(&self, type_: i32, dir: i32, idx: i32, info: *mut BusInfo) -> tresult;
-    fn activate_bus(&self, type_: i32, dir: i32, idx: i32, state: TBool) -> tresult;
-    fn set_active(&self, state: TBool) -> tresult;
-    fn set_state(&self, state: *mut dyn IBStream) -> tresult;
-    fn get_state(&self, state: *mut dyn IBStream) -> tresult;
+    unsafe fn get_controller_class_id(&self, tuid: REFIID) -> tresult;
+    unsafe fn set_io_mode(&self, mode: i32) -> tresult;
+    unsafe fn get_bus_count(&self, type_: i32, dir: i32) -> i32;
+    unsafe fn get_bus_info(&self, type_: i32, dir: i32, idx: i32, info: *mut BusInfo) -> tresult;
+    unsafe fn activate_bus(&self, type_: i32, dir: i32, idx: i32, state: TBool) -> tresult;
+    unsafe fn set_active(&self, state: TBool) -> tresult;
+    unsafe fn set_state(&self, state: *mut dyn IBStream) -> tresult;
+    unsafe fn get_state(&self, state: *mut dyn IBStream) -> tresult;
 }

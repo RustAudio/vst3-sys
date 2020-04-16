@@ -3,7 +3,7 @@ use com::interfaces::iunknown::IUnknown;
 use com::{c_void, com_interface};
 pub type AttrID = *const char8;
 
-#[com_interface(1E5F0AEB-CC7F-4533-A254-401138AD5EE4)]
+#[com_interface("1E5F0AEB-CC7F-4533-A254-401138AD5EE4")]
 pub trait IAttributeList: IUnknown {
     unsafe fn set_int(&self, id: AttrID, v: i64) -> tresult;
     unsafe fn get_int(&self, id: AttrID, v: *mut i64) -> tresult;
@@ -15,7 +15,7 @@ pub trait IAttributeList: IUnknown {
     unsafe fn get_binary(&self, id: AttrID, ptr: *const *mut c_void, sz: *mut u32) -> tresult;
 }
 
-#[com_interface(D6CE2FFC-EFAF-4B8C-9E74-F1BB12DA44B4)]
+#[com_interface("D6CE2FFC-EFAF-4B8C-9E74-F1BB12DA44B4")]
 pub trait IStreamAttributes: IUnknown {
     unsafe fn get_filename(&self, name: *const tchar) -> tresult;
     unsafe fn get_attributes(&self) -> *mut dyn IAttributeList;

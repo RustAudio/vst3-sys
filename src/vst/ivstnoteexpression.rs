@@ -54,7 +54,7 @@ pub struct KeySwitchInfo {
     flags: i32,
 }
 
-#[com_interface(B7F8F859-4123-4872-9116-95814F3721A3)]
+#[com_interface("B7F8F859-4123-4872-9116-95814F3721A3")]
 pub trait INoteExpressionController: IUnknown {
     unsafe fn get_note_expression_count(&self, bus_idx: i32, channel: i16) -> i32;
     unsafe fn get_note_expression_info(
@@ -82,7 +82,7 @@ pub trait INoteExpressionController: IUnknown {
     ) -> tresult;
 }
 
-#[com_interface(1F2F76D3-BFFB-4B96-B995-27A55EBCCEF4)]
+#[com_interface("1F2F76D3-BFFB-4B96-B995-27A55EBCCEF4")]
 pub trait IKeyswitchController: IUnknown {
     unsafe fn get_keyswitch_count(&self, bus_index: i32, channel: i16) -> i32;
     unsafe fn get_keyswitch_info(

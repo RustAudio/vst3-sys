@@ -5,7 +5,7 @@ const kIBSeekSet: i32 = 0;
 const kIBSeekCur: i32 = 1;
 const kIBSeekEnd: i32 = 2;
 
-#[com_interface(C3BF6EA2-3099-4752-9B6B-F9901EE33E9B)]
+#[com_interface("C3BF6EA2-3099-4752-9B6B-F9901EE33E9B")]
 pub trait IBStream: IUnknown {
     unsafe fn read(&self, buffer: *mut c_void, num_bytes: i32, num_bytes_read: *mut i32)
         -> tresult;

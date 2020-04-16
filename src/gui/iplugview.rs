@@ -25,7 +25,7 @@ pub trait IPlugView: IUnknown {
     unsafe fn check_size_constraint(&self, rect: *mut ViewRect) -> tresult;
 }
 
-#[com_interface(367FAF01-AFA9-4693-8D4D-A2A0ED0882A3)]
+#[com_interface("367FAF01-AFA9-4693-8D4D-A2A0ED0882A3")]
 pub trait IPlugFrame: IUnknown {
     unsafe fn resize_view(&self, view: *mut dyn IPlugView, new_size: *mut ViewRect) -> tresult;
 }
@@ -39,21 +39,21 @@ pub mod linux {
     pub type TimerInterval = u64;
     pub type FileDescriptor = i32;
 
-    #[com_interface(561E65C9-13A0-496F-813A-2C35654D7983)]
+    #[com_interface("561E65C9-13A0-496F-813A-2C35654D7983")]
     pub trait IEventHandler: IUnknown {
         fn on_fd_is_set(&self, fd: FileDescriptor);
     }
 
-    #[com_interface(10BDD94F-4142-4774-821F-AD8FECA72CA9)]
+    #[com_interface("10BDD94F-4142-4774-821F-AD8FECA72CA9")]
     pub trait ITimerHandler: IUnknown {
         fn on_timer(&self);
     }
 
-    #[com_interface(18C35366-9776-4F1A-9C5B-83857A871389)]
+    #[com_interface("18C35366-9776-4F1A-9C5B-83857A871389")]
     pub trait IRunLoop: IUnknown {
-        fn register_event_handler(&self, h: *mut dyn IEventHandler, fd: FileDescriptor) -> tresult;
-        fn unregister_event_handler(&self, h: *mut dyn IEventHandler) -> tresult;
-        fn register_timer(&self, t: *mut dyn ITimerHandler, ms: TimerInterval) -> tresult;
-        fn unregister_timer(&self, t: *mut dyn ITimerHandler) -> tresult;
+        unsafe fn register_event_handler(&self, h: *mut dyn IEventHandler, fd: FileDescriptor) -> tresult;
+        unsafe fn unregister_event_handler(&self, h: *mut dyn IEventHandler) -> tresult;
+        unsafe fn register_timer(&self, t: *mut dyn ITimerHandler, ms: TimerInterval) -> tresult;
+        unsafe fn unregister_timer(&self, t: *mut dyn ITimerHandler) -> tresult;
     }
 }

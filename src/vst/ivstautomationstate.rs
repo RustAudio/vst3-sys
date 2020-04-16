@@ -14,5 +14,5 @@ bitflags! {
 
 #[com_interface("B4E8287F-1BB3-46AA-83A4-666768937BAB")]
 pub trait IAutomationState: IUnknown {
-    fn set_automation_state(&self, state: i32) -> tresult;
+    unsafe fn set_automation_state(&self, state: i32) -> tresult;
 }

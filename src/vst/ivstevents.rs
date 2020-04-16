@@ -94,7 +94,7 @@ pub struct Event {
     event: EventData,
 }
 
-#[com_interface(3A2C4214-3463-49FE-B2C4-F397B9695A44)]
+#[com_interface("3A2C4214-3463-49FE-B2C4-F397B9695A44")]
 pub trait IEventList: IUnknown {
     unsafe fn get_event_count(&self) -> i32;
     unsafe fn get_event(&self, idx: i32, event: *mut Event) -> tresult;
