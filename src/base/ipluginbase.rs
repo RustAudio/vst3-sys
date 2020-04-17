@@ -13,46 +13,46 @@ bitflags! {
     }
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PFactoryInfo {
-    vendor: [char8; 64],
-    url: [char8; 256],
-    email: [char8; 128],
-    flags: i32,
+    pub vendor: [char8; 64],
+    pub url: [char8; 256],
+    pub email: [char8; 128],
+    pub flags: i32,
 }
 
 #[repr(align(16))]
 pub struct PClassInfo {
-    cid: IID,
-    cardinality: i32,
-    category: [char8; 32],
-    name: [char8; 64],
+    pub cid: IID,
+    pub cardinality: i32,
+    pub category: [char8; 32],
+    pub name: [char8; 64],
 }
 
 #[repr(align(16))]
 pub struct PClassInfo2 {
-    cid: IID,
-    cardinality: i32,
-    category: [char8; 32],
-    name: [char8; 64],
-    class_flags: u32,
-    subcategories: [char8; 128],
-    vendor: [char8; 64],
-    version: [char8; 64],
-    sdk_version: [char8; 64],
+    pub cid: IID,
+    pub cardinality: i32,
+    pub category: [char8; 32],
+    pub name: [char8; 64],
+    pub class_flags: u32,
+    pub subcategories: [char8; 128],
+    pub vendor: [char8; 64],
+    pub version: [char8; 64],
+    pub sdk_version: [char8; 64],
 }
 
 #[repr(align(16))]
 pub struct PClassInfoW {
-    cid: IID,
-    cardinality: i32,
-    category: [char8; 32],
-    name: [char16; 64],
-    class_flags: u32,
-    subcategories: [char8; 128],
-    vendor: [char16; 64],
-    version: [char16; 64],
-    sdk_version: [char16; 64],
+    pub cid: IID,
+    pub cardinality: i32,
+    pub category: [char8; 32],
+    pub name: [char16; 64],
+    pub class_flags: u32,
+    pub subcategories: [char8; 128],
+    pub vendor: [char16; 64],
+    pub version: [char16; 64],
+    pub sdk_version: [char16; 64],
 }
 /// Renamed from IPLuginBase
 #[com_interface("22888DDB-156E-45AE-8358-B34808190625")]

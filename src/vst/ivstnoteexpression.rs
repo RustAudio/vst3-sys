@@ -5,53 +5,53 @@ use com::interfaces::iunknown::IUnknown;
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteExpressionValueDescription {
-    default_value: f64,
-    min: f64,
-    max: f64,
-    step_count: i32,
+    pub default_value: f64,
+    pub min: f64,
+    pub max: f64,
+    pub step_count: i32,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteExpressionValueEvent {
-    type_id: u32,
-    note_id: i32,
-    value: f64,
+    pub type_id: u32,
+    pub note_id: i32,
+    pub value: f64,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug)]
 pub struct NoteExpressionTextEvent {
-    type_id: u32,
-    note_id: i32,
-    text_len: u32,
-    text: *const tchar,
+    pub type_id: u32,
+    pub note_id: i32,
+    pub text_len: u32,
+    pub text: *const tchar,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone)]
 pub struct NoteExpressionTypeInfo {
-    type_id: u32,
-    title: [tchar; 128],
-    short_title: [tchar; 128],
-    units: [tchar; 128],
-    unit_id: i32,
-    value_desc: NoteExpressionValueDescription,
-    id: u32,
-    flags: i32,
+    pub type_id: u32,
+    pub title: [tchar; 128],
+    pub short_title: [tchar; 128],
+    pub units: [tchar; 128],
+    pub unit_id: i32,
+    pub value_desc: NoteExpressionValueDescription,
+    pub id: u32,
+    pub flags: i32,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone)]
 pub struct KeySwitchInfo {
     type_id: u32,
-    title: [tchar; 128],
-    short_title: [tchar; 128],
-    keyswitch_min: i32,
-    keyswitch_max: i32,
-    key_remapped: i32,
-    unit_id: i32,
-    flags: i32,
+    pub title: [tchar; 128],
+    pub short_title: [tchar; 128],
+    pub keyswitch_min: i32,
+    pub keyswitch_max: i32,
+    pub key_remapped: i32,
+    pub unit_id: i32,
+    pub flags: i32,
 }
 
 #[com_interface("B7F8F859-4123-4872-9116-95814F3721A3")]

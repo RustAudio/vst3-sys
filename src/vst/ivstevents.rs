@@ -6,67 +6,67 @@ use com::interfaces::iunknown::IUnknown;
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteOnEvent {
-    channel: i16,
-    pitch: i16,
-    tuning: f32,
-    velocity: i32,
-    length: i32,
-    note_id: i32,
+    pub channel: i16,
+    pub pitch: i16,
+    pub tuning: f32,
+    pub velocity: i32,
+    pub length: i32,
+    pub note_id: i32,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteOffEvent {
-    channel: i16,
-    pitch: i16,
-    velocity: i32,
-    length: i32,
-    note_id: i32,
+    pub channel: i16,
+    pub pitch: i16,
+    pub velocity: i32,
+    pub length: i32,
+    pub note_id: i32,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug)]
 pub struct DataEvent {
-    size: u32,
-    type_: u32,
-    bytes: *const u8,
+    pub size: u32,
+    pub type_: u32,
+    pub bytes: *const u8,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct PolyPressureEvent {
-    channel: i16,
-    pitch: i16,
-    pressure: f32,
-    note_id: i32,
+    pub channel: i16,
+    pub pitch: i16,
+    pub pressure: f32,
+    pub note_id: i32,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug)]
 pub struct ChordEvent {
-    root: i16,
-    bass_note: i16,
-    mask: i16,
-    text_len: u16,
-    text: *const i16,
+    pub root: i16,
+    pub bass_note: i16,
+    pub mask: i16,
+    pub text_len: u16,
+    pub text: *const i16,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug)]
 pub struct ScaleEvent {
-    root: i16,
-    mask: i16,
-    text_len: u16,
-    text: *const i16,
+    pub root: i16,
+    pub mask: i16,
+    pub text_len: u16,
+    pub text: *const i16,
 }
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct LegacyMidiCCOutEvent {
-    control_number: u8,
-    channel: i8,
-    value: i8,
-    value2: i8,
+    pub control_number: u8,
+    pub channel: i8,
+    pub value: i8,
+    pub value2: i8,
 }
 
 #[repr(align(16))]
@@ -86,12 +86,12 @@ pub union EventData {
 #[repr(align(16))]
 #[derive(Copy, Clone)]
 pub struct Event {
-    bus_index: i32,
-    sample_offset: i32,
-    ppq_pos: f64,
-    flags: u16,
-    type_: u16,
-    event: EventData,
+    pub bus_index: i32,
+    pub sample_offset: i32,
+    pub ppq_pos: f64,
+    pub flags: u16,
+    pub type_: u16,
+    pub event: EventData,
 }
 
 #[com_interface("3A2C4214-3463-49FE-B2C4-F397B9695A44")]
