@@ -5,6 +5,6 @@
 pub mod base;
 pub mod gui;
 pub mod vst;
-use com::*;
 pub use com::co_class as VST3;
 pub use com::REFIID;
+use com::*;

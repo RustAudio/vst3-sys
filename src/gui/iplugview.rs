@@ -51,7 +51,11 @@ pub mod linux {
 
     #[com_interface("18C35366-9776-4F1A-9C5B-83857A871389")]
     pub trait IRunLoop: IUnknown {
-        unsafe fn register_event_handler(&self, h: *mut dyn IEventHandler, fd: FileDescriptor) -> tresult;
+        unsafe fn register_event_handler(
+            &self,
+            h: *mut dyn IEventHandler,
+            fd: FileDescriptor,
+        ) -> tresult;
         unsafe fn unregister_event_handler(&self, h: *mut dyn IEventHandler) -> tresult;
         unsafe fn register_timer(&self, t: *mut dyn ITimerHandler, ms: TimerInterval) -> tresult;
         unsafe fn unregister_timer(&self, t: *mut dyn ITimerHandler) -> tresult;

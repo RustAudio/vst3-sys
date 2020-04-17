@@ -4,7 +4,11 @@ use com::interfaces::iunknown::IUnknown;
 
 #[com_interface("F5246D56-8654-4d60-B026-AFB57B697B37")]
 pub trait IUpdateHandler: IUnknown {
-    unsafe fn add_dependent(&self, object: *mut dyn IUnknown, dependent: *mut dyn IDependent) -> tresult;
+    unsafe fn add_dependent(
+        &self,
+        object: *mut dyn IUnknown,
+        dependent: *mut dyn IDependent,
+    ) -> tresult;
     unsafe fn remove_dependent(
         &self,
         object: *mut dyn IUnknown,
