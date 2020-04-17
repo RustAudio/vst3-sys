@@ -1,0 +1,15 @@
+[package]
+name = "passthru"
+version = "0.1.0"
+authors = ["m-hilgendorf <mike@hilgendorf.audio>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+vst3-sys = { path = "../../"}
+log = "0.4"
+simple_logger = "1.6.0"
+com = { path = "../../../com-rs" } 
+lazy_static = "1.4.0"

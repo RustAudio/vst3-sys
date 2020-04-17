@@ -1,0 +1,260 @@
+#![allow(unused_unsafe)]
+use com::sys::GUID;
+use std::sync::Mutex; 
+use std::os::raw::{c_char, c_void};
+use lazy_static::lazy_static;
+use vst3_sys::base::{
+    kInvalidArgument, kResultOk, tresult, IBStream, IPlugin, IPluginFactory, IUnknown, TBool,
+};
+use vst3_sys::vst::{
+    BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup,
+};
+use vst3_sys::{REFIID, VST3};
+use log::*;
+#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPlugin))]
+pub struct PassthruPlugin {}
+pub struct PassthruController {}
+impl PassthruPlugin {
+    const CID: GUID = GUID {
+        data1: 0x93684f1a,
+        data2: 0x4611,
+        data3: 0x9101,
+        data4: [0x0, 0, 0xb4, 0x39, 0xe5, 0x64, 0x8a, 0xda], 
+    };
+    pub fn new() -> Box<Self> {
+        PassthruPlugin::allocate()
+    }
+}
+#[VST3(implements(IPluginFactory))]
+pub struct Factory {}
+
+impl IAudioProcessor for PassthruPlugin {
+    unsafe fn get_latency_sample(&self) -> u32 {
+        0
+    }
+    unsafe fn setup_processing(&self, _setup: *mut ProcessSetup) -> tresult {
+        kResultOk
+    }
+    unsafe fn set_processing(&self, _state: TBool) -> tresult {
+        kResultOk
+    }
+    unsafe fn process(&self, _data: *mut ProcessData) -> tresult {
+        kResultOk
+    }
+    unsafe fn get_tail_samples(&self) -> u32 {
+        0
+    }
+}
+
+impl IAudioPresentationLatency for PassthruPlugin {
+    unsafe fn set_audio_presentation_latency_sample(
+        &self,
+        _dir: BusDirection,
+        _bus_idx: i32,
+        _latency_samples: u32,
+    ) -> tresult {
+        kResultOk
+    }
+}
+
+impl IAutomationState for PassthruPlugin {
+    unsafe fn set_automation_state(&self, _state: i32) -> tresult {
+        kResultOk
+    }
+}
+
+impl IPlugin for PassthruPlugin {
+    unsafe fn initialize(&self, _host_context: *mut dyn IUnknown) -> tresult {
+        kResultOk
+    }
+    unsafe fn terminate(&self) -> tresult {
+        kResultOk
+    }
+}
+
+impl IComponent for PassthruPlugin {
+    unsafe fn get_controller_class_id(&self, _tuid: REFIID) -> tresult {
+        kResultOk
+    }
+
+    unsafe fn set_io_mode(&self, _mode: i32) -> tresult {
+        kResultOk
+    }
+
+    unsafe fn get_bus_count(&self, type_: i32, _dir: i32) -> i32 {
+        if type_ == MediaTypes::kAudio as i32 {
+            1
+        } else {
+            0
+        }
+    }
+
+    unsafe fn get_bus_info(&self, type_: i32, dir: i32, _idx: i32, info: *mut BusInfo) -> tresult {
+        if type_ == MediaTypes::kAudio as i32 {
+            let info = unsafe { &mut *info };
+            if dir == BusDirections::kInput as i32 {
+                info.direction = dir;
+                info.bus_type = MediaTypes::kAudio as i32;
+                info.channel_count = 2;
+                info.flags = BusFlags::kDefaultActive.bits();
+            } else {
+                info.direction = dir;
+                info.bus_type = MediaTypes::kAudio as i32;
+                info.channel_count = 2;
+                info.flags = BusFlags::kDefaultActive.bits();
+            }
+            kResultOk
+        } else {
+            kInvalidArgument
+        }
+    }
+
+    unsafe fn activate_bus(&self, _type_: i32, _dir: i32, _idx: i32, _state: TBool) -> tresult {
+        kResultOk
+    }
+
+    unsafe fn set_active(&self, _state: TBool) -> tresult {
+        kResultOk
+    }
+
+    unsafe fn set_state(&self, _state: *mut dyn IBStream) -> tresult {
+        kResultOk
+    }
+
+    unsafe fn get_state(&self, _state: *mut dyn IBStream) -> tresult {
+        kResultOk
+    }
+}
+
+//IComponent
+//IContextMenuTarget
+//IEditController
+//IEditController2
+//IMidiMapping
+//IEditControllerHostEditing
+//IInterAppAudioConnectionNotification
+//IInterAppAudioPresetManager
+//IConnectionPoint
+//IMidiLearn
+//INoteExpressionController
+//IKeyswitchController
+//INoteExpressionPhysicalUIMapping
+//IPrefetchableSupport
+//IXmlRepresentationController
+//IUnitInfo
+//IProgramListData
+//IUnitData
+//IPlugView
+//IPlugViewContentScaleSupport
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Factory implementation 
+
+impl Factory {
+    fn new() -> Box<Self> {
+        info!("instantiating factory...");
+        Self::allocate()
+    }
+}
+
+use std::ptr::copy_nonoverlapping as memcpy;
+unsafe fn strcpy (src:&str, dst: *mut c_char) {
+    memcpy(src.as_ptr() as *const c_void as *const _, dst, src.len());
+}
+
+impl IPluginFactory for Factory {
+    unsafe fn get_factory_info(&self, info: *mut vst3_sys::base::PFactoryInfo) -> i32 {
+        let info = &mut *info;
+        strcpy("rust.audio", info.vendor.as_mut_ptr());
+        strcpy("https://rust.audio", info.url.as_mut_ptr());
+        strcpy("mailto://mike@hilgendorf.audio", info.email.as_mut_ptr());
+        info.flags = 8;
+        kResultOk
+    }
+
+    unsafe fn count_classes(&self) -> i32 {
+        1
+    }
+    unsafe fn get_class_info(
+        &self,
+        idx: i32,
+        info: *mut vst3_sys::base::PClassInfo,
+    ) -> i32 {
+        match idx {
+            0 => {
+                let info = &mut *info;
+                info.cardinality = 0x7FFFFFFF;
+                info.cid = PassthruPlugin::CID.to_be();
+                strcpy("Audio Module Class", info.category.as_mut_ptr());
+                strcpy("Pass Through", info.name.as_mut_ptr());
+            }, 
+            _ => {
+                info!("invalid class info ID {}", idx);
+                return kInvalidArgument;
+            }
+        }
+        kResultOk
+    }
+    unsafe fn create_instance(
+        &self,
+        cid: *mut com::sys::GUID,
+        riid: *mut com::sys::GUID,
+        ppv: *mut *mut core::ffi::c_void,
+    ) -> i32 {
+        let cid = *&*cid;
+        let cmp = PassthruPlugin::CID;
+
+        info!("creating instance of {:?}", cid);
+        if cid.to_le() == cmp {
+            use com::interfaces::iunknown::IUnknown;
+            // if aggr != std::ptr::null_mut() {
+            //     return com::sys::CLASS_E_NOAGGREGATION;
+            // }
+            let mut instance = PassthruPlugin::new();
+            instance.add_ref();
+            let hr = instance.query_interface(riid, ppv);
+            instance.release();
+            core::mem::forget(instance);
+            return hr;
+        } else {
+            warn!("CID not found");
+        }
+        kResultOk
+    }
+}
+
+struct FactoryWrapper {
+    factory: Box<Factory>, 
+}
+unsafe impl Send for FactoryWrapper {}
+unsafe impl Sync for FactoryWrapper {}
+lazy_static! {
+    static ref WRAPPER: Mutex<FactoryWrapper> = Mutex::new(FactoryWrapper { factory: Factory::new() });
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub unsafe extern "system" fn GetPluginFactory () -> *mut c_void {
+    info!("calling plugin factory");
+    let factory = &mut *WRAPPER.lock().unwrap().factory;
+    factory.add_ref();
+    factory as *mut _ as *mut _
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn ModuleEntry (_:*mut c_void) -> bool {
+    if let Err(e) = simple_logger::init() {
+        println!("{:?}", e);
+    }
+    info!("Module entered");
+    true 
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn ModuleExit () -> bool {
+    info!("Module exited");
+    true
+}
