@@ -1,0 +1,13 @@
+[package]
+name = "vst3-com"
+version = "0.1.0"
+authors = ["Microsoft Corp.", "Mike Hilgendorf"]
+description = """
+Fork of com-rs
+"""
+edition = "2018"
+license = "MIT"
+readme = "./README.md"
+
+[dependencies]
+com_macros = { version = "0.2", path = "macros" }
