@@ -30,8 +30,7 @@ VST3 is a trademark held by Steinberg Media Technologies, GMBH.
 ## License
 
 `vst3-sys` is licensed under the terms of the GNU GPLv3 license. This port is a derivative work of the original SDK, and
-while we do not redistribute any of the original source code it was not made in isolation. If you wish to have a compatible 
-license with your own agreement with Steinberg, please contact me. 
+while we do not redistribute any of the original source code it was not made in isolation.
 
 (TL;DR VST3 licensing is complicated, GPLv3 is the lowest friction to put this into the wild). 
 
