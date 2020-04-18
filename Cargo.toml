@@ -8,7 +8,7 @@ Pure Rust bindings to the VST3 APIs, based on COM.
 edition = "2018"
 
 [dependencies]
-com = { path = "./com" }
+vst3-com = { path = "./com" }
 bitflags = "1.2.0"
 
 [workspace]
