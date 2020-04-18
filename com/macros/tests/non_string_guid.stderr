@@ -1,7 +1,32 @@
-error: custom attribute panicked
- --> $DIR/non_string_guid.rs:4:1
+error[E0433]: failed to resolve: use of undeclared type or module `com`
+ --> $DIR/non_string_guid.rs:2:5
+  |
+2 | use com::interfaces::iunknown::IUnknown;
+  |     ^^^ use of undeclared type or module `com`
+
+error[E0432]: unresolved import `com`
+ --> $DIR/non_string_guid.rs:1:5
+  |
+1 | use com::com_interface;
+  |     ^^^ help: a similar path exists: `vst3_com::com`
+
+error: cannot determine resolution for the attribute macro `com_interface`
+ --> $DIR/non_string_guid.rs:4:3
   |
 4 | #[com_interface(cc2d05c7-7d20-4ccb-ad75-1e7fb7c77254)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   ^^^^^^^^^^^^^
   |
-  = help: message: [com_interface] parameter must be a GUID string: Error("expected literal")
+  = note: import resolution is stuck, try simplifying macro imports
+
+error[E0405]: cannot find trait `IUnknown` in this scope
+ --> $DIR/non_string_guid.rs:5:22
+  |
+5 | pub trait Interface: IUnknown {}
+  |                      ^^^^^^^^ not found in this scope
+  |
+help: possible candidates are found in other modules, you can import them into scope
+  |
+1 | use vst3_com::interfaces::IUnknown;
+  |
+1 | use vst3_com::interfaces::iunknown::IUnknown;
+  |

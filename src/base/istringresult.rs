@@ -1,6 +1,6 @@
 use crate::base::{char16, char8};
-use com::interfaces::iunknown::IUnknown;
-use com::{c_void, com_interface};
+use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 
 #[com_interface("550798BC-8720-49DB-8492-0A153B50B7A8")]
 pub trait IStringResult: IUnknown {

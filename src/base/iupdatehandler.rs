@@ -1,6 +1,6 @@
 use crate::base::tresult;
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 
 #[com_interface("F5246D56-8654-4d60-B026-AFB57B697B37")]
 pub trait IUpdateHandler: IUnknown {

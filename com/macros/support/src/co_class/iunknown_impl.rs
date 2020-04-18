@@ -18,7 +18,7 @@ pub fn generate(
     let release = gen_release(base_interface_idents, aggr_map, struct_ident);
 
     quote!(
-        impl com::interfaces::IUnknown for #struct_ident {
+        impl vst3_com::interfaces::IUnknown for #struct_ident {
             #query_interface
             #add_ref
             #release
@@ -91,7 +91,7 @@ fn gen_aggregate_drops(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStre
     let aggregate_drops = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
             if !self.#aggr_field_ident.is_null() {
-                let mut aggr_interface_ptr = com::ComPtr::<dyn com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
+                let mut aggr_interface_ptr = vst3_com::ComPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
                 aggr_interface_ptr.release();
             }
         )
@@ -104,7 +104,7 @@ fn gen_vptr_drops(base_interface_idents: &[Ident]) -> HelperTokenStream {
     let vptr_drops = base_interface_idents.iter().map(|base| {
         let vptr_field_ident = crate::utils::vptr_field_ident(&base);
         quote!(
-            Box::from_raw(self.#vptr_field_ident as *mut <dyn #base as com::ComInterface>::VTable);
+            Box::from_raw(self.#vptr_field_ident as *mut <dyn #base as vst3_com::ComInterface>::VTable);
         )
     });
 
@@ -154,20 +154,20 @@ pub fn gen_query_interface(
     quote!(
         unsafe fn query_interface(
             &self,
-            riid: *const com::sys::IID,
+            riid: *const vst3_com::sys::IID,
             ppv: *mut *mut std::ffi::c_void
-        ) -> com::sys::HRESULT {
+        ) -> vst3_com::sys::HRESULT {
             let riid = &*riid;
 
-            if riid == &com::interfaces::iunknown::IID_IUNKNOWN {
+            if riid == &vst3_com::interfaces::iunknown::IID_IUNKNOWN {
                 *ppv = &self.#first_vptr_field as *const _ as *mut std::ffi::c_void;
             } #base_match_arms #aggr_match_arms else {
                 *ppv = std::ptr::null_mut::<std::ffi::c_void>();
-                return com::sys::E_NOINTERFACE;
+                return vst3_com::sys::E_NOINTERFACE;
             }
 
             self.add_ref();
-            com::sys::NOERROR
+            vst3_com::sys::NOERROR
         }
     )
 }
@@ -176,7 +176,7 @@ pub fn gen_base_match_arms(base_interface_idents: &[Ident]) -> HelperTokenStream
     // Generate match arms for implemented interfaces
     let base_match_arms = base_interface_idents.iter().map(|base| {
         let match_condition =
-            quote!(<dyn #base as com::ComInterface>::is_iid_in_inheritance_chain(riid));
+            quote!(<dyn #base as vst3_com::ComInterface>::is_iid_in_inheritance_chain(riid));
         let vptr_field_ident = crate::utils::vptr_field_ident(&base);
 
         quote!(
@@ -195,24 +195,24 @@ pub fn gen_aggregate_match_arms(aggr_map: &HashMap<Ident, Vec<Ident>>) -> Helper
         // Construct the OR match conditions for a single aggregated object.
         let first_base_interface_ident = &aggr_base_interface_idents[0];
         let first_aggr_match_condition = quote!(
-            <dyn #first_base_interface_ident as com::ComInterface>::is_iid_in_inheritance_chain(riid)
+            <dyn #first_base_interface_ident as vst3_com::ComInterface>::is_iid_in_inheritance_chain(riid)
         );
         let rem_aggr_match_conditions = aggr_base_interface_idents.iter().skip(1).map(|base| {
-            quote!(|| <dyn #base as com::ComInterface>::is_iid_in_inheritance_chain(riid))
+            quote!(|| <dyn #base as vst3_com::ComInterface>::is_iid_in_inheritance_chain(riid))
         });
 
         quote!(
             else if #first_aggr_match_condition #(#rem_aggr_match_conditions)* {
                 if self.#aggr_field_ident.is_null() {
                     *ppv = std::ptr::null_mut::<std::ffi::c_void>();
-                    return com::sys::E_NOINTERFACE;
+                    return vst3_com::sys::E_NOINTERFACE;
                 }
 
-                let mut aggr_interface_ptr = com::ComPtr::<dyn com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
+                let mut aggr_interface_ptr = vst3_com::ComPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
                 let hr = aggr_interface_ptr.query_interface(riid, ppv);
-                if com::sys::FAILED(hr) {
+                if vst3_com::sys::FAILED(hr) {
                     *ppv = std::ptr::null_mut::<std::ffi::c_void>();
-                    return com::sys::E_NOINTERFACE;
+                    return vst3_com::sys::E_NOINTERFACE;
                 }
 
                 // We release it as the previous call add_ref-ed the inner object.

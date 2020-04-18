@@ -10,4 +10,4 @@ license = "MIT"
 readme = "./README.md"
 
 [dependencies]
-com_macros = { version = "0.2", path = "macros" }
+vst3-com-macros = { path = "macros" }

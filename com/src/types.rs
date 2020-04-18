@@ -17,7 +17,7 @@ pub use winapi::{
 #[cfg(not(windows))]
 pub mod xplatform {
     pub use std::os::raw::{c_int, c_long, c_ulong, c_void};
-    
+
     #[repr(align(16))]
     #[derive(Copy, Clone)]
     pub struct GUID {

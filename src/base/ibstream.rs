@@ -1,5 +1,5 @@
 use crate::base::tresult;
-use com::{c_void, com_interface, interfaces::iunknown::IUnknown, REFIID};
+use vst3_com::{c_void, com_interface, interfaces::iunknown::IUnknown, REFIID};
 
 const kIBSeekSet: i32 = 0;
 const kIBSeekCur: i32 = 1;

@@ -40,7 +40,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
             .ident;
         let base_field_ident = base_field_ident(&last_ident.to_string());
         quote! {
-            pub #base_field_ident: <dyn #base_interface_path as com::ComInterface>::VTable,
+            pub #base_field_ident: <dyn #base_interface_path as vst3_com::ComInterface>::VTable,
         }
     };
     let methods = gen_vtable_methods(&interface);
@@ -48,7 +48,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
     quote!(
         #[allow(non_snake_case, missing_docs)]
         #[repr(C)]
-        #[derive(com::VTable)]
+        #[derive(vst3_com::VTable)]
         pub struct #vtable_ident {
             #base_field
             #methods

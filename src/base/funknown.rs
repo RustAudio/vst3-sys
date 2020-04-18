@@ -1,5 +1,5 @@
 use crate::base::tresult;
-pub use com::interfaces::iunknown::IUnknown;
+pub use vst3_com::interfaces::iunknown::IUnknown;
 
 pub const kNoInterface: tresult = -1;
 pub const kResultOk: tresult = 0;

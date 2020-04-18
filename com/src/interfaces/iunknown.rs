@@ -1,5 +1,6 @@
 //! Everything related to the [IUnknown](https://docs.microsoft.com/en-us/windows/win32/api/unknwn/nn-unknwn-iunknown) COM interface
 
+use crate as vst3_com;
 use crate::com_interface;
 use crate::sys::{GUID, HRESULT};
 use std::ffi::c_void;

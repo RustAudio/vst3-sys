@@ -1,6 +1,6 @@
 use crate::base::{char16, tresult, FIDString, TBool};
-use com::interfaces::iunknown::IUnknown;
-use com::{c_void, com_interface};
+use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Debug, Default)]
@@ -33,8 +33,8 @@ pub trait IPlugFrame: IUnknown {
 #[cfg(linux)]
 pub mod linux {
     use crate::base::tresult;
-    use com::com_interface;
-    use com::interfaces::iunknown::IUnknown;
+    use vst3_com::com_interface;
+    use vst3_com::interfaces::iunknown::IUnknown;
 
     pub type TimerInterval = u64;
     pub type FileDescriptor = i32;

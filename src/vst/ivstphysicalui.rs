@@ -1,6 +1,6 @@
 use crate::base::tresult;
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 
 #[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]

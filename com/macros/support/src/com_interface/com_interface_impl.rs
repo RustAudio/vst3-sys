@@ -16,15 +16,15 @@ pub fn generate(trait_item: &ItemTrait) -> HelperTokenStream {
     };
 
     quote! {
-        unsafe impl com::ComInterface for dyn #interface_ident {
+        unsafe impl vst3_com::ComInterface for dyn #interface_ident {
             type VTable = #vtable_ident;
             type Super = dyn #parent;
-            const IID: com::sys::IID = #iid_ident;
+            const IID: vst3_com::sys::IID = #iid_ident;
 
         }
 
-        impl <C: #interface_ident> com::ProductionComInterface<C> for dyn #interface_ident {
-            fn vtable<O: com::offset::Offset>() -> Self::VTable {
+        impl <C: #interface_ident> vst3_com::ProductionComInterface<C> for dyn #interface_ident {
+            fn vtable<O: vst3_com::offset::Offset>() -> Self::VTable {
                 #vtable_macro!(C, O)
             }
         }

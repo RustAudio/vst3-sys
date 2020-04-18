@@ -6,33 +6,33 @@
 //!
 //! ```rust,no_run
 //! /// Define an IAnimal interface wit
-//! #[com::com_interface("EFF8970E-C50F-45E0-9284-291CE5A6F771")]
-//! pub trait IAnimal: com::interfaces::IUnknown {
-//!     unsafe fn eat(&self) -> com::sys::HRESULT;
+//! #[vst3_com::com_interface("EFF8970E-C50F-45E0-9284-291CE5A6F771")]
+//! pub trait IAnimal: vst3_com::interfaces::IUnknown {
+//!     unsafe fn eat(&self) -> vst3_com::sys::HRESULT;
 //! }
 //! ```
 //!
 
 #![deny(missing_docs)]
 
+mod ptr;
+mod rc;
+
 pub mod interfaces;
-mod types; 
-pub use types::*;
+use interfaces::IUnknown;
+
 #[doc(hidden)]
 pub mod offset;
-
 #[cfg(windows)]
 pub mod runtime;
 pub mod sys;
-mod rc; 
-mod ptr; 
 
-use interfaces::IUnknown;
 pub use ptr::ComPtr;
 pub use rc::ComRc;
 #[doc(inline)]
 pub use sys::{CLSID, IID};
-
+mod types;
+pub use types::{c_void, REFIID};
 /// A COM compliant interface
 ///
 /// # Safety
@@ -104,7 +104,7 @@ macro_rules! vtable {
 }
 
 #[doc(hidden)]
-pub use com_macros::{co_class, com_interface, VTable};
+pub use vst3_com_macros::{co_class, com_interface, VTable};
 
 // this allows for the crate to refer to itself as `com` to keep macros consistent
 // whether they are used by some other crate or internally

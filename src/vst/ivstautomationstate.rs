@@ -1,7 +1,7 @@
 use crate::base::tresult;
 use bitflags::bitflags;
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 
 bitflags! {
     pub struct AutomationStates: i32 {

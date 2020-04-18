@@ -28,23 +28,23 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     quote! {
         #struct_definition
 
-        impl com::interfaces::IClassFactory for #class_factory_ident {
+        impl vst3_com::interfaces::IClassFactory for #class_factory_ident {
             unsafe fn create_instance(
                 &self,
-                aggr: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable,
-                riid: *const com::sys::IID,
+                aggr: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
+                riid: *const vst3_com::sys::IID,
                 ppv: *mut *mut std::ffi::c_void,
-            ) -> com::sys::HRESULT {
+            ) -> vst3_com::sys::HRESULT {
                 // Bringing trait into scope to access IUnknown methods.
-                use com::interfaces::iunknown::IUnknown;
+                use vst3_com::interfaces::iunknown::IUnknown;
 
                 let riid = unsafe { &*riid };
 
-                if !aggr.is_null() && riid != &<dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::IID {
+                if !aggr.is_null() && riid != &<dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::IID {
                     unsafe {
                         *ppv = std::ptr::null_mut::<std::ffi::c_void>();
                     }
-                    return com::sys::E_INVALIDARG;
+                    return vst3_com::sys::E_INVALIDARG;
                 }
 
                 let mut instance = #struct_ident::new();

@@ -1,7 +1,7 @@
 use crate::base::{tresult, TBool};
 use crate::vst::{BusDirection, IEventList, IParameterChanges, ProcessContext};
-use com::interfaces::iunknown::IUnknown;
-use com::{c_void, com_interface};
+use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 
 #[repr(align(16))]
 #[derive(Copy, Clone, Default, Debug)]

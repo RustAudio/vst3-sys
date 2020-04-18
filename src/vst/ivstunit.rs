@@ -1,7 +1,7 @@
 use crate::base::{tchar, tresult, CStringA, IBStream};
 use crate::vst::{CString, String128};
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 //todo: ivstunit constants
 
 #[repr(align(16))]

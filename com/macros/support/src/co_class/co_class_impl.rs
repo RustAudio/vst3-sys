@@ -6,7 +6,7 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
 
     quote! {
-        unsafe impl com::CoClass for #struct_ident {
+        unsafe impl vst3_com::CoClass for #struct_ident {
         }
     }
 }

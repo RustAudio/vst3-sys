@@ -37,7 +37,7 @@ pub fn generate(
 pub fn gen_base_fields(base_interface_idents: &[Ident]) -> HelperTokenStream {
     let bases_interface_idents = base_interface_idents.iter().map(|base| {
         let field_ident = crate::utils::vptr_field_ident(&base);
-        quote!(#field_ident: *const <dyn #base as com::ComInterface>::VTable)
+        quote!(#field_ident: *const <dyn #base as vst3_com::ComInterface>::VTable)
     });
     quote!(#(#bases_interface_idents,)*)
 }
@@ -50,7 +50,7 @@ pub fn gen_ref_count_field() -> HelperTokenStream {
 pub fn gen_aggregate_fields(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
     let aggregates = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
-            #aggr_field_ident: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable
+            #aggr_field_ident: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable
         )
     });
 

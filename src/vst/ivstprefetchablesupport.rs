@@ -1,6 +1,6 @@
 use crate::base::tresult;
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 
 #[com_interface("8AE54FDA-E930-46B9-A285-55BCDC98E21E")]
 pub trait IPrefetchableSupport: IUnknown {

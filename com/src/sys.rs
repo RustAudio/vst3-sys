@@ -1,6 +1,6 @@
 //! Types for interacting with COM related system APIs
-use std::ffi::c_void;
 use std::cmp::PartialEq;
+use std::ffi::c_void;
 
 /// A Windows result code
 pub type HRESULT = i32;
@@ -62,22 +62,22 @@ pub struct GUID {
     #[allow(missing_docs)]
     pub data4: [u8; 8],
 }
-use std::{u32, u16};
+use std::{u16, u32};
 impl PartialEq for GUID {
     fn eq(&self, other: &Self) -> bool {
         #[cfg(target_os = "linux")]
         let self_ = GUID {
-            data1: u32::from_be(self.data1), 
-            data2: u16::from_be(self.data2), 
-            data3: u16::from_be(self.data3), 
-            data4: self.data4,  
+            data1: u32::from_be(self.data1),
+            data2: u16::from_be(self.data2),
+            data3: u16::from_be(self.data3),
+            data4: self.data4,
         };
         #[cfg(target_os = "windows")]
         let self_ = self;
-        self_.data1 == other.data1 &&
-        self_.data2 == other.data2 &&
-        self_.data3 == other.data3 &&
-        self_.data4 == other.data4 
+        self_.data1 == other.data1
+            && self_.data2 == other.data2
+            && self_.data3 == other.data3
+            && self_.data4 == other.data4
     }
 }
 
@@ -85,19 +85,19 @@ impl GUID {
     /// Convert to little endian
     pub fn to_le(&self) -> Self {
         GUID {
-            data1: u32::from_be(self.data1), 
-            data2: u16::from_be(self.data2), 
-            data3: u16::from_be(self.data3), 
-            data4: self.data4,  
+            data1: u32::from_be(self.data1),
+            data2: u16::from_be(self.data2),
+            data3: u16::from_be(self.data3),
+            data4: self.data4,
         }
     }
     /// Convert to big endian
     pub fn to_be(&self) -> Self {
         GUID {
-            data1: u32::from_le(self.data1), 
-            data2: u16::from_le(self.data2), 
-            data3: u16::from_le(self.data3), 
-            data4: self.data4,  
+            data1: u32::from_le(self.data1),
+            data2: u16::from_le(self.data2),
+            data3: u16::from_le(self.data3),
+            data4: self.data4,
         }
     }
 }
@@ -107,7 +107,6 @@ pub type IID = GUID;
 
 /// A class ID
 pub type CLSID = GUID;
-
 
 impl std::fmt::Debug for GUID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

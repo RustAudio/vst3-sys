@@ -1,4 +1,6 @@
 #![cfg(windows)]
+use crate::{CoClass, ComInterface, ComPtr, ComRc};
+use std::ffi::c_void;
 use winapi::{
     ctypes::c_void,
     shared::{
@@ -13,8 +15,6 @@ use winapi::{
         unknwnbase::LPUNKNOWN,
     },
 };
-use std::ffi::c_void;
-use crate::{CoClass, ComInterface, ComPtr, ComRc};
 
 /// Initialize a new multithreaded apartment (MTA) runtime. This will ensure
 /// that an MTA is running for the process. Every new thread will implicitly

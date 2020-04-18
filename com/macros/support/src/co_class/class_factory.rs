@@ -35,18 +35,18 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     quote! {
         #struct_definition
 
-        impl com::interfaces::IClassFactory for #class_factory_ident {
+        impl vst3_com::interfaces::IClassFactory for #class_factory_ident {
             unsafe fn create_instance(
                 &self,
-                aggr: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable,
-                riid: *const com::sys::IID,
+                aggr: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
+                riid: *const vst3_com::sys::IID,
                 ppv: *mut *mut std::ffi::c_void,
-            ) -> com::sys::HRESULT {
+            ) -> vst3_com::sys::HRESULT {
                 // Bringing trait into scope to access IUnknown methods.
-                use com::interfaces::iunknown::IUnknown;
+                use vst3_com::interfaces::iunknown::IUnknown;
 
                 if aggr != std::ptr::null_mut() {
-                    return com::sys::CLASS_E_NOAGGREGATION;
+                    return vst3_com::sys::CLASS_E_NOAGGREGATION;
                 }
 
                 let mut instance = #struct_ident::new();
@@ -75,7 +75,7 @@ pub fn gen_class_factory_struct_definition(class_factory_ident: &Ident) -> Helpe
     quote! {
         #[repr(C)]
         pub struct #class_factory_ident {
-            #vptr_field_ident: *const <dyn com::interfaces::iclass_factory::IClassFactory as com::ComInterface>::VTable,
+            #vptr_field_ident: *const <dyn vst3_com::interfaces::iclass_factory::IClassFactory as vst3_com::ComInterface>::VTable,
             #ref_count_field
         }
     }
@@ -84,8 +84,8 @@ pub fn gen_class_factory_struct_definition(class_factory_ident: &Ident) -> Helpe
 pub fn gen_lock_server() -> HelperTokenStream {
     quote! {
         // TODO: Implement correctly
-        unsafe fn lock_server(&self, _increment: com::sys::BOOL) -> com::sys::HRESULT {
-            com::sys::S_OK
+        unsafe fn lock_server(&self, _increment: vst3_com::sys::BOOL) -> vst3_com::sys::HRESULT {
+            vst3_com::sys::S_OK
         }
     }
 }
@@ -99,7 +99,7 @@ pub fn gen_iunknown_impl(
     let add_ref = super::iunknown_impl::gen_add_ref();
     let release = gen_release(&base_interface_idents, &aggr_map, class_factory_ident);
     quote! {
-        impl com::interfaces::IUnknown for #class_factory_ident {
+        impl vst3_com::interfaces::IUnknown for #class_factory_ident {
             #query_interface
             #add_ref
             #release
@@ -126,7 +126,7 @@ pub fn gen_release(
 
     quote! {
         unsafe fn release(&self) -> u32 {
-            use com::interfaces::iclass_factory::IClassFactory;
+            use vst3_com::interfaces::iclass_factory::IClassFactory;
 
             #release_decrement
             #release_assign_new_count_to_var
@@ -143,18 +143,18 @@ fn gen_query_interface() -> HelperTokenStream {
     let vptr_field_ident = crate::utils::vptr_field_ident(&get_iclass_factory_interface_ident());
 
     quote! {
-        unsafe fn query_interface(&self, riid: *const com::sys::IID, ppv: *mut *mut std::ffi::c_void) -> com::sys::HRESULT {
+        unsafe fn query_interface(&self, riid: *const vst3_com::sys::IID, ppv: *mut *mut std::ffi::c_void) -> vst3_com::sys::HRESULT {
             // Bringing trait into scope to access add_ref method.
-            use com::interfaces::iunknown::IUnknown;
+            use vst3_com::interfaces::iunknown::IUnknown;
 
             let riid = &*riid;
-            if riid == &<dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::IID || riid == &<dyn com::interfaces::iclass_factory::IClassFactory as com::ComInterface>::IID {
+            if riid == &<dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::IID || riid == &<dyn vst3_com::interfaces::iclass_factory::IClassFactory as vst3_com::ComInterface>::IID {
                 *ppv = &self.#vptr_field_ident as *const _ as *mut std::ffi::c_void;
                 self.add_ref();
-                com::sys::NOERROR
+                vst3_com::sys::NOERROR
             } else {
                 *ppv = std::ptr::null_mut::<std::ffi::c_void>();
-                com::sys::E_NOINTERFACE
+                vst3_com::sys::E_NOINTERFACE
             }
         }
     }
@@ -172,7 +172,7 @@ pub fn gen_class_factory_impl(
     quote! {
         impl #class_factory_ident {
             pub(crate) fn new() -> Box<#class_factory_ident> {
-                use com::interfaces::iclass_factory::IClassFactory;
+                use vst3_com::interfaces::iclass_factory::IClassFactory;
 
                 // allocate directly since no macros generated an `allocate` function
                 #base_inits

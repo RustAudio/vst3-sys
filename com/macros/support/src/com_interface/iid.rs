@@ -73,7 +73,7 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
 
     quote!(
         #[allow(non_upper_case_globals, missing_docs)]
-        pub const #iid_ident: com::sys::IID = com::sys::IID {
+        pub const #iid_ident: vst3_com::sys::IID = vst3_com::sys::IID {
             data1: #data1,
             data2: #data2,
             data3: #data3,

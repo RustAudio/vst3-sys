@@ -1,4 +1,5 @@
 //! Everything related to the [IClassFactory](https://docs.microsoft.com/en-us/windows/win32/api/unknwn/nn-unknwn-iclassfactory) COM interface
+use crate as vst3_com;
 use crate::com_interface;
 use crate::sys::{BOOL, FAILED, GUID, HRESULT};
 use std::ffi::c_void;

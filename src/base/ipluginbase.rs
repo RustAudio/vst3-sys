@@ -1,7 +1,7 @@
 use crate::base::{char16, char8, tresult};
 use bitflags::bitflags;
-use com::interfaces::iunknown::IUnknown;
-use com::{c_void, com_interface, IID};
+use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface, IID};
 
 bitflags! {
     pub struct FactoryFlags: i32 {

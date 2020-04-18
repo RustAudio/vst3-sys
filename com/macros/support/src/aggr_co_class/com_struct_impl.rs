@@ -40,9 +40,9 @@ fn gen_set_iunknown_fn() -> HelperTokenStream {
     let non_delegating_iunknown_field_ident = crate::utils::non_delegating_iunknown_field_ident();
 
     quote!(
-        pub(crate) fn set_iunknown(&mut self, aggr: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable) {
+        pub(crate) fn set_iunknown(&mut self, aggr: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable) {
             if aggr.is_null() {
-                self.#iunknown_to_use_field_ident = &self.#non_delegating_iunknown_field_ident as *const _ as *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable;
+                self.#iunknown_to_use_field_ident = &self.#non_delegating_iunknown_field_ident as *const _ as *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable;
             } else {
                 self.#iunknown_to_use_field_ident = aggr;
             }
@@ -117,7 +117,7 @@ pub fn gen_inner_release(
 fn gen_non_delegating_iunknown_drop() -> HelperTokenStream {
     let non_delegating_iunknown_field_ident = crate::utils::non_delegating_iunknown_field_ident();
     quote!(
-        Box::from_raw(self.#non_delegating_iunknown_field_ident as *mut <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable);
+        Box::from_raw(self.#non_delegating_iunknown_field_ident as *mut <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable);
     )
 }
 
@@ -136,19 +136,19 @@ fn gen_inner_query_interface(
     let aggr_match_arms = crate::co_class::iunknown_impl::gen_aggregate_match_arms(aggr_map);
 
     quote!(
-        pub(crate) fn inner_query_interface(&self, riid: *const com::sys::IID, ppv: *mut *mut std::ffi::c_void) -> com::sys::HRESULT {
+        pub(crate) fn inner_query_interface(&self, riid: *const vst3_com::sys::IID, ppv: *mut *mut std::ffi::c_void) -> vst3_com::sys::HRESULT {
             unsafe {
                 let riid = &*riid;
 
-                if riid == &com::interfaces::iunknown::IID_IUNKNOWN {
+                if riid == &vst3_com::interfaces::iunknown::IID_IUNKNOWN {
                     *ppv = &self.#non_delegating_iunknown_field_ident as *const _ as *mut std::ffi::c_void;
                 } #base_match_arms #aggr_match_arms else {
                     *ppv = std::ptr::null_mut::<std::ffi::c_void>();
-                    return com::sys::E_NOINTERFACE;
+                    return vst3_com::sys::E_NOINTERFACE;
                 }
 
                 self.inner_add_ref();
-                com::sys::NOERROR
+                vst3_com::sys::NOERROR
             }
         }
     )
@@ -190,8 +190,8 @@ fn gen_allocate_fn(
         fn allocate(#allocate_parameters) -> Box<#struct_ident> {
             // Non-delegating methods.
             unsafe extern "system" fn non_delegatingegating_query_interface(
-                this: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable,
-                riid: *const com::sys::IID,
+                this: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
+                riid: *const vst3_com::sys::IID,
                 ppv: *mut *mut std::ffi::c_void,
             ) -> HRESULT {
                 let this = this.sub(#non_delegating_iunknown_offset) as *mut #struct_ident;
@@ -199,21 +199,21 @@ fn gen_allocate_fn(
             }
 
             unsafe extern "system" fn non_delegatingegating_add_ref(
-                this: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable,
+                this: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
             ) -> u32 {
                 let this = this.sub(#non_delegating_iunknown_offset) as *mut #struct_ident;
                 (*this).inner_add_ref()
             }
 
             unsafe extern "system" fn non_delegatingegating_release(
-                this: *mut *const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable,
+                this: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
             ) -> u32 {
                 let this = this.sub(#non_delegating_iunknown_offset) as *mut #struct_ident;
                 (*this).inner_release()
             }
 
             // Rust Parser limitation? Unable to construct associated type directly.
-            type __iunknown_vtable_type = <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable;
+            type __iunknown_vtable_type = <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable;
             let __non_delegating_iunknown_vtable =  __iunknown_vtable_type {
                 QueryInterface: non_delegatingegating_query_interface,
                 Release: non_delegatingegating_release,
@@ -226,7 +226,7 @@ fn gen_allocate_fn(
             let out = #struct_ident {
                 #base_fields
                 #non_delegating_iunknown_field_ident,
-                #iunknown_to_use_field_ident: std::ptr::null_mut::<*const <dyn com::interfaces::iunknown::IUnknown as com::ComInterface>::VTable>(),
+                #iunknown_to_use_field_ident: std::ptr::null_mut::<*const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable>(),
                 #ref_count_field
                 #aggregate_fields
                 #user_fields

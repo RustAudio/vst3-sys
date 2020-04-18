@@ -1,6 +1,6 @@
 use crate::base::{char16, char8, tchar, tresult};
-use com::interfaces::iunknown::IUnknown;
-use com::{c_void, com_interface};
+use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 pub type AttrID = *const char8;
 
 #[com_interface("1E5F0AEB-CC7F-4533-A254-401138AD5EE4")]

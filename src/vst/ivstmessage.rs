@@ -1,7 +1,7 @@
 use crate::base::{tresult, FIDString};
 use crate::vst::IAttributeList;
-use com::com_interface;
-use com::interfaces::iunknown::IUnknown;
+use vst3_com::com_interface;
+use vst3_com::interfaces::iunknown::IUnknown;
 
 #[com_interface("936F033B-C6C0-47DB-BB08-82F813C1E613")]
 pub trait IMessage: IUnknown {
