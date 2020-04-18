@@ -4,10 +4,6 @@ This is a fork of [com-rs]() that's been modified to support COM APIs on non-Win
 
 # COM
 
-[![Build Status](https://dev.azure.com/microsoft-rust/com-rs/_apis/build/status/microsoft.com-rs?branchName=master)](https://dev.azure.com/microsoft-rust/com-rs/_build/latest?definitionId=1&branchName=master)
-[![Gitter](https://badges.gitter.im/com-rs/community.svg)](https://gitter.im/com-rs/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Docs.rs](https://docs.rs/com/badge.svg)](https://docs.rs/crate/com/)
-
 A one stop shop for all things related to [COM](https://docs.microsoft.com/en-us/windows/win32/com/component-object-model--com--portal) programming in Rust.
 
 This library exposes various macros, structs and functions to the user for both producing and consuming COM components in an idiomatic manner.
