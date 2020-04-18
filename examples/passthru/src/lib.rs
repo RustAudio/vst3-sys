@@ -1,6 +1,7 @@
 #![allow(unused_unsafe)]
 use lazy_static::lazy_static;
 use log::*;
+use std::ptr::copy_nonoverlapping as memcpy;
 use std::os::raw::{c_char, c_void};
 use std::sync::Mutex;
 use vst3_com::sys::GUID;
@@ -9,7 +10,7 @@ use vst3_sys::base::{
 };
 use vst3_sys::vst::{
     BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
-    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup,
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, 
 };
 use vst3_sys::{REFIID, VST3};
 #[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPlugin))]
@@ -127,26 +128,26 @@ impl IComponent for PassthruPlugin {
     }
 }
 
-//IComponent
-//IContextMenuTarget
-//IEditController
-//IEditController2
-//IMidiMapping
-//IEditControllerHostEditing
-//IInterAppAudioConnectionNotification
-//IInterAppAudioPresetManager
-//IConnectionPoint
-//IMidiLearn
-//INoteExpressionController
-//IKeyswitchController
-//INoteExpressionPhysicalUIMapping
-//IPrefetchableSupport
-//IXmlRepresentationController
-//IUnitInfo
-//IProgramListData
-//IUnitData
-//IPlugView
-//IPlugViewContentScaleSupport
+//todo: IComponent
+//todo: IContextMenuTarget
+//todo: IEditController
+//todo: IEditController2
+//todo: IMidiMapping
+//todo: IEditControllerHostEditing
+//todo: IInterAppAudioConnectionNotification
+//todo: IInterAppAudioPresetManager
+//todo: IConnectionPoint
+//todo: IMidiLearn
+//todo: INoteExpressionController
+//todo: IKeyswitchController
+//todo: INoteExpressionPhysicalUIMapping
+//todo: IPrefetchableSupport
+//todo: IXmlRepresentationController
+//todo: IUnitInfo
+//todo: IProgramListData
+//todo: IUnitData
+//todo: IPlugView
+//todo: IPlugViewContentScaleSupport
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Factory implementation
@@ -158,7 +159,6 @@ impl Factory {
     }
 }
 
-use std::ptr::copy_nonoverlapping as memcpy;
 unsafe fn strcpy(src: &str, dst: *mut c_char) {
     memcpy(src.as_ptr() as *const c_void as *const _, dst, src.len());
 }
@@ -198,14 +198,12 @@ impl IPluginFactory for Factory {
         riid: *mut vst3_com::sys::GUID,
         ppv: *mut *mut core::ffi::c_void,
     ) -> i32 {
+        //todo: figure out why this method fails in the validator
         let cid = *&*cid;
         let cmp = PassthruPlugin::CID;
 
         info!("creating instance of {:?}", cid);
         if cid.to_le() == cmp {
-            // if aggr != std::ptr::null_mut() {
-            //     return com::sys::CLASS_E_NOAGGREGATION;
-            // }
             let instance = PassthruPlugin::new();
             instance.add_ref();
             let hr = instance.query_interface(riid, ppv);
@@ -218,6 +216,10 @@ impl IPluginFactory for Factory {
         kResultOk
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// entry point and wrapping code to satisfy the borrow checker 
+// todo: cleanup singleton instance so this is less hacky
 
 struct FactoryWrapper {
     factory: Box<Factory>,
@@ -239,6 +241,7 @@ pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
     factory as *mut _ as *mut _
 }
 
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
@@ -249,6 +252,7 @@ pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
     true
 }
 
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleExit() -> bool {
