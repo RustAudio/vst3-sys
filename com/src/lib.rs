@@ -23,16 +23,21 @@ use interfaces::IUnknown;
 
 #[doc(hidden)]
 pub mod offset;
+
 #[cfg(windows)]
 pub mod runtime;
 pub mod sys;
 
 pub use ptr::ComPtr;
 pub use rc::ComRc;
+
 #[doc(inline)]
 pub use sys::{CLSID, IID};
-mod types;
-pub use types::{c_void, REFIID};
+pub use std::ffi::c_void;
+
+/// pointer to an IID
+pub type REFIID = *const IID;
+
 /// A COM compliant interface
 ///
 /// # Safety

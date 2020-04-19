@@ -1,21 +1,14 @@
-#![cfg(windows)]
-use crate::{CoClass, ComInterface, ComPtr, ComRc};
-use std::ffi::c_void;
-use winapi::{
-    ctypes::c_void,
-    shared::{
-        guiddef::{IID, REFCLSID, REFIID},
-        minwindef::LPVOID,
-        winerror::{FAILED, HRESULT, S_FALSE, S_OK},
-        wtypesbase::CLSCTX_INPROC_SERVER,
-    },
-    um::{
-        combaseapi::{CoCreateInstance, CoGetClassObject, CoInitializeEx, CoUninitialize},
-        objbase::COINIT_APARTMENTTHREADED,
-        unknwnbase::LPUNKNOWN,
-    },
+//! COM runtime facilities
+//!
+//! This includes initializing the COM runtime as well as creating instances of CoClasses
+use crate::sys::{
+    CoCreateInstance, CoGetClassObject, CoIncrementMTAUsage, CoInitializeEx, CoUninitialize,
+    CLSCTX_INPROC_SERVER, CLSID, COINIT_APARTMENTTHREADED, COINIT_MULTITHREADED, FAILED, HRESULT,
+    IID, S_FALSE, S_OK,
 };
+use std::ffi::c_void;
 
+use crate::{CoClass, ComInterface, ComPtr, ComRc};
 /// Initialize a new multithreaded apartment (MTA) runtime. This will ensure
 /// that an MTA is running for the process. Every new thread will implicitly
 /// be in an MTA unless a different apartment type is chosen (through [`init_apartment`])
