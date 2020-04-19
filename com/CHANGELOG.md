@@ -1,9 +1,7 @@
 # Forked as vst3-com 
 # 0.1.0 (2020-04-18)
 
-
 # 0.2.0 (2020-04-03)
-
 ### Fixes
 
 - Fixed docs.rs build [#93](https://github.com/microsoft/com-rs/pull/93)

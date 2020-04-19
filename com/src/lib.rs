@@ -31,9 +31,9 @@ pub mod sys;
 pub use ptr::ComPtr;
 pub use rc::ComRc;
 
+pub use std::ffi::c_void;
 #[doc(inline)]
 pub use sys::{CLSID, IID};
-pub use std::ffi::c_void;
 
 /// pointer to an IID
 pub type REFIID = *const IID;
