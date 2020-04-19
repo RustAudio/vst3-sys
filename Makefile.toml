@@ -1,8 +1,8 @@
 [tasks.passthru]
 workspace = false
 script = [
-    "cargo build --package passthru", 
+    "cargo build --example passthru", 
     "mkdir -p target/debug/plugin.vst3/Contents/x86_64-linux",
     "mkdir -p target/debug/plugin.vst3/Contents/Resources", 
-    "cp target/debug/libpassthru.so target/debug/plugin.vst3/Contents/x86_64-linux/plugin.so"
+    "cp target/debug/examples/libpassthru.so target/debug/plugin.vst3/Contents/x86_64-linux/plugin.so"
 ]
