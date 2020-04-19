@@ -1,8 +1,8 @@
 #![allow(unused_unsafe)]
 use lazy_static::lazy_static;
 use log::*;
-use std::ptr::copy_nonoverlapping as memcpy;
 use std::os::raw::{c_char, c_void};
+use std::ptr::copy_nonoverlapping as memcpy;
 use std::sync::Mutex;
 use vst3_com::sys::GUID;
 use vst3_sys::base::{
@@ -10,7 +10,7 @@ use vst3_sys::base::{
 };
 use vst3_sys::vst::{
     BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
-    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, 
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup,
 };
 use vst3_sys::{REFIID, VST3};
 #[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPlugin))]
@@ -218,7 +218,7 @@ impl IPluginFactory for Factory {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// entry point and wrapping code to satisfy the borrow checker 
+// entry point and wrapping code to satisfy the borrow checker
 // todo: cleanup singleton instance so this is less hacky
 
 struct FactoryWrapper {
