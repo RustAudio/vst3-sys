@@ -50,7 +50,7 @@ pub const COINIT_APARTMENTTHREADED: u32 = 0x2;
 pub const COINIT_MULTITHREADED: u32 = 0x0;
 
 /// A globally unique identifier
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct GUID {
     #[allow(missing_docs)]
@@ -62,6 +62,7 @@ pub struct GUID {
     #[allow(missing_docs)]
     pub data4: [u8; 8],
 }
+
 use std::{u16, u32};
 impl PartialEq for GUID {
     fn eq(&self, other: &Self) -> bool {
