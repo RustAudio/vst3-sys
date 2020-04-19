@@ -13,7 +13,13 @@ use vst3_sys::vst::{
     IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup,
 };
 use vst3_sys::{REFIID, VST3};
-#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPlugin))]
+#[VST3(implements(
+    IComponent,
+    IAudioProcessor,
+    IAudioPresentationLatency,
+    IAutomationState,
+    IPlugin
+))]
 pub struct PassthruPlugin {}
 pub struct PassthruController {}
 impl PassthruPlugin {
@@ -199,21 +205,17 @@ impl IPluginFactory for Factory {
         ppv: *mut *mut core::ffi::c_void,
     ) -> i32 {
         //todo: figure out why this method fails in the validator
-        let cid = *&*cid;
-        let cmp = PassthruPlugin::CID;
-
-        info!("creating instance of {:?}", cid);
-        if cid.to_le() == cmp {
-            let instance = PassthruPlugin::new();
-            instance.add_ref();
-            let hr = instance.query_interface(riid, ppv);
-            instance.release();
-            core::mem::forget(instance);
-            return hr;
-        } else {
-            warn!("CID not found");
-        }
-        kResultOk
+        info!(
+            "create instance of {:?} with iid {:?}",
+            (&*cid),
+            (&*riid).to_le()
+        );
+        let instance = PassthruPlugin::new();
+        instance.add_ref();
+        let hr = instance.query_interface(riid, ppv);
+        instance.release();
+        core::mem::forget(instance);
+        return hr;
     }
 }
 
