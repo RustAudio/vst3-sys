@@ -1,6 +1,6 @@
 # Forked from com-rs
 
-This is a fork of [com-rs]() that's been modified to support COM APIs on non-Win32 targets. This was done to repurpose the macros specifically for the vst3-sys crate, and should probably not be used outside that context. 
+This is a fork of [com-rs](https://github.com/microsoft/com-rs) that's been modified to support COM APIs on non-Win32 targets. This was done to repurpose the macros specifically for the vst3-sys crate, and should probably not be used outside that context. 
 
 # COM
 
