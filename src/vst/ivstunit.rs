@@ -4,7 +4,7 @@ use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 //todo: ivstunit constants
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct UnitInfo {
     id: i32,
@@ -13,7 +13,7 @@ pub struct UnitInfo {
     program_list_id: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ProgramListInfo {
     id: i32,

@@ -2,14 +2,14 @@ use crate::base::tresult;
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct PhysicalUIMap {
     physical_ui_type_id: u32,
     note_expression_type_id: u32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct PhysicalUIMapList {
     count: u32,

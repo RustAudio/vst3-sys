@@ -2,7 +2,7 @@ use crate::base::{char8, tresult};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct RepresentationInfo {
     vendor: [char8; 64],

@@ -3,7 +3,7 @@ use crate::vst::{NoteExpressionTextEvent, NoteExpressionValueEvent};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteOnEvent {
     pub channel: i16,
@@ -14,7 +14,7 @@ pub struct NoteOnEvent {
     pub note_id: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteOffEvent {
     pub channel: i16,
@@ -24,7 +24,7 @@ pub struct NoteOffEvent {
     pub note_id: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct DataEvent {
     pub size: u32,
@@ -32,7 +32,7 @@ pub struct DataEvent {
     pub bytes: *const u8,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct PolyPressureEvent {
     pub channel: i16,
@@ -41,7 +41,7 @@ pub struct PolyPressureEvent {
     pub note_id: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct ChordEvent {
     pub root: i16,
@@ -51,7 +51,7 @@ pub struct ChordEvent {
     pub text: *const i16,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct ScaleEvent {
     pub root: i16,
@@ -60,7 +60,7 @@ pub struct ScaleEvent {
     pub text: *const i16,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct LegacyMidiCCOutEvent {
     pub control_number: u8,
@@ -69,7 +69,7 @@ pub struct LegacyMidiCCOutEvent {
     pub value2: i8,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub union EventData {
     note_on: NoteOnEvent,
@@ -83,7 +83,7 @@ pub union EventData {
     midi_cc_out: LegacyMidiCCOutEvent,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct Event {
     pub bus_index: i32,

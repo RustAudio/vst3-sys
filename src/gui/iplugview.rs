@@ -2,7 +2,7 @@ use crate::base::{char16, tresult, FIDString, TBool};
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct ViewRect {
     pub left: i32,

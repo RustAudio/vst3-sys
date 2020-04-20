@@ -1,11 +1,11 @@
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct FrameRate {
     frames_per_second: u32,
     flags: u32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Chord {
     key_note: u8,
@@ -13,7 +13,7 @@ pub struct Chord {
     chord_mask: i16,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct ProcessContext {
     state: u32,

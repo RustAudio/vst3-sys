@@ -21,7 +21,7 @@ pub struct PFactoryInfo {
     pub flags: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PClassInfo {
     pub cid: IID,
     pub cardinality: i32,
@@ -29,7 +29,7 @@ pub struct PClassInfo {
     pub name: [char8; 64],
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PClassInfo2 {
     pub cid: IID,
     pub cardinality: i32,
@@ -42,7 +42,7 @@ pub struct PClassInfo2 {
     pub sdk_version: [char8; 64],
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PClassInfoW {
     pub cid: IID,
     pub cardinality: i32,

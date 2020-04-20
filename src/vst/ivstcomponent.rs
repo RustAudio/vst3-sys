@@ -33,7 +33,7 @@ bitflags! {
     }
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct BusInfo {
     pub media_type: i32,
     pub direction: i32,
@@ -43,7 +43,7 @@ pub struct BusInfo {
     pub flags: u32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct RoutingInfo {
     media_type: i32,
     bus_index: i32,

@@ -3,7 +3,7 @@ use crate::vst::{BusDirection, IEventList, IParameterChanges, ProcessContext};
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Default, Debug)]
 pub struct ProcessSetup {
     process_mode: i32,
@@ -12,7 +12,7 @@ pub struct ProcessSetup {
     sample_rate: f64,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug)]
 pub struct AudioBusBuffers {
     num_channels: i32,
@@ -20,7 +20,7 @@ pub struct AudioBusBuffers {
     buffers: *mut c_void,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug)]
 pub struct ProcessData {
     process_mode: i32,
