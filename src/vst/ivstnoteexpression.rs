@@ -44,7 +44,7 @@ pub struct NoteExpressionTypeInfo {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct KeySwitchInfo {
-    type_id: u32,
+    pub type_id: u32,
     pub title: [tchar; 128],
     pub short_title: [tchar; 128],
     pub keyswitch_min: i32,
