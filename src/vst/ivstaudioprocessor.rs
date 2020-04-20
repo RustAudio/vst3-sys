@@ -3,38 +3,38 @@ use crate::vst::{BusDirection, IEventList, IParameterChanges, ProcessContext};
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Default, Debug)]
 pub struct ProcessSetup {
-    process_mode: i32,
-    symbolic_sample_size: i32,
-    max_samples_per_block: i32,
-    sample_rate: f64,
+    pub process_mode: i32,
+    pub symbolic_sample_size: i32,
+    pub max_samples_per_block: i32,
+    pub sample_rate: f64,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug)]
 pub struct AudioBusBuffers {
-    num_channels: i32,
-    silence_flags: u64,
-    buffers: *mut c_void,
+    pub num_channels: i32,
+    pub silence_flags: u64,
+    pub buffers: *mut c_void,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Debug)]
 pub struct ProcessData {
-    process_mode: i32,
-    symbolic_sample_size: i32,
-    num_samples: i32,
-    num_inputs: i32,
-    num_outputs: i32,
-    input: *mut AudioBusBuffers,
-    output: *mut AudioBusBuffers,
-    input_param_changes: *mut dyn IParameterChanges,
-    output_param_changes: *mut dyn IParameterChanges,
-    input_events: *mut dyn IEventList,
-    output_events: *mut dyn IEventList,
-    context: *mut ProcessContext,
+    pub process_mode: i32,
+    pub symbolic_sample_size: i32,
+    pub num_samples: i32,
+    pub num_inputs: i32,
+    pub num_outputs: i32,
+    pub input: *mut AudioBusBuffers,
+    pub output: *mut AudioBusBuffers,
+    pub input_param_changes: *mut dyn IParameterChanges,
+    pub output_param_changes: *mut dyn IParameterChanges,
+    pub input_events: *mut dyn IEventList,
+    pub output_events: *mut dyn IEventList,
+    pub context: *mut ProcessContext,
 }
 
 #[com_interface("42043F99-B7DA-453C-A569-E79D9AAEC33D")]

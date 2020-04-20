@@ -4,21 +4,21 @@ use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 //todo: ivstunit constants
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct UnitInfo {
-    id: i32,
-    parent_id: i32,
-    name: String128,
-    program_list_id: i32,
+    pub id: i32,
+    pub parent_id: i32,
+    pub name: String128,
+    pub program_list_id: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ProgramListInfo {
-    id: i32,
-    name: String128,
-    program_count: i32,
+    pub id: i32,
+    pub name: String128,
+    pub program_count: i32,
 }
 
 #[com_interface("4B5147F8-4654-486B-8DAB-30BA163A3C56")]

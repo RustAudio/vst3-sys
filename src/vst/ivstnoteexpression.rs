@@ -2,7 +2,7 @@ use crate::base::{tchar, tresult};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteExpressionValueDescription {
     pub default_value: f64,
@@ -11,7 +11,7 @@ pub struct NoteExpressionValueDescription {
     pub step_count: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteExpressionValueEvent {
     pub type_id: u32,
@@ -19,7 +19,7 @@ pub struct NoteExpressionValueEvent {
     pub value: f64,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct NoteExpressionTextEvent {
     pub type_id: u32,
@@ -28,7 +28,7 @@ pub struct NoteExpressionTextEvent {
     pub text: *const tchar,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct NoteExpressionTypeInfo {
     pub type_id: u32,
@@ -41,10 +41,10 @@ pub struct NoteExpressionTypeInfo {
     pub flags: i32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct KeySwitchInfo {
-    type_id: u32,
+    pub type_id: u32,
     pub title: [tchar; 128],
     pub short_title: [tchar; 128],
     pub keyswitch_min: i32,
