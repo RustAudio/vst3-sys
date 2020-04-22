@@ -1,7 +1,7 @@
-use crate::base::{tresult, FactoryFlags, IBStream, IPlugin, TBool};
-use crate::vst::String128;
+use crate::base::{tresult, FactoryFlags, IBStream, IPluginBase, TBool};
+use crate::vst::{String128, IoMode, MediaType, BusDirection};
 use bitflags::bitflags;
-use vst3_com::{com_interface, REFIID};
+use vst3_com::{com_interface, REFIID, IID, c_void};
 
 pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode.bits();
 
@@ -33,7 +33,7 @@ bitflags! {
     }
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct BusInfo {
     pub media_type: i32,
     pub direction: i32,
@@ -55,13 +55,17 @@ pub struct RoutingInfo {
 /// alert the plugin about which IO mode is currently active, activate
 /// different busses, and get/set the state of t
 #[com_interface("E831FF31-F2D5-4301-928E-BBEE25697802")]
-pub trait IComponent: IPlugin {
-    unsafe fn get_controller_class_id(&self, tuid: REFIID) -> tresult;
-    unsafe fn set_io_mode(&self, mode: i32) -> tresult;
-    unsafe fn get_bus_count(&self, type_: i32, dir: i32) -> i32;
-    unsafe fn get_bus_info(&self, type_: i32, dir: i32, idx: i32, info: *mut BusInfo) -> tresult;
-    unsafe fn activate_bus(&self, type_: i32, dir: i32, idx: i32, state: TBool) -> tresult;
+pub trait IComponent: IPluginBase {
+    unsafe fn get_controller_class_id(&self, tuid: *mut IID) -> tresult;
+    unsafe fn set_io_mode(&self, mode: IoMode) -> tresult;
+    unsafe fn get_bus_count(&self, type_: MediaType, dir: BusDirection) -> i32;
+    unsafe fn get_bus_info(&self, type_: MediaType, dir: BusDirection,
+                           index: i32, info: *mut BusInfo) -> tresult;
+    unsafe fn get_routing_info(&self, in_info: *mut RoutingInfo,
+                               out_info: *mut RoutingInfo) -> tresult;
+    unsafe fn activate_bus(&mut self, type_: MediaType, dir: BusDirection,
+                           index: i32, state: TBool) -> tresult;
     unsafe fn set_active(&self, state: TBool) -> tresult;
-    unsafe fn set_state(&self, state: *mut dyn IBStream) -> tresult;
-    unsafe fn get_state(&self, state: *mut dyn IBStream) -> tresult;
+    unsafe fn set_state(&mut self, state: *mut c_void) -> tresult;
+    unsafe fn get_state(&mut self, state: *mut c_void) -> tresult;
 }

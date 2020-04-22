@@ -4,13 +4,13 @@ use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 //todo: ivstunit constants
 
-#[repr(align(16))]
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct UnitInfo {
-    id: i32,
-    parent_id: i32,
-    name: String128,
-    program_list_id: i32,
+    pub id: i32,
+    pub parent_unit_id: i32,
+    pub name: String128,
+    pub program_list_id: i32,
 }
 
 #[repr(align(16))]
@@ -32,22 +32,19 @@ pub trait IUnitHandler2: IUnitHandler {
     unsafe fn notify_unit_by_bus_change(&self) -> tresult;
 }
 
+// todo: update types
 #[com_interface("3D4BD6B5-913A-4FD2-A886-E768A5EB92C1")]
 pub trait IUnitInfo: IUnknown {
     unsafe fn get_unit_count(&self) -> i32;
-    unsafe fn get_unit_info(&self, idx: i32, info: *mut dyn IUnitInfo) -> tresult;
+    unsafe fn get_unit_info(&self, unit_index: i32, info: *mut UnitInfo) -> tresult;
     unsafe fn get_program_list_count(&self) -> i32;
-    unsafe fn get_program_list_info(&self, idx: i32, info: *mut ProgramListInfo) -> tresult;
-    unsafe fn get_program_name(&self, id: i32, idx: i32, name: *mut tchar) -> tresult;
-    unsafe fn get_program_info(
-        &self,
-        id: i32,
-        idx: i32,
-        attribute_id: CString,
-        attribute_value: *mut tchar,
-    ) -> tresult;
+    unsafe fn get_program_list_info(&self, list_index: i32, info: *mut ProgramListInfo) -> tresult;
+    unsafe fn get_program_name(&self, list_id: i32, program_index: i32,
+                               name: String128) -> tresult;
+    unsafe fn get_program_info(&self, list_id: i32, program_index: i32,
+                               attribute_id: CString, attribute_value: String128) -> tresult;
     unsafe fn has_program_pitch_names(&self, id: i32, idx: i32) -> tresult;
-    unsafe fn get_program_pitch_names(
+    unsafe fn get_program_pitch_name(
         &self,
         id: i32,
         idx: i32,

@@ -1,8 +1,41 @@
 [tasks.passthru]
 workspace = false
+script = []
+
+[tasks.passthru.linux]
+workspace = false
 script = [
-    "cargo build --package passthru", 
+    "cargo build --package passthru",
     "mkdir -p target/debug/plugin.vst3/Contents/x86_64-linux",
-    "mkdir -p target/debug/plugin.vst3/Contents/Resources", 
+    "mkdir -p target/debug/plugin.vst3/Contents/Resources",
     "cp target/debug/libpassthru.so target/debug/plugin.vst3/Contents/Linux/plugin.so"
+]
+
+[tasks.passthru.windows]
+workspace = false
+script_runner = "@shell"
+script = [
+    "cargo build --package passthru",
+    "cp target/debug/passthru.dll target/debug/passthru.vst3"
+]
+
+[tasks.again]
+workspace = false
+script = []
+
+[tasks.again.linux]
+workspace = false
+script = [
+    "cargo build --package again",
+    "mkdir -p target/debug/plugin.vst3/Contents/x86_64-linux",
+    "mkdir -p target/debug/plugin.vst3/Contents/Resources",
+    "cp target/debug/libagain.so target/debug/plugin.vst3/Contents/Linux/plugin.so"
+]
+
+[tasks.again.windows]
+workspace = false
+script_runner = "@shell"
+script = [
+    "cargo build --package again",
+    "cp target/debug/again.dll target/debug/again.vst3"
 ]

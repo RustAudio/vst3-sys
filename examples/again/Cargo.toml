@@ -1,0 +1,20 @@
+[package]
+name = "again"
+version = "0.1.0"
+authors = ["Mirko Covizzi <mrkcvzz@gmail.com>"]
+edition = "2018"
+description = """
+Example/smoke test to verify the API bindings work, and to demonstrate
+how the APIs are intended to be used without macros.
+"""
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+lazy_static = "1.4.0"
+log = "0.4.8"
+flexi_logger = "0.15.2"
+widestring = "0.4.0"
+vst3-sys = { path = "../../"}
+vst3-com = { path = "../../com" }

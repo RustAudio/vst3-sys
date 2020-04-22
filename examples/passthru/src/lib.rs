@@ -6,14 +6,16 @@ use std::ptr::copy_nonoverlapping as memcpy;
 use std::sync::Mutex;
 use vst3_com::sys::GUID;
 use vst3_sys::base::{
-    kInvalidArgument, kResultOk, tresult, IBStream, IPlugin, IPluginFactory, IUnknown, TBool,
+    kInvalidArgument, kResultOk, tresult, IPluginBase, IPluginFactory, IUnknown, TBool,
 };
 use vst3_sys::vst::{
     BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
-    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup,
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, RoutingInfo
 };
-use vst3_sys::{REFIID, VST3};
-#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPlugin))]
+use vst3_sys::VST3;
+use vst3_com::IID;
+
+#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPluginBase))]
 pub struct PassthruPlugin {}
 pub struct PassthruController {}
 impl PassthruPlugin {
@@ -31,16 +33,29 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IAudioProcessor for PassthruPlugin {
+    unsafe fn set_bus_arrangements(&self, _inputs: *mut u64, _num_ins: i32, _outputs: *mut u64,
+                                   _num_outs: i32) -> i32 {
+        unimplemented!()
+    }
+
+    unsafe fn get_bus_arrangements(&self, _dir: i32, _index: i32, _arr: *mut u64) -> i32 {
+        unimplemented!()
+    }
+
+    unsafe fn can_process_sample_size(&self, _symbolic_sample_size: i32) -> i32 {
+        unimplemented!()
+    }
+
     unsafe fn get_latency_sample(&self) -> u32 {
         0
     }
-    unsafe fn setup_processing(&self, _setup: *mut ProcessSetup) -> tresult {
+    unsafe fn setup_processing(&mut self, _setup: *mut ProcessSetup) -> tresult {
         kResultOk
     }
     unsafe fn set_processing(&self, _state: TBool) -> tresult {
         kResultOk
     }
-    unsafe fn process(&self, _data: *mut ProcessData) -> tresult {
+    unsafe fn process(&mut self, _data: *mut ProcessData) -> tresult {
         kResultOk
     }
     unsafe fn get_tail_samples(&self) -> u32 {
@@ -65,17 +80,17 @@ impl IAutomationState for PassthruPlugin {
     }
 }
 
-impl IPlugin for PassthruPlugin {
-    unsafe fn initialize(&self, _host_context: *mut dyn IUnknown) -> tresult {
+impl IPluginBase for PassthruPlugin {
+    unsafe fn initialize(&mut self, _host_context: *mut c_void) -> tresult {
         kResultOk
     }
-    unsafe fn terminate(&self) -> tresult {
+    unsafe fn terminate(&mut self) -> tresult {
         kResultOk
     }
 }
 
 impl IComponent for PassthruPlugin {
-    unsafe fn get_controller_class_id(&self, _tuid: REFIID) -> tresult {
+    unsafe fn get_controller_class_id(&self, _tuid: *mut IID) -> tresult {
         kResultOk
     }
 
@@ -111,7 +126,12 @@ impl IComponent for PassthruPlugin {
         }
     }
 
-    unsafe fn activate_bus(&self, _type_: i32, _dir: i32, _idx: i32, _state: TBool) -> tresult {
+    unsafe fn get_routing_info(&self, _in_info: *mut RoutingInfo,
+                               _out_info: *mut RoutingInfo) -> i32 {
+        unimplemented!()
+    }
+
+    unsafe fn activate_bus(&mut self, _type_: i32, _dir: i32, _idx: i32, _state: TBool) -> tresult {
         kResultOk
     }
 
@@ -119,11 +139,11 @@ impl IComponent for PassthruPlugin {
         kResultOk
     }
 
-    unsafe fn set_state(&self, _state: *mut dyn IBStream) -> tresult {
+    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
         kResultOk
     }
 
-    unsafe fn get_state(&self, _state: *mut dyn IBStream) -> tresult {
+    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
         kResultOk
     }
 }
@@ -241,7 +261,6 @@ pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
     factory as *mut _ as *mut _
 }
 
-#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
@@ -252,7 +271,6 @@ pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
     true
 }
 
-#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleExit() -> bool {

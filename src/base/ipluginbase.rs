@@ -21,7 +21,11 @@ pub struct PFactoryInfo {
     pub flags: i32,
 }
 
-#[repr(align(16))]
+pub enum ClassCardinality {
+    kManyInstances = 0x7FFFFFFF
+}
+
+#[repr(C)]
 pub struct PClassInfo {
     pub cid: IID,
     pub cardinality: i32,
@@ -29,7 +33,7 @@ pub struct PClassInfo {
     pub name: [char8; 64],
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PClassInfo2 {
     pub cid: IID,
     pub cardinality: i32,
@@ -42,7 +46,7 @@ pub struct PClassInfo2 {
     pub sdk_version: [char8; 64],
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct PClassInfoW {
     pub cid: IID,
     pub cardinality: i32,
@@ -54,18 +58,20 @@ pub struct PClassInfoW {
     pub version: [char16; 64],
     pub sdk_version: [char16; 64],
 }
-/// Renamed from IPLuginBase
+
+/// Basic interface to a Plug-in component.
 #[com_interface("22888DDB-156E-45AE-8358-B34808190625")]
-pub trait IPlugin: IUnknown {
-    unsafe fn initialize(&self, context: *mut dyn IUnknown) -> tresult;
-    unsafe fn terminate(&self) -> tresult;
+pub trait IPluginBase: IUnknown {
+    unsafe fn initialize(&mut self, context: *mut c_void) -> tresult;
+    unsafe fn terminate(&mut self) -> tresult;
 }
 
+/// Class factory that any Plug-in defines for creating class instances.
 #[com_interface("7A4D811C-5211-4A1F-AED9-D2EE0B43BF9F")]
 pub trait IPluginFactory: IUnknown {
     unsafe fn get_factory_info(&self, info: *mut PFactoryInfo) -> tresult;
     unsafe fn count_classes(&self) -> i32;
-    unsafe fn get_class_info(&self, idx: i32, info: *mut PClassInfo) -> tresult;
+    unsafe fn get_class_info(&self, index: i32, info: *mut PClassInfo) -> tresult;
     unsafe fn create_instance(
         &self,
         cid: *mut IID,
@@ -76,7 +82,7 @@ pub trait IPluginFactory: IUnknown {
 
 #[com_interface("0007B650-F24B-4C0B-A464-EDB9F00B2ABB")]
 pub trait IPluginFactory2: IPluginFactory {
-    unsafe fn get_factory_info2(&self, info: *mut PClassInfo2) -> tresult;
+    unsafe fn get_class_info2(&self, index: i32, info: *mut PClassInfo2) -> tresult;
 }
 
 #[com_interface("4555A2AB-C123-4E57-9B12-291036878931")]

@@ -1,7 +1,7 @@
 [package]
 name = "vst3-sys"
 version = "0.1.0"
-authors = ["Mike Hilgendorf <mike@hilgendorf.audio>", "Mirko Covizzi"]
+authors = ["Mike Hilgendorf <mike@hilgendorf.audio>", "Mirko Covizzi <mrkcvzz@gmail.com>"]
 description = """
 Pure Rust bindings to the VST3 APIs, based on COM. 
 """
@@ -12,4 +12,4 @@ vst3-com = { path = "./com" }
 bitflags = "1.2.0"
 
 [workspace]
-members = ["examples/passthru", "com", "com/macros", "com/macros/support"]
+members = ["examples/passthru", "examples/again", "com", "com/macros", "com/macros/support"]
