@@ -43,11 +43,11 @@ pub struct BusInfo {
     pub flags: u32,
 }
 
-#[repr(align(16))]
+#[repr(C)]
 pub struct RoutingInfo {
-    media_type: i32,
-    bus_index: i32,
-    channel: i32,
+    pub media_type: i32,
+    pub bus_index: i32,
+    pub channel: i32,
 }
 
 /// The `IComponent` interface is used by the plugin to determine
