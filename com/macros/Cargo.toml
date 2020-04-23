@@ -24,5 +24,6 @@ vst3-com = { path = ".." }
 
 [dependencies]
 syn = { version = "1.0.5", features = ["full"] }
+quote = "1.0.3"
 proc-macro2 = "1.0.1"
 vst3-com-macros-support = { path = "support" }

@@ -22,7 +22,7 @@ pub struct PFactoryInfo {
 }
 
 pub enum ClassCardinality {
-    kManyInstances = 0x7FFFFFFF,
+    kManyInstances = 0x7FFF_FFFF,
 }
 
 #[repr(C)]

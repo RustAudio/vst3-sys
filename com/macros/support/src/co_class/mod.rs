@@ -14,6 +14,7 @@ pub fn expand_co_class(input: &ItemStruct, attr_args: &AttributeArgs) -> TokenSt
     let aggr_interface_idents = crate::utils::get_aggr_map(attr_args);
 
     let mut out: Vec<TokenStream> = Vec::new();
+
     out.push(com_struct::generate(&aggr_interface_idents, &base_interface_idents, input).into());
 
     out.push(

@@ -4,7 +4,9 @@ use vst3_com_macros_support::com_interface::{expand_com_interface, expand_derive
 
 extern crate proc_macro;
 use proc_macro::TokenStream;
-use syn::{AttributeArgs, ItemStruct, Meta, NestedMeta};
+use proc_macro2::Span;
+use quote::quote;
+use syn::{AttributeArgs, Ident, ItemStruct, Meta, NestedMeta};
 
 // All the Macro exports declared here. Delegates to respective crate for expansion.
 #[proc_macro_attribute]
@@ -28,17 +30,33 @@ pub fn co_class(attr: TokenStream, item: TokenStream) -> TokenStream {
         expand_co_class(&input, &attr_args)
     }
 }
-
+#[allow(clippy::ptr_arg)]
 fn is_aggregatable(attr_args: &AttributeArgs) -> bool {
-    attr_args
-        .iter()
-        .find(|arg| match arg {
-            NestedMeta::Meta(Meta::Path(ref path)) => {
-                let segments = &path.segments;
-                segments.len() == 1
-                    && segments.first().expect("Invalid attribute syntax").ident == "aggregatable"
+    attr_args.iter().any(|arg| match arg {
+        NestedMeta::Meta(Meta::Path(ref path)) => {
+            let segments = &path.segments;
+            segments.len() == 1
+                && segments.first().expect("Invalid attribute syntax").ident == "aggregatable"
+        }
+        _ => false,
+    })
+}
+
+#[proc_macro]
+pub fn declare_offsets(_: TokenStream) -> TokenStream {
+    let it = (0..64usize).map(|n| {
+        let ident = Ident::new(&format!("Offset{}", n), Span::call_site());
+        quote! {
+            #[allow(missing_docs)]
+            pub struct #ident;
+            impl crate::offset::Offset for #ident {
+                const VALUE: usize = #n;
             }
-            _ => false,
-        })
-        .is_some()
+        }
+    });
+
+    let out = quote! {
+        #(#it)*
+    };
+    out.into()
 }

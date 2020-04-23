@@ -1,14 +1,11 @@
-use crate::base::{tresult, FIDString, FactoryFlags, IBStream, IPluginBase, TBool};
-use crate::vst::{
-    BusDirection, BusInfo, IoMode, MediaType, ParamID, ParamValue, RoutingInfo, String128, TChar,
-};
-use bitflags::bitflags;
+use crate::base::{tresult, FIDString, IPluginBase};
+use crate::vst::{ParamID, ParamValue, String128, TChar};
 use vst3_com::interfaces::IUnknown;
-use vst3_com::{c_void, com_interface, REFIID};
+use vst3_com::{c_void, com_interface};
 
 pub enum ParameterFlags {
     kNoFlags = 0,
-    kCanAutomate = 1 << 0,
+    kCanAutomate = 1,
     kIsReadOnly = 1 << 1,
     kIsWrapAround = 1 << 2,
     kIsList = 1 << 3,

@@ -1,3 +1,4 @@
+#![allow(clippy::ptr_arg)]
 extern crate proc_macro;
 
 pub mod aggr_co_class;

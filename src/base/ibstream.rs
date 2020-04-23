@@ -1,9 +1,9 @@
 use crate::base::tresult;
-use vst3_com::{c_void, com_interface, interfaces::iunknown::IUnknown, REFIID};
+use vst3_com::{c_void, com_interface, interfaces::iunknown::IUnknown};
 
-const kIBSeekSet: i32 = 0;
-const kIBSeekCur: i32 = 1;
-const kIBSeekEnd: i32 = 2;
+pub const kIBSeekSet: i32 = 0;
+pub const kIBSeekCur: i32 = 1;
+pub const kIBSeekEnd: i32 = 2;
 
 #[com_interface("C3BF6EA2-3099-4752-9B6B-F9901EE33E9B")]
 pub trait IBStream: IUnknown {

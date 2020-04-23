@@ -1,3 +1,4 @@
+//! FUnknown's integer error codes
 use crate::base::tresult;
 pub use vst3_com::interfaces::iunknown::IUnknown;
 
