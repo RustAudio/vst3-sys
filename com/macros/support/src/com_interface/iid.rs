@@ -59,40 +59,24 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
         delimited[4].len()
     );
 
-    let mut flat = delimited
+    let flat = delimited
         .into_iter()
         .flat_map(|s| s.chars())
         .collect::<Vec<_>>();
 
-    if cfg!(target_os = "windows") {
-        let mut temp_a = flat[0];
-        let mut temp_b = flat[1];
-        flat[0] = flat[6];
-        flat[1] = flat[7];
-        flat[6] = temp_a;
-        flat[7] = temp_b;
-
-        temp_a = flat[2];
-        temp_b = flat[3];
-        flat[2] = flat[4];
-        flat[3] = flat[5];
-        flat[4] = temp_a;
-        flat[5] = temp_b;
-
-        temp_a = flat[8];
-        temp_b = flat[9];
-        flat[8] = flat[10];
-        flat[9] = flat[11];
-        flat[10] = temp_a;
-        flat[11] = temp_b;
-
-        temp_a = flat[12];
-        temp_b = flat[13];
-        flat[12] = flat[14];
-        flat[13] = flat[15];
-        flat[14] = temp_a;
-        flat[15] = temp_b;
-    }
+    #[cfg(target_os = "windows")]
+    let flat = {
+        let mut flat = flat;
+        flat.swap(0, 6);
+        flat.swap(1, 7);
+        flat.swap(2, 4);
+        flat.swap(3, 5);
+        flat.swap(8, 10);
+        flat.swap(9, 11);
+        flat.swap(12, 14);
+        flat.swap(13, 15);
+        flat
+    };
 
     let bytes = (0..32).step_by(2).map(|idx| {
         let mut chars = ['0', 'x', '\0', '\0'];

@@ -991,14 +991,14 @@ pub extern "system" fn ExitDll() -> bool {
     true
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
     true
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleExit() -> bool {
