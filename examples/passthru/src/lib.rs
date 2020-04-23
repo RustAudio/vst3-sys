@@ -25,10 +25,10 @@ pub struct PassthruPlugin {}
 pub struct PassthruController {}
 impl PassthruPlugin {
     const CID: GUID = GUID {
-        data1: 0x93684f1a,
-        data2: 0x4611,
-        data3: 0x9101,
-        data4: [0x0, 0, 0xb4, 0x39, 0xe5, 0x64, 0x8a, 0xda],
+        data: [
+            0x93, 0x68, 0x4f, 0x1a, 0x46, 0x11, 0x91, 0x01, 0x0, 0, 0xb4, 0x39, 0xe5, 0x64, 0x8a,
+            0xda,
+        ],
     };
     pub fn new() -> Box<Self> {
         PassthruPlugin::allocate()
@@ -214,7 +214,7 @@ impl IPluginFactory for Factory {
             0 => {
                 let info = &mut *info;
                 info.cardinality = 0x7FFFFFFF;
-                info.cid = PassthruPlugin::CID.to_be();
+                info.cid = PassthruPlugin::CID;
                 strcpy("Audio Module Class", info.category.as_mut_ptr());
                 strcpy("Pass Through", info.name.as_mut_ptr());
             }
@@ -236,7 +236,7 @@ impl IPluginFactory for Factory {
         let cmp = PassthruPlugin::CID;
 
         info!("creating instance of {:?}", cid);
-        if cid.to_le() == cmp {
+        if cid == cmp {
             let instance = PassthruPlugin::new();
             instance.add_ref();
             let hr = instance.query_interface(riid, ppv);
