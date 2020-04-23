@@ -51,57 +51,50 @@ pub const COINIT_MULTITHREADED: u32 = 0x0;
 
 /// A globally unique identifier
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct GUID {
-    #[allow(missing_docs)]
-    pub data1: u32,
-    #[allow(missing_docs)]
-    pub data2: u16,
-    #[allow(missing_docs)]
-    pub data3: u16,
-    #[allow(missing_docs)]
-    pub data4: [u8; 8],
+    /// bytes of the GUID
+    pub data: [u8; 16]
 }
 
-use std::{u16, u32};
-impl PartialEq for GUID {
-    fn eq(&self, other: &Self) -> bool {
-        #[cfg(target_os = "linux")]
-        let self_ = GUID {
-            data1: u32::from_be(self.data1),
-            data2: u16::from_be(self.data2),
-            data3: u16::from_be(self.data3),
-            data4: self.data4,
-        };
-        #[cfg(target_os = "windows")]
-        let self_ = self;
-        self_.data1 == other.data1
-            && self_.data2 == other.data2
-            && self_.data3 == other.data3
-            && self_.data4 == other.data4
-    }
-}
+// impl PartialEq for GUID {
+//     fn eq(&self, other: &Self) -> bool {
+//         // #[cfg(target_os = "linux")]
+//         // let self_ = GUID {
+//         //     data1: u32::from_be(self.data1),
+//         //     data2: u16::from_be(self.data2),
+//         //     data3: u16::from_be(self.data3),
+//         //     data4: self.data4,
+//         // };
+//         // #[cfg(target_os = "windows")]
+//         let self_ = self;
+//         self_.data1 == other.data1
+//             && self_.data2 == other.data2
+//             && self_.data3 == other.data3
+//             && self_.data4 == other.data4
+//     }
+// }
 
-impl GUID {
-    /// Convert to little endian
-    pub fn to_le(&self) -> Self {
-        GUID {
-            data1: u32::from_be(self.data1),
-            data2: u16::from_be(self.data2),
-            data3: u16::from_be(self.data3),
-            data4: self.data4,
-        }
-    }
-    /// Convert to big endian
-    pub fn to_be(&self) -> Self {
-        GUID {
-            data1: u32::from_le(self.data1),
-            data2: u16::from_le(self.data2),
-            data3: u16::from_le(self.data3),
-            data4: self.data4,
-        }
-    }
-}
+// impl GUID {
+//     /// Convert to little endian
+//     pub fn to_le(&self) -> Self {
+//         GUID {
+//             data1: u32::from_be(self.data1),
+//             data2: u16::from_be(self.data2),
+//             data3: u16::from_be(self.data3),
+//             data4: self.data4,
+//         }
+//     }
+//     /// Convert to big endian
+//     pub fn to_be(&self) -> Self {
+//         GUID {
+//             data1: u32::from_le(self.data1),
+//             data2: u16::from_le(self.data2),
+//             data3: u16::from_le(self.data3),
+//             data4: self.data4,
+//         }
+//     }
+// }
 
 /// An interface ID
 pub type IID = GUID;
@@ -109,25 +102,17 @@ pub type IID = GUID;
 /// A class ID
 pub type CLSID = GUID;
 
-impl std::fmt::Debug for GUID {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{:08X?}-{:04X?}-{:04X?}-{:02X?}{:02X?}-{:02X?}{:02X?}{:02X?}{:02X?}{:02X?}{:02X?}",
-            self.data1,
-            self.data2,
-            self.data3,
-            self.data4[0],
-            self.data4[1],
-            self.data4[2],
-            self.data4[3],
-            self.data4[4],
-            self.data4[5],
-            self.data4[6],
-            self.data4[7]
-        )
-    }
-}
+// impl std::fmt::Debug for GUID {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(f,
+//             "{:082?}-{:08X?}-{:08X?}-{:08X?}",
+//             self.data1,
+//             self.data2,
+//             self.data3,
+//             self.data4
+//         )
+//     }
+// }
 
 #[cfg(windows)]
 #[link(name = "ole32")]
