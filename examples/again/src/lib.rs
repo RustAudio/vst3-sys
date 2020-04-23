@@ -1,8 +1,6 @@
 use std::ptr::{copy_nonoverlapping, null_mut};
 use std::os::raw::{c_char, c_void, c_short};
-use std::sync::Mutex;
 
-use lazy_static::lazy_static;
 use log::*;
 
 use vst3_com::sys::GUID;
@@ -385,7 +383,7 @@ impl IAudioProcessor for AGainProcessor {
                             if param_queue.get_point(num_points - 1,
                                                      &mut sample_offset as *mut _,
                                                      &mut value as *mut _) == kResultTrue {
-                                self.bypass = {value > 0.5};
+                                self.bypass = value > 0.5;
                                 info!("Bypass value: {}", self.bypass);
                             }
                         },
@@ -432,22 +430,15 @@ impl IAudioProcessor for AGainProcessor {
                 K_SAMPLE32 => {
                     info!("Processing at 32bit");
                     for i in 0..num_channels as isize {
-                        let channel_in = *in_.offset(i) as *const f32;
-                        let channel_out = *out_.offset(i) as *mut f32;
-                        for j in 0..sample_frames_size as isize {
-                            *channel_out.offset(j) = *channel_in.offset(j) *
-                                self.gain as f32;
-                        }
+                        copy_nonoverlapping(*in_.offset(i) as *const c_void,
+                                            *out_.offset(i), sample_frames_size);
                     }
                 },
                 K_SAMPLE64 => {
                     info!("Processing at 64bit");
                     for i in 0..num_channels as isize {
-                        let channel_in = *in_.offset(i) as *const f64;
-                        let channel_out = *out_.offset(i) as *mut f64;
-                        for j in 0..sample_frames_size as isize {
-                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain;
-                        }
+                        copy_nonoverlapping(*in_.offset(i) as *const c_void,
+                                            *out_.offset(i), sample_frames_size);
                     }
                 },
                 _ => unreachable!()
@@ -787,6 +778,10 @@ impl Factory {
     fn new() -> Box<Self> {
         Self::allocate()
     }
+
+    pub fn create_instance() -> *mut c_void {
+        Box::into_raw(Self::new()) as *mut c_void
+    }
 }
 
 impl IPluginFactory2 for Factory {
@@ -888,21 +883,6 @@ impl IPluginFactory for Factory {
     }
 }
 
-struct FactoryWrapper {
-    factory: Box<Factory>,
-}
-
-unsafe impl Send for FactoryWrapper {}
-unsafe impl Sync for FactoryWrapper {}
-
-lazy_static! {
-    static ref WRAPPER: Mutex<FactoryWrapper> = Mutex::new(FactoryWrapper {
-        factory: Factory::new()
-    });
-}
-
-static mut INIT: bool = false;
-
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn InitDll() -> bool {
@@ -915,12 +895,13 @@ pub extern "C" fn ExitDll() -> bool {
     true
 }
 
+static mut INIT_LOGGER: bool = false;
+
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "C" fn GetPluginFactory() -> *mut c_void {
-    let factory = &mut *WRAPPER.lock().unwrap().factory;
-    if !INIT {
-        INIT = true;
+    let factory = Factory::create_instance();
+    if !INIT_LOGGER {
         let log_path = std::env::var("VST3_LOG_PATH");
         match log_path {
             Ok(path) => {
@@ -930,12 +911,12 @@ pub unsafe extern "C" fn GetPluginFactory() -> *mut c_void {
                     .format(opt_format)
                     .start()
                     .unwrap();
+                info!("Started logger...");
             },
             Err(_) => ()
         }
-    } else {
-        factory.add_ref();
+        INIT_LOGGER = true;
     }
-    factory as *mut _ as *mut _
+    factory
 }
 
