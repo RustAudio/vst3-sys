@@ -1011,22 +1011,23 @@ static mut INIT_LOGGER: bool = false;
 #[no_mangle]
 #[allow(non_snake_case)]
 pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
-    let factory = Factory::create_instance();
     if !INIT_LOGGER {
         let log_path = std::env::var("VST3_LOG_PATH");
         match log_path {
             Ok(path) => {
-                Logger::with_env_or_str("info")
+                match Logger::with_env_or_str("info")
                     .log_to_file()
                     .directory(path)
                     .format(opt_format)
                     .start()
-                    .unwrap();
-                info!("Started logger...");
+                {
+                    Ok(_) => info!("Started logger..."),
+                    Err(_) => (),
+                }
             }
             Err(_) => (),
         }
         INIT_LOGGER = true;
     }
-    factory
+    Factory::create_instance()
 }
