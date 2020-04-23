@@ -1,7 +1,7 @@
 use crate::base::{tresult, FactoryFlags, IBStream, IPluginBase, TBool};
-use crate::vst::{String128, IoMode, MediaType, BusDirection};
+use crate::vst::{BusDirection, IoMode, MediaType, String128};
 use bitflags::bitflags;
-use vst3_com::{com_interface, REFIID, IID, c_void};
+use vst3_com::{c_void, com_interface, IID, REFIID};
 
 pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode.bits();
 
@@ -59,12 +59,25 @@ pub trait IComponent: IPluginBase {
     unsafe fn get_controller_class_id(&self, tuid: *mut IID) -> tresult;
     unsafe fn set_io_mode(&self, mode: IoMode) -> tresult;
     unsafe fn get_bus_count(&self, type_: MediaType, dir: BusDirection) -> i32;
-    unsafe fn get_bus_info(&self, type_: MediaType, dir: BusDirection,
-                           index: i32, info: *mut BusInfo) -> tresult;
-    unsafe fn get_routing_info(&self, in_info: *mut RoutingInfo,
-                               out_info: *mut RoutingInfo) -> tresult;
-    unsafe fn activate_bus(&mut self, type_: MediaType, dir: BusDirection,
-                           index: i32, state: TBool) -> tresult;
+    unsafe fn get_bus_info(
+        &self,
+        type_: MediaType,
+        dir: BusDirection,
+        index: i32,
+        info: *mut BusInfo,
+    ) -> tresult;
+    unsafe fn get_routing_info(
+        &self,
+        in_info: *mut RoutingInfo,
+        out_info: *mut RoutingInfo,
+    ) -> tresult;
+    unsafe fn activate_bus(
+        &mut self,
+        type_: MediaType,
+        dir: BusDirection,
+        index: i32,
+        state: TBool,
+    ) -> tresult;
     unsafe fn set_active(&self, state: TBool) -> tresult;
     unsafe fn set_state(&mut self, state: *mut c_void) -> tresult;
     unsafe fn get_state(&mut self, state: *mut c_void) -> tresult;

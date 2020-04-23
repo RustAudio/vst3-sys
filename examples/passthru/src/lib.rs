@@ -5,25 +5,30 @@ use std::os::raw::{c_char, c_void};
 use std::ptr::copy_nonoverlapping as memcpy;
 use std::sync::Mutex;
 use vst3_com::sys::GUID;
+use vst3_com::IID;
 use vst3_sys::base::{
     kInvalidArgument, kResultOk, tresult, IPluginBase, IPluginFactory, IUnknown, TBool,
 };
 use vst3_sys::vst::{
     BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
-    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, RoutingInfo
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, RoutingInfo,
 };
 use vst3_sys::VST3;
-use vst3_com::IID;
 
-#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPluginBase))]
+#[VST3(implements(
+    IAudioProcessor,
+    IAudioPresentationLatency,
+    IAutomationState,
+    IPluginBase
+))]
 pub struct PassthruPlugin {}
 pub struct PassthruController {}
 impl PassthruPlugin {
     const CID: GUID = GUID {
-        data1: 0x93684f1a,
-        data2: 0x4611,
-        data3: 0x9101,
-        data4: [0x0, 0, 0xb4, 0x39, 0xe5, 0x64, 0x8a, 0xda],
+        data: [
+            0x93, 0x68, 0x4f, 0x1a, 0x46, 0x11, 0x91, 0x01, 0x0, 0, 0xb4, 0x39, 0xe5, 0x64, 0x8a,
+            0xda,
+        ],
     };
     pub fn new() -> Box<Self> {
         PassthruPlugin::allocate()
@@ -33,8 +38,13 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IAudioProcessor for PassthruPlugin {
-    unsafe fn set_bus_arrangements(&self, _inputs: *mut u64, _num_ins: i32, _outputs: *mut u64,
-                                   _num_outs: i32) -> i32 {
+    unsafe fn set_bus_arrangements(
+        &self,
+        _inputs: *mut u64,
+        _num_ins: i32,
+        _outputs: *mut u64,
+        _num_outs: i32,
+    ) -> i32 {
         unimplemented!()
     }
 
@@ -126,8 +136,11 @@ impl IComponent for PassthruPlugin {
         }
     }
 
-    unsafe fn get_routing_info(&self, _in_info: *mut RoutingInfo,
-                               _out_info: *mut RoutingInfo) -> i32 {
+    unsafe fn get_routing_info(
+        &self,
+        _in_info: *mut RoutingInfo,
+        _out_info: *mut RoutingInfo,
+    ) -> i32 {
         unimplemented!()
     }
 
@@ -201,7 +214,7 @@ impl IPluginFactory for Factory {
             0 => {
                 let info = &mut *info;
                 info.cardinality = 0x7FFFFFFF;
-                info.cid = PassthruPlugin::CID.to_be();
+                info.cid = PassthruPlugin::CID;
                 strcpy("Audio Module Class", info.category.as_mut_ptr());
                 strcpy("Pass Through", info.name.as_mut_ptr());
             }
@@ -223,7 +236,7 @@ impl IPluginFactory for Factory {
         let cmp = PassthruPlugin::CID;
 
         info!("creating instance of {:?}", cid);
-        if cid.to_le() == cmp {
+        if cid == cmp {
             let instance = PassthruPlugin::new();
             instance.add_ref();
             let hr = instance.query_interface(riid, ppv);

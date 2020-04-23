@@ -39,10 +39,15 @@ pub trait IUnitInfo: IUnknown {
     unsafe fn get_unit_info(&self, unit_index: i32, info: *mut UnitInfo) -> tresult;
     unsafe fn get_program_list_count(&self) -> i32;
     unsafe fn get_program_list_info(&self, list_index: i32, info: *mut ProgramListInfo) -> tresult;
-    unsafe fn get_program_name(&self, list_id: i32, program_index: i32,
-                               name: String128) -> tresult;
-    unsafe fn get_program_info(&self, list_id: i32, program_index: i32,
-                               attribute_id: CString, attribute_value: String128) -> tresult;
+    unsafe fn get_program_name(&self, list_id: i32, program_index: i32, name: String128)
+        -> tresult;
+    unsafe fn get_program_info(
+        &self,
+        list_id: i32,
+        program_index: i32,
+        attribute_id: CString,
+        attribute_value: String128,
+    ) -> tresult;
     unsafe fn has_program_pitch_names(&self, id: i32, idx: i32) -> tresult;
     unsafe fn get_program_pitch_name(
         &self,

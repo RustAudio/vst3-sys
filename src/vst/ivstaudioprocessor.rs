@@ -42,10 +42,19 @@ pub struct ProcessData {
 
 #[com_interface("42043F99-B7DA-453C-A569-E79D9AAEC33D")]
 pub trait IAudioProcessor: IUnknown {
-    unsafe fn set_bus_arrangements(&self, inputs: *mut SpeakerArrangement, num_ins: i32,
-                                   outputs: *mut SpeakerArrangement, num_outs: i32) -> tresult;
-    unsafe fn get_bus_arrangements(&self, dir: BusDirection, index: i32,
-                                   arr: *mut SpeakerArrangement) -> tresult;
+    unsafe fn set_bus_arrangements(
+        &self,
+        inputs: *mut SpeakerArrangement,
+        num_ins: i32,
+        outputs: *mut SpeakerArrangement,
+        num_outs: i32,
+    ) -> tresult;
+    unsafe fn get_bus_arrangements(
+        &self,
+        dir: BusDirection,
+        index: i32,
+        arr: *mut SpeakerArrangement,
+    ) -> tresult;
     unsafe fn can_process_sample_size(&self, symbolic_sample_size: i32) -> tresult;
     unsafe fn get_latency_sample(&self) -> u32;
     unsafe fn setup_processing(&mut self, setup: *mut ProcessSetup) -> tresult;
