@@ -54,10 +54,10 @@ pub struct AGainProcessor {
 }
 impl AGainProcessor {
     const CID: GUID = GUID {
-        data1: 0x84E8DE5F,
-        data2: 0x9255,
-        data3: 0x4F53,
-        data4: [0x96, 0xFA, 0xE4, 0x13, 0x3C, 0x93, 0x5A, 0x18],
+        data: [
+            0x84, 0xE8, 0xDE, 0x5F, 0x92, 0x55, 0x4F, 0x53, 0x96, 0xFA, 0xE4, 0x13, 0x3C, 0x93,
+            0x5A, 0x18,
+        ],
     };
 
     pub fn new() -> Box<Self> {
@@ -135,7 +135,7 @@ impl IComponent for AGainProcessor {
     unsafe fn get_controller_class_id(&self, tuid: *mut IID) -> tresult {
         info!("Called: AGainProcessor::get_controller_class_id()");
 
-        *tuid = AGainController::CID.clone().to_le();
+        *tuid = AGainController::CID.clone();
         kResultOk
     }
 
@@ -517,10 +517,10 @@ pub struct AGainController {
 }
 impl AGainController {
     const CID: GUID = GUID {
-        data1: 0xD39D5B65,
-        data2: 0xD7AF,
-        data3: 0x42FA,
-        data4: [0x84, 0x3F, 0x4A, 0xC8, 0x41, 0xEB, 0x04, 0xF0],
+        data: [
+            0xD3, 0x9D, 0x5B, 0x65, 0xD7, 0xAF, 0x42, 0xFA, 0x84, 0x3F, 0x4A, 0xC8, 0x41, 0xEB,
+            0x04, 0xF0,
+        ],
     };
     pub fn new() -> Box<Self> {
         let units = vec![];
@@ -883,7 +883,7 @@ impl IPluginFactory2 for Factory {
         match index {
             0 => {
                 let info = &mut *info;
-                info.cid = AGainProcessor::CID.to_le();
+                info.cid = AGainProcessor::CID;
                 info.cardinality = ClassCardinality::kManyInstances as i32;
                 strcpy("Audio Module Class", info.category.as_mut_ptr());
                 strcpy("AGain VST3", info.name.as_mut_ptr());
@@ -894,7 +894,7 @@ impl IPluginFactory2 for Factory {
             }
             1 => {
                 let info = &mut *info;
-                info.cid = AGainController::CID.to_le();
+                info.cid = AGainController::CID;
                 info.cardinality = ClassCardinality::kManyInstances as i32;
                 strcpy("Component Controller Class", info.category.as_mut_ptr());
                 strcpy("AGain VST3 Controller", info.name.as_mut_ptr());
@@ -936,14 +936,14 @@ impl IPluginFactory for Factory {
             0 => {
                 let info = &mut *info;
                 info.cardinality = ClassCardinality::kManyInstances as i32;
-                info.cid = AGainProcessor::CID.to_le();
+                info.cid = AGainProcessor::CID;
                 strcpy("Audio Module Class", info.category.as_mut_ptr());
                 strcpy("AGain VST3", info.name.as_mut_ptr());
             }
             1 => {
                 let info = &mut *info;
                 info.cardinality = ClassCardinality::kManyInstances as i32;
-                info.cid = AGainController::CID.to_le();
+                info.cid = AGainController::CID;
                 strcpy("Component Controller Class", info.category.as_mut_ptr());
                 strcpy("AGain VST3 Controller", info.name.as_mut_ptr());
             }
@@ -964,12 +964,12 @@ impl IPluginFactory for Factory {
         let controller_cid = AGainController::CID;
 
         info!("Creating instance of {:?}", *cid);
-        if (*cid).to_le() == processor_cid {
+        if (*cid) == processor_cid {
             *obj = AGainProcessor::create_instance();
             info!("Created instance of AGainProcessor");
             return kResultOk;
         }
-        if (*cid).to_le() == controller_cid {
+        if (*cid) == controller_cid {
             *obj = AGainController::create_instance();
             info!("Created instance of AGainController");
             return kResultOk;
@@ -988,6 +988,18 @@ pub extern "C" fn InitDll() -> bool {
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "C" fn ExitDll() -> bool {
+    true
+}
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
+    true
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn ModuleExit() -> bool {
+    info!("Module exited");
     true
 }
 
