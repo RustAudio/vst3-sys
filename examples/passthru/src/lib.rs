@@ -5,17 +5,22 @@ use std::os::raw::{c_char, c_void};
 use std::ptr::copy_nonoverlapping as memcpy;
 use std::sync::Mutex;
 use vst3_com::sys::GUID;
+use vst3_com::IID;
 use vst3_sys::base::{
     kInvalidArgument, kResultOk, tresult, IPluginBase, IPluginFactory, IUnknown, TBool,
 };
 use vst3_sys::vst::{
     BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency, IAudioProcessor,
-    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, RoutingInfo
+    IAutomationState, IComponent, MediaTypes, ProcessData, ProcessSetup, RoutingInfo,
 };
 use vst3_sys::VST3;
-use vst3_com::IID;
 
-#[VST3(implements(IAudioProcessor, IAudioPresentationLatency, IAutomationState, IPluginBase))]
+#[VST3(implements(
+    IAudioProcessor,
+    IAudioPresentationLatency,
+    IAutomationState,
+    IPluginBase
+))]
 pub struct PassthruPlugin {}
 pub struct PassthruController {}
 impl PassthruPlugin {
@@ -33,8 +38,13 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IAudioProcessor for PassthruPlugin {
-    unsafe fn set_bus_arrangements(&self, _inputs: *mut u64, _num_ins: i32, _outputs: *mut u64,
-                                   _num_outs: i32) -> i32 {
+    unsafe fn set_bus_arrangements(
+        &self,
+        _inputs: *mut u64,
+        _num_ins: i32,
+        _outputs: *mut u64,
+        _num_outs: i32,
+    ) -> i32 {
         unimplemented!()
     }
 
@@ -126,8 +136,11 @@ impl IComponent for PassthruPlugin {
         }
     }
 
-    unsafe fn get_routing_info(&self, _in_info: *mut RoutingInfo,
-                               _out_info: *mut RoutingInfo) -> i32 {
+    unsafe fn get_routing_info(
+        &self,
+        _in_info: *mut RoutingInfo,
+        _out_info: *mut RoutingInfo,
+    ) -> i32 {
         unimplemented!()
     }
 

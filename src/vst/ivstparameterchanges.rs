@@ -1,6 +1,6 @@
 use crate::base::tresult;
-use vst3_com::{com_interface, c_void};
 use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 
 #[com_interface("01263A18-ED07-4F6F-98C9-D3564686F9BA")]
 pub trait IParamValueQueue: IUnknown {

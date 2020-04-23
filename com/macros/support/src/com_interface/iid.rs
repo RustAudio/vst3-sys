@@ -31,13 +31,13 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
         "The second part of the IID must be 4 characters long, but it is {} characters long",
         delimited[1].len()
     );
-    
+
     assert!(
         delimited[2].len() == 4,
         "The third part of the IID must be 4 characters long, but it is {} characters long",
         delimited[2].len()
     );
-    
+
     assert!(
         delimited[3].len() == 4,
         "The fourth part of the IID must be 4 characters long, but it is {} characters long",
@@ -50,16 +50,17 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
         delimited[4].len()
     );
 
-    let flat = delimited.into_iter().flat_map(|s| s.chars()).collect::<Vec<_>>();
-    let bytes = (0..32)
-          .step_by(2)
-          .map(|idx| {
-            let mut chars = ['0', 'x', '\0', '\0'];
-            chars[2] = flat[idx];
-            chars[3] = flat[idx+1];
-            let string = chars.iter().collect::<String>();
-            LitInt::new(&string, Span::call_site())
-          });
+    let flat = delimited
+        .into_iter()
+        .flat_map(|s| s.chars())
+        .collect::<Vec<_>>();
+    let bytes = (0..32).step_by(2).map(|idx| {
+        let mut chars = ['0', 'x', '\0', '\0'];
+        chars[2] = flat[idx];
+        chars[3] = flat[idx + 1];
+        let string = chars.iter().collect::<String>();
+        LitInt::new(&string, Span::call_site())
+    });
 
     quote!(
         #[allow(non_upper_case_globals, missing_docs)]

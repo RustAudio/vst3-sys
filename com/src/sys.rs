@@ -54,7 +54,7 @@ pub const COINIT_MULTITHREADED: u32 = 0x0;
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct GUID {
     /// bytes of the GUID
-    pub data: [u8; 16]
+    pub data: [u8; 16],
 }
 
 // impl PartialEq for GUID {
