@@ -19,7 +19,7 @@ pub type SampleRate = f64;
 pub type SpeakerArrangement = u64;
 pub type Speaker = u64;
 
-pub const kNoParamId: ParamID = 0xffffffff;
+pub const kNoParamId: ParamID = 0xFFFF_FFFF;
 pub const kVstVersionMajor: i32 = 3;
 pub const kVstVersionMinor: i32 = 6;
 pub const kVstVersionSub: i32 = 13;

@@ -23,8 +23,8 @@ pub trait IDependent: IUnknown {
     unsafe fn update(&self, changed_unknown: *mut dyn IUnknown, message: i32);
 }
 
-const kWillChange: i32 = 0;
-const kChanged: i32 = 1;
-const kDestroyed: i32 = 2;
-const kWillDestroy: i32 = 3;
-const kStdChangeMessageLast: i32 = kWillDestroy;
+pub const kWillChange: i32 = 0;
+pub const kChanged: i32 = 1;
+pub const kDestroyed: i32 = 2;
+pub const kWillDestroy: i32 = 3;
+pub const kStdChangeMessageLast: i32 = kWillDestroy;

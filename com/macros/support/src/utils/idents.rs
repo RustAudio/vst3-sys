@@ -86,7 +86,7 @@ pub fn get_aggr_map(attr_args: &AttributeArgs) -> HashMap<Ident, Vec<Ident>> {
             let mut aggr_interfaces_idents = Vec::new();
 
             assert!(
-                attr.nested.len() > 0,
+                !attr.nested.is_empty(),
                 "Need to expose at least one interface from aggregated COM object."
             );
 

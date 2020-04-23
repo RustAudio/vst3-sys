@@ -40,6 +40,7 @@ pub fn gen_allocate_fn(
     let base_fields = gen_allocate_base_fields(base_interface_idents);
     let ref_count_field = gen_allocate_ref_count_field();
     let user_fields = gen_allocate_user_fields(struct_item);
+
     let aggregate_fields = gen_allocate_aggregate_fields(aggr_map);
 
     // Initialise all aggregated objects as NULL.
@@ -119,8 +120,10 @@ pub fn gen_allocate_base_inits(
         let vtable_var_ident = format_ident!("{}_vtable", base.to_string().to_lowercase());
         let vptr_field_ident = crate::utils::vptr_field_ident(&base);
 
+        // struct_ident: #base, $offset_count 
+        let offset_ident = format_ident!("Offset{}", offset_count);
         let out = quote!(
-            let #vtable_var_ident = vst3_com::vtable!(#struct_ident: #base, #offset_count);
+            let #vtable_var_ident = vst3_com::vtable!(#struct_ident: #base, vst3_com::#offset_ident);
             let #vptr_field_ident = Box::into_raw(Box::new(#vtable_var_ident));
         );
 
