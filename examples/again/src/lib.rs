@@ -981,21 +981,24 @@ impl IPluginFactory for Factory {
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn InitDll() -> bool {
+pub extern "system" fn InitDll() -> bool {
     true
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn ExitDll() -> bool {
+pub extern "system" fn ExitDll() -> bool {
     true
 }
+
+#[cfg(not(windows))]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
     true
 }
 
+#[cfg(not(windows))]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleExit() -> bool {
@@ -1007,7 +1010,7 @@ static mut INIT_LOGGER: bool = false;
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub unsafe extern "C" fn GetPluginFactory() -> *mut c_void {
+pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
     let factory = Factory::create_instance();
     if !INIT_LOGGER {
         let log_path = std::env::var("VST3_LOG_PATH");
