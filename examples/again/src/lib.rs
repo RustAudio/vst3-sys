@@ -1002,6 +1002,19 @@ pub extern "system" fn ModuleExit() -> bool {
     true
 }
 
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn bundleEntry(_: *mut c_void) -> bool {
+    true
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn bundleExit() -> bool {
+    info!("Module exited");
+    true
+}
+
 static mut INIT_LOGGER: bool = false;
 
 #[no_mangle]

@@ -23,6 +23,13 @@ script = [
 workspace = false
 script = []
 
+[tasks.again.mac]
+workspace = false 
+script = [
+  "cargo build --package again",
+  "./osx-bundler.sh again target/debug/libagain.dylib"
+]
+
 [tasks.again.linux]
 workspace = false
 script = [
