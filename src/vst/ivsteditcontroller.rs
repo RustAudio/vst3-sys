@@ -1,12 +1,10 @@
-use crate::base::{
-    tresult, FactoryFlags, IBStream, IPluginBase, TBool, FIDString,
-};
+use crate::base::{tresult, FIDString, FactoryFlags, IBStream, IPluginBase, TBool};
 use crate::vst::{
-    String128, IoMode, MediaType, BusDirection, BusInfo, RoutingInfo, TChar, ParamID, ParamValue,
+    BusDirection, BusInfo, IoMode, MediaType, ParamID, ParamValue, RoutingInfo, String128, TChar,
 };
 use bitflags::bitflags;
-use vst3_com::{com_interface, REFIID, c_void};
 use vst3_com::interfaces::IUnknown;
+use vst3_com::{c_void, com_interface, REFIID};
 
 pub enum ParameterFlags {
     kNoFlags = 0,
@@ -22,13 +20,13 @@ pub enum ParameterFlags {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ParameterInfo {
-    pub id: u32,    // ParamID
+    pub id: u32, // ParamID
     pub title: String128,
     pub short_title: String128,
     pub units: String128,
     pub step_count: i32,
-    pub default_normalized_value: f64,  // ParamValue
-    pub unit_id: i32,   // UnitID
+    pub default_normalized_value: f64, // ParamValue
+    pub unit_id: i32,                  // UnitID
     pub flags: i32,
 }
 
@@ -50,10 +48,18 @@ pub trait IEditController: IPluginBase {
     unsafe fn get_state(&mut self, state: *mut c_void) -> tresult;
     unsafe fn get_parameter_count(&self) -> i32;
     unsafe fn get_parameter_info(&self, param_index: i32, info: *mut ParameterInfo) -> tresult;
-    unsafe fn get_param_string_by_value(&self, id: u32, value_normalized: f64,
-                                        string: *mut TChar) -> tresult;
-    unsafe fn get_param_value_by_string(&self, id: u32, string: *mut TChar,
-                                        value_normalized: *mut f64) -> tresult;
+    unsafe fn get_param_string_by_value(
+        &self,
+        id: u32,
+        value_normalized: f64,
+        string: *mut TChar,
+    ) -> tresult;
+    unsafe fn get_param_value_by_string(
+        &self,
+        id: u32,
+        string: *mut TChar,
+        value_normalized: *mut f64,
+    ) -> tresult;
     unsafe fn normalized_param_to_plain(&self, id: u32, value_normalized: f64) -> f64;
     unsafe fn plain_param_to_normalized(&self, id: u32, plain_value: f64) -> f64;
     unsafe fn get_param_normalized(&self, id: u32) -> f64;
