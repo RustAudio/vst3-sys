@@ -83,31 +83,12 @@ pub trait ProductionComInterface<T: IUnknown>: ComInterface {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! vtable {
-    ($class:ident: $interface:ident, $offset:ident) => {
-        <dyn $interface as $crate::ProductionComInterface<$class>>::vtable::<
-            $crate::offset::$offset,
-        >();
-    };
-    ($class:ident: $interface:ident, 4usize) => {
-        $crate::vtable!($class: $interface, Four)
-    };
-    ($class:ident: $interface:ident, 3usize) => {
-        $crate::vtable!($class: $interface, Three)
-    };
-    ($class:ident: $interface:ident, 2usize) => {
-        $crate::vtable!($class: $interface, Two)
-    };
-    ($class:ident: $interface:ident, 1usize) => {
-        $crate::vtable!($class: $interface, One)
-    };
-    ($class:ident: $interface:ident, 0usize) => {
-        $crate::vtable!($class: $interface, Zero)
-    };
-    ($class:ident: $interface:ident) => {
-        $crate::vtable!($class: $interface, Zero)
+    ($class:ident: $interface:ident, $offset:path) => {
+        <dyn $interface as $crate::ProductionComInterface<$class>>::vtable::<$offset>();
     };
 }
 
+vst3_com_macros::declare_offsets!();
 #[doc(hidden)]
 pub use vst3_com_macros::{co_class, com_interface, VTable};
 

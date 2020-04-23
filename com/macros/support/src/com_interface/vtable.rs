@@ -13,7 +13,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
     let vtable_ident = ident(&interface_ident.to_string());
     let base_field = if interface_ident.to_string().to_uppercase() == "IUNKNOWN" {
         assert!(
-            interface.supertraits.len() == 0,
+            interface.supertraits.is_empty(),
             "IUnknown is a reserved interface"
         );
         quote! {}
@@ -23,7 +23,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
             "Multiple inheritance is not supported in COM interfaces"
         );
         assert!(
-            interface.supertraits.len() != 0,
+            !interface.supertraits.is_empty(),
             "All interfaces must inherit from another COM interface"
         );
 

@@ -1,3 +1,4 @@
+//! base types used by the VST3 API to implement plugin and host interfaces
 mod ftypes;
 mod funknown;
 mod ibstream;

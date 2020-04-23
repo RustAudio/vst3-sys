@@ -1,4 +1,4 @@
-use crate::base::{tchar, tresult, CStringA, IBStream};
+use crate::base::{tchar, tresult, IBStream};
 use crate::vst::{CString, String128};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;

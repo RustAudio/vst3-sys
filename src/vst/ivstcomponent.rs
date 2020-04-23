@@ -1,7 +1,7 @@
-use crate::base::{tresult, FactoryFlags, IBStream, IPluginBase, TBool};
+use crate::base::{tresult, FactoryFlags, IPluginBase, TBool};
 use crate::vst::{BusDirection, IoMode, MediaType, String128};
 use bitflags::bitflags;
-use vst3_com::{c_void, com_interface, IID, REFIID};
+use vst3_com::{c_void, com_interface, IID};
 
 pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode.bits();
 

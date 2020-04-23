@@ -28,7 +28,7 @@ pub fn ident(struct_ident: &Ident) -> Ident {
 }
 
 fn gen_parent_vtable_binding(item: &ItemStruct) -> HelperTokenStream {
-    let parent = item.fields.iter().nth(0);
+    let parent = item.fields.iter().next();
     if let Some(parent) = parent {
         let is_base = parent
             .ident
