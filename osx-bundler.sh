@@ -40,7 +40,7 @@ else
     <key>CSResourcesFileMapped</key>
     <string></string>
 </dict>
-</plist>" > "$1.vst3/Contents/Info.plist"
+</plist>" > "target/debug/$1.vst3/Contents/Info.plist"
 
     # move the provided library to the correct location
     cp "$2" "target/debug/$1.vst3/Contents/MacOS/$1"
