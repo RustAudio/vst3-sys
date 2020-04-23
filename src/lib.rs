@@ -1,7 +1,7 @@
-//! Raw Bindings to the VST3 API. 
+//! Raw Bindings to the VST3 API.
 //!
 //! This crate is a work in progress. See the examples for usage, and the [official API docs](https://steinbergmedia.github.io/vst3_doc/)
-//! for reference. 
+//! for reference.
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 #![allow(clippy::missing_safety_doc)]

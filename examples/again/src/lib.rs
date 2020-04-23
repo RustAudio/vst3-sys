@@ -441,6 +441,7 @@ impl IAudioProcessor for AGainProcessor {
         }
 
         let num_channels = (*(*data).inputs).num_channels;
+        let num_samples = (*data).num_samples;
         let in_ = (*(*data).inputs).buffers;
         let out_ = (*(*data).outputs).buffers;
         let sample_frames_size = {
@@ -476,21 +477,21 @@ impl IAudioProcessor for AGainProcessor {
                 K_SAMPLE32 => {
                     info!("Processing at 32bit");
                     for i in 0..num_channels as isize {
-                        copy_nonoverlapping(
-                            *in_.offset(i) as *const c_void,
-                            *out_.offset(i),
-                            sample_frames_size,
-                        );
+                        let channel_in = *in_.offset(i) as *const f32;
+                        let channel_out = *out_.offset(i) as *mut f32;
+                        for j in 0..num_samples as isize {
+                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain as f32;
+                        }
                     }
                 }
                 K_SAMPLE64 => {
                     info!("Processing at 64bit");
                     for i in 0..num_channels as isize {
-                        copy_nonoverlapping(
-                            *in_.offset(i) as *const c_void,
-                            *out_.offset(i),
-                            sample_frames_size,
-                        );
+                        let channel_in = *in_.offset(i) as *const f64;
+                        let channel_out = *out_.offset(i) as *mut f64;
+                        for j in 0..num_samples as isize {
+                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain;
+                        }
                     }
                 }
                 _ => unreachable!(),
@@ -980,21 +981,24 @@ impl IPluginFactory for Factory {
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn InitDll() -> bool {
+pub extern "system" fn InitDll() -> bool {
     true
 }
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "C" fn ExitDll() -> bool {
+pub extern "system" fn ExitDll() -> bool {
     true
 }
+
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleEntry(_: *mut c_void) -> bool {
     true
 }
 
+#[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn ModuleExit() -> bool {
@@ -1006,7 +1010,7 @@ static mut INIT_LOGGER: bool = false;
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub unsafe extern "C" fn GetPluginFactory() -> *mut c_void {
+pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
     let factory = Factory::create_instance();
     if !INIT_LOGGER {
         let log_path = std::env::var("VST3_LOG_PATH");

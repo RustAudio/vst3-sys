@@ -7,45 +7,54 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
     let iid_string: syn::LitStr =
         syn::parse(macro_attr.clone()).expect("[com_interface] parameter must be a GUID string");
     let iid_value = iid_string.value();
-    assert!(
-        iid_value.len() == 36,
+
+    assert_eq!(
+        iid_value.len(),
+        36,
         "IIDs must be exactly 36 characters long"
     );
 
     let iid_ident = ident(interface_ident);
     let iid_value = iid_value.as_str();
     let delimited: Vec<&str> = iid_value.split('-').collect();
-    assert!(
-        delimited.len() == 5,
+
+    assert_eq!(
+        delimited.len(),
+        5,
         "IIDs must have 5 parts separate by '-'s"
     );
 
-    assert!(
-        delimited[0].len() == 8,
+    assert_eq!(
+        delimited[0].len(),
+        8,
         "The first part of the IID must be 8 characters long, but it is {} characters long",
         delimited[0].len()
     );
 
-    assert!(
-        delimited[1].len() == 4,
+    assert_eq!(
+        delimited[1].len(),
+        4,
         "The second part of the IID must be 4 characters long, but it is {} characters long",
         delimited[1].len()
     );
 
-    assert!(
-        delimited[2].len() == 4,
+    assert_eq!(
+        delimited[2].len(),
+        4,
         "The third part of the IID must be 4 characters long, but it is {} characters long",
         delimited[2].len()
     );
 
-    assert!(
-        delimited[3].len() == 4,
+    assert_eq!(
+        delimited[3].len(),
+        4,
         "The fourth part of the IID must be 4 characters long, but it is {} characters long",
         delimited[3].len()
     );
 
-    assert!(
-        delimited[4].len() == 12,
+    assert_eq!(
+        delimited[4].len(),
+        12,
         "The fifth part of the IID must be 12 characters long, but it is {} characters long",
         delimited[4].len()
     );
@@ -54,6 +63,21 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
         .into_iter()
         .flat_map(|s| s.chars())
         .collect::<Vec<_>>();
+
+    #[cfg(target_os = "windows")]
+    let flat = {
+        let mut flat = flat;
+        flat.swap(0, 6);
+        flat.swap(1, 7);
+        flat.swap(2, 4);
+        flat.swap(3, 5);
+        flat.swap(8, 10);
+        flat.swap(9, 11);
+        flat.swap(12, 14);
+        flat.swap(13, 15);
+        flat
+    };
+
     let bytes = (0..32).step_by(2).map(|idx| {
         let mut chars = ['0', 'x', '\0', '\0'];
         chars[2] = flat[idx];
