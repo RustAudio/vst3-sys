@@ -10,10 +10,6 @@ Currently this crate is missing definitions of some of the constants found in th
 
 This crate intentionally omits anything not a part of the COM-compatible API. 
 
-## Modifications 
-
-This crate does not use the SDK's definition of IID/TUID values, but a binary compatible equivalent from `com-rs`. This 
-
 ## Credits
 
 The COM vtables/API are generated using `com-rs` from Microsoft, it has been altered to allow it to compile/generate code on MacOS and Linux targets. (Update 4/2020) MS has stripped `winapi` dependency from `com-rs` and it's closer to being suitable for cross platform development. Currently outstanding are some of the implementation details of the runtime and the calling convention of the generated vtables. 
