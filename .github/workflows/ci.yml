@@ -29,7 +29,10 @@ jobs:
           args: --all-targets --all-features -- -D warnings
 
   test: 
-    runs-on: [macos-latest, windows-latest, ubuntu-latest]
+    strategy:
+      matrix: 
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     name: test 
     steps:
     - uses: actions/checkout@v2 
