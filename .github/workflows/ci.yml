@@ -25,11 +25,9 @@ jobs:
           args: --all-targets --all-features -- -D warnings
 
   test: 
-    runs-on: ${{ matrix.os }}
+    runs-on: [macOS-latest, windows-2019, ubuntu-latest]
     name: test 
-    strategy:
-      matrix:
-        os: [macOS-latest, windows-2019, ubuntu-latest]
+    steps:
     - uses: actions/checkout@v2 
     - uses: actions-rs/toolchain@v 
       with: 
