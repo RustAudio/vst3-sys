@@ -1,5 +1,4 @@
 #![allow(clippy::ptr_arg)]
-#![allow(clippy::implicit_hasher)]
 extern crate proc_macro;
 
 pub mod aggr_co_class;
