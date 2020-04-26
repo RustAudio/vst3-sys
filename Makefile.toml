@@ -2,34 +2,47 @@
 workspace = false
 script = []
 
+[tasks.passthru.mac]
+script = [
+    "cargo build --example passthru", 
+    "./osx-bundler.sh passthru target/debug/examples/libpassthru.dylib"
+]
+
 [tasks.passthru.linux]
 workspace = false
 script = [
-    "cargo build --package passthru",
-    "mkdir -p target/debug/plugin.vst3/Contents/x86_64-linux",
-    "mkdir -p target/debug/plugin.vst3/Contents/Resources",
-    "cp target/debug/libpassthru.so target/debug/plugin.vst3/Contents/x86_64-linux/plugin.so"
+    "cargo build --example passthru",
+    "mkdir -p target/debug/passthru.vst3/Contents/x86_64-linux",
+    "mkdir -p target/debug/passthru.vst3/Contents/Resources",
+    "cp target/debug/examples/libpassthru.so target/debug/passthru.vst3/Contents/x86_64-linux/passthru.so"
 ]
 
 [tasks.passthru.windows]
 workspace = false
 script_runner = "@shell"
 script = [
-    "cargo build --package passthru",
-    "cp target/debug/passthru.dll target/debug/passthru.vst3"
+    "cargo build --example passthru",
+    "cp target/debug/examples/passthru.dll target/debug/passthru.vst3"
 ]
 
 [tasks.again]
 workspace = false
 script = []
 
+[tasks.again.mac]
+workspace = false 
+script = [
+  "cargo build --package again",
+  "./osx-bundler.sh again target/debug/libagain.dylib"
+]
+
 [tasks.again.linux]
 workspace = false
 script = [
     "cargo build --package again",
-    "mkdir -p target/debug/plugin.vst3/Contents/x86_64-linux",
-    "mkdir -p target/debug/plugin.vst3/Contents/Resources",
-    "cp target/debug/libagain.so target/debug/plugin.vst3/Contents/x86_64-linux/plugin.so"
+    "mkdir -p target/debug/again.vst3/Contents/x86_64-linux",
+    "mkdir -p target/debug/again.vst3/Contents/Resources",
+    "cp target/debug/libagain.so target/debug/again.vst3/Contents/x86_64-linux/again.so"
 ]
 
 [tasks.again.windows]

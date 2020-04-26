@@ -45,7 +45,7 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
                 // Bringing trait into scope to access IUnknown methods.
                 use vst3_com::interfaces::iunknown::IUnknown;
 
-                if aggr != std::ptr::null_mut() {
+                if !aggr.is_null() {
                     return vst3_com::sys::CLASS_E_NOAGGREGATION;
                 }
 
