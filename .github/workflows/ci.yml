@@ -1,0 +1,46 @@
+on: 
+  push: 
+    branches: 
+      - master 
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: formatting and linting
+    steps:
+      - name: checkout  
+        uses: actions/checkout@v2
+      - name: provision 
+        uses: actions-rs/toolchain@v1 
+        with: 
+          toolchain: stable 
+          profile: minimal
+          components: rustfmt, clippy 
+      - name: cargo fmt 
+        uses: actions-rs/cargo@v1 
+        with: 
+          command: fmt 
+          args: --all -- --check
+      - name: cargo clippy  
+        uses: actions-rs/cargo@v1 
+        with: 
+          command: clippy 
+          args: --all-targets --all-features -- -D warnings
+
+  test: 
+    strategy:
+      matrix: 
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    name: test 
+    steps:
+    - uses: actions/checkout@v2 
+    - uses: actions-rs/toolchain@v1
+      with: 
+        toolchain: stable 
+        profile: minimal  
+    - uses: actions-rs/cargo@v1 
+      with: 
+        command: test 
+        args: --all 
