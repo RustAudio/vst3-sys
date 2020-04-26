@@ -10,8 +10,8 @@ use syn::{Fields, Ident, ItemStruct};
 ///     ..ref count..
 ///     ..init struct..
 /// }
-pub fn generate(
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+pub fn generate<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     base_interface_idents: &[Ident],
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
@@ -47,7 +47,9 @@ pub fn gen_ref_count_field() -> HelperTokenStream {
     quote!(#ref_count_ident: std::cell::Cell<u32>,)
 }
 
-pub fn gen_aggregate_fields(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
+pub fn gen_aggregate_fields<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
+) -> HelperTokenStream {
     let aggregates = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
             #aggr_field_ident: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable

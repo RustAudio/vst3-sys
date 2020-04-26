@@ -90,9 +90,9 @@ pub fn gen_lock_server() -> HelperTokenStream {
     }
 }
 
-pub fn gen_iunknown_impl(
+pub fn gen_iunknown_impl<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     class_factory_ident: &Ident,
 ) -> HelperTokenStream {
     let query_interface = gen_query_interface();
@@ -107,9 +107,9 @@ pub fn gen_iunknown_impl(
     }
 }
 
-pub fn gen_release(
+pub fn gen_release<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();

@@ -6,9 +6,9 @@ use syn::{Ident, ItemStruct};
 /// Generates the IUnknown implementation for the COM Object.
 /// Takes into account the base interfaces exposed, as well as
 /// any interfaces exposed through an aggregated object.
-pub fn generate(
+pub fn generate<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
@@ -45,9 +45,9 @@ pub fn gen_add_ref_implementation() -> HelperTokenStream {
     )
 }
 
-pub fn gen_release(
+pub fn gen_release<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
@@ -71,9 +71,9 @@ pub fn gen_release(
     }
 }
 
-pub fn gen_release_drops(
+pub fn gen_release_drops<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
 ) -> HelperTokenStream {
     let vptr_drops = gen_vptr_drops(base_interface_idents);
@@ -87,7 +87,9 @@ pub fn gen_release_drops(
     )
 }
 
-fn gen_aggregate_drops(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
+fn gen_aggregate_drops<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
+) -> HelperTokenStream {
     let aggregate_drops = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
             if !self.#aggr_field_ident.is_null() {
@@ -139,9 +141,9 @@ pub fn gen_new_count_var_zero_check(new_count_ident: &Ident) -> HelperTokenStrea
     )
 }
 
-pub fn gen_query_interface(
+pub fn gen_query_interface<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
 ) -> HelperTokenStream {
     let first_vptr_field = crate::utils::vptr_field_ident(&base_interface_idents[0]);
 
@@ -189,7 +191,9 @@ pub fn gen_base_match_arms(base_interface_idents: &[Ident]) -> HelperTokenStream
     quote!(#(#base_match_arms)*)
 }
 
-pub fn gen_aggregate_match_arms(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
+pub fn gen_aggregate_match_arms<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
+) -> HelperTokenStream {
     let aggr_match_arms = aggr_map.iter().map(|(aggr_field_ident, aggr_base_interface_idents)| {
 
         // Construct the OR match conditions for a single aggregated object.

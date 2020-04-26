@@ -3,8 +3,8 @@ use quote::{format_ident, quote};
 use std::collections::HashMap;
 use syn::{Fields, Ident, ItemStruct};
 
-pub fn generate(
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+pub fn generate<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     base_interface_idents: &[Ident],
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
@@ -24,8 +24,8 @@ pub fn generate(
 }
 
 /// Function used to instantiate the COM fields, such as vpointers for the COM object.
-pub fn gen_allocate_fn(
-    aggr_map: &HashMap<Ident, Vec<Ident>>,
+pub fn gen_allocate_fn<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     base_interface_idents: &[Ident],
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
@@ -68,7 +68,9 @@ pub fn gen_allocate_function_parameters_signature(struct_item: &ItemStruct) -> H
     quote!(#fields)
 }
 
-pub fn gen_allocate_aggregate_fields(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
+pub fn gen_allocate_aggregate_fields<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
+) -> HelperTokenStream {
     let aggregate_inits = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
             #aggr_field_ident: std::ptr::null_mut()
@@ -147,7 +149,9 @@ pub fn gen_get_class_object_fn(struct_item: &ItemStruct) -> HelperTokenStream {
     )
 }
 
-pub fn gen_set_aggregate_fns(aggr_map: &HashMap<Ident, Vec<Ident>>) -> HelperTokenStream {
+pub fn gen_set_aggregate_fns<S: ::std::hash::BuildHasher>(
+    aggr_map: &HashMap<Ident, Vec<Ident>, S>,
+) -> HelperTokenStream {
     let mut fns = Vec::new();
     for (aggr_field_ident, aggr_base_interface_idents) in aggr_map.iter() {
         for base in aggr_base_interface_idents {
