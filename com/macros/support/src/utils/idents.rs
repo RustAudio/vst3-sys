@@ -68,9 +68,7 @@ pub fn base_interface_idents(attr_args: &AttributeArgs) -> Vec<Ident> {
             format_ident!("IComponent"),
             "IComponent should always be first."
         );
-    }
-
-    if base_interface_idents.contains(&format_ident!("IEditController")) {
+    } else if base_interface_idents.contains(&format_ident!("IEditController")) {
         assert_eq!(
             base_interface_idents[0],
             format_ident!("IEditController"),
