@@ -45,8 +45,9 @@ pub fn base_interface_idents(attr_args: &AttributeArgs) -> Vec<Ident> {
 
             for item in &attr.nested {
                 if let NestedMeta::Meta(Meta::Path(p)) = item {
-                    assert!(
-                        p.segments.len() == 1,
+                    assert_eq!(
+                        p.segments.len(),
+                        1,
                         "Incapable of handling multiple path segments yet."
                     );
                     base_interface_idents.push(
@@ -59,6 +60,20 @@ pub fn base_interface_idents(attr_args: &AttributeArgs) -> Vec<Ident> {
                 }
             }
         }
+    }
+
+    if base_interface_idents.contains(&format_ident!("IComponent")) {
+        assert_eq!(
+            base_interface_idents[0],
+            format_ident!("IComponent"),
+            "IComponent should always be first."
+        );
+    } else if base_interface_idents.contains(&format_ident!("IEditController")) {
+        assert_eq!(
+            base_interface_idents[0],
+            format_ident!("IEditController"),
+            "IEditController should always be first."
+        );
     }
 
     base_interface_idents
@@ -92,8 +107,9 @@ pub fn get_aggr_map(attr_args: &AttributeArgs) -> HashMap<Ident, Vec<Ident>> {
 
             for item in &attr.nested {
                 if let NestedMeta::Meta(Meta::Path(p)) = item {
-                    assert!(
-                        p.segments.len() == 1,
+                    assert_eq!(
+                        p.segments.len(),
+                        1,
                         "Incapable of handling multiple path segments yet."
                     );
                     aggr_interfaces_idents.push(

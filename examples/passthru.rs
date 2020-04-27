@@ -37,7 +37,6 @@ unsafe fn wstrcpy(src: &str, dst: *mut c_short) {
 
 #[VST3(implements(
     IComponent,
-    IPluginBase,
     IEditController,
     IAudioProcessor,
     IAutomationState,
