@@ -33,16 +33,16 @@ pub fn get_alpha(cs: ColorSpec) -> ColorComponent {
     ((cs >> 24) & 0x0000_00FF) as ColorComponent
 }
 
-pub const kChannelUIDKey: CString = b"channel uid".as_ptr() as *const _;
-pub const kChannelUIDLengthKey: CString = b"channel uid length".as_ptr() as *const _;
-pub const kChannelNameKey: CString = b"channel name".as_ptr() as *const _;
-pub const kChannelNameLengthKey: CString = b"channel name length".as_ptr() as *const _;
-pub const kChannelColorKey: CString = b"channel color".as_ptr() as *const _;
-pub const kChannelIndexKey: CString = b"channel index".as_ptr() as *const _;
+pub const kChannelUIDKey: CString = b"channel uid\0".as_ptr() as *const _;
+pub const kChannelUIDLengthKey: CString = b"channel uid length\0".as_ptr() as *const _;
+pub const kChannelNameKey: CString = b"channel name\0".as_ptr() as *const _;
+pub const kChannelNameLengthKey: CString = b"channel name length\0".as_ptr() as *const _;
+pub const kChannelColorKey: CString = b"channel color\0".as_ptr() as *const _;
+pub const kChannelIndexKey: CString = b"channel index\0".as_ptr() as *const _;
 pub const kChannelIndexNamespaceOrderKey: CString =
-    b"channel index namespace order".as_ptr() as *const _;
-pub const kChannelIndexNamespaceKey: CString = b"channel index namespace".as_ptr() as *const _;
+    b"channel index namespace order\0".as_ptr() as *const _;
+pub const kChannelIndexNamespaceKey: CString = b"channel index namespace\0".as_ptr() as *const _;
 pub const kChannelIndexNamespaceLengthKey: CString =
-    b"channel index namespace length".as_ptr() as *const _;
-pub const kChannelImageKey: CString = b"channel image".as_ptr() as *const _;
-pub const kChannelPluginLocationKey: CString = b"channel plugin location".as_ptr() as *const _;
+    b"channel index namespace length\0".as_ptr() as *const _;
+pub const kChannelImageKey: CString = b"channel image\0".as_ptr() as *const _;
+pub const kChannelPluginLocationKey: CString = b"channel plugin location\0".as_ptr() as *const _;
