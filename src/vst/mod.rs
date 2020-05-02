@@ -1,6 +1,7 @@
 mod ivstattributes;
 mod ivstaudioprocessor;
 mod ivstautomationstate;
+mod ivstchannelcontextinfo;
 mod ivstcomponent;
 mod ivstcontextmenu;
 mod ivsteditcontroller;
@@ -22,6 +23,7 @@ mod vsttypes;
 pub use ivstattributes::*;
 pub use ivstaudioprocessor::*;
 pub use ivstautomationstate::*;
+pub use ivstchannelcontextinfo::*;
 pub use ivstcomponent::*;
 pub use ivstcontextmenu::*;
 pub use ivsteditcontroller::*;
