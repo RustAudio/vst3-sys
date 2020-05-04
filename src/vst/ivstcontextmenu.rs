@@ -4,7 +4,7 @@ use vst3_com::{c_void, com_interface};
 use crate::base::tresult;
 use crate::vst::{ParamID, String128};
 
-type UCoord = i32;
+pub type UCoord = i32;
 
 #[com_interface("69F11617-D26B-400D-A4B6-B9647B6EBBAB")]
 pub trait IComponentHandler3: IUnknown {

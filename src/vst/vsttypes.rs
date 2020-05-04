@@ -24,4 +24,4 @@ pub const kVstVersionMajor: i32 = 3;
 pub const kVstVersionMinor: i32 = 6;
 pub const kVstVersionSub: i32 = 13;
 pub const VST_VERSION: i32 = (kVstVersionMajor << 16) | (kVstVersionMinor << 8) | kVstVersionSub;
-pub const kVstVersionString: CString = b"VST 3.6.13".as_ptr() as *const _;
+pub const kVstVersionString: CString = b"VST 3.6.13\0".as_ptr() as *const _;
