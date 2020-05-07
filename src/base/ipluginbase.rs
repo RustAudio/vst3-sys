@@ -8,8 +8,8 @@ bitflags! {
         const kNoFlags = 0;
         const kClassesDiscardable = 1;
         const kLicenseCheck = 2;
-        const kComponentNonDiscardable = 4;
-        const kUnicode = 8;
+        const kComponentNonDiscardable = 8;
+        const kUnicode = 16;
     }
 }
 
@@ -88,5 +88,5 @@ pub trait IPluginFactory2: IPluginFactory {
 #[com_interface("4555A2AB-C123-4E57-9B12-291036878931")]
 pub trait IPluginFactory3: IPluginFactory2 {
     unsafe fn get_class_info_unicode(&self, idx: i32, info: *mut PClassInfoW) -> tresult;
-    unsafe fn set_host_context(&self, context: *mut dyn IUnknown);
+    unsafe fn set_host_context(&self, context: *mut c_void) -> tresult;
 }
