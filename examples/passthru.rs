@@ -230,13 +230,13 @@ impl IComponent for PassthruPlugin {
                 info.direction = dir;
                 info.bus_type = MediaTypes::kAudio as i32;
                 info.channel_count = 2;
-                info.flags = BusFlags::kDefaultActive.bits();
+                info.flags = BusFlags::kDefaultActive as u32;
                 wstrcpy("Audio Input", info.name.as_mut_ptr());
             } else {
                 info.direction = dir;
                 info.bus_type = MediaTypes::kAudio as i32;
                 info.channel_count = 2;
-                info.flags = BusFlags::kDefaultActive.bits();
+                info.flags = BusFlags::kDefaultActive as u32;
                 wstrcpy("Audio Output", info.name.as_mut_ptr());
             }
             kResultOk
