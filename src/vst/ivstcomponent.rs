@@ -1,9 +1,8 @@
 use crate::base::{tresult, FactoryFlags, IPluginBase, TBool};
 use crate::vst::{BusDirection, IoMode, MediaType, String128};
-use bitflags::bitflags;
 use vst3_com::{c_void, com_interface, IID};
 
-pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode.bits();
+pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode as i32;
 
 pub enum MediaTypes {
     kAudio = 0,
@@ -27,10 +26,8 @@ pub enum IoModes {
     kOfflineProcessing = 2,
 }
 
-bitflags! {
-    pub struct BusFlags: u32 {
-        const kDefaultActive = 1;
-    }
+pub enum BusFlags {
+    kDefaultActive = 1,
 }
 
 #[repr(C)]

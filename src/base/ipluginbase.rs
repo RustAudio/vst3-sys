@@ -1,16 +1,13 @@
 use crate::base::{char16, char8, tresult};
-use bitflags::bitflags;
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface, IID};
 
-bitflags! {
-    pub struct FactoryFlags: i32 {
-        const kNoFlags = 0;
-        const kClassesDiscardable = 1;
-        const kLicenseCheck = 2;
-        const kComponentNonDiscardable = 8;
-        const kUnicode = 16;
-    }
+pub enum FactoryFlags {
+    kNoFlags = 0,
+    kClassesDiscardable = 1,
+    kLicenseCheck = 2,
+    kComponentNonDiscardable = 8,
+    kUnicode = 16,
 }
 
 #[repr(C)]

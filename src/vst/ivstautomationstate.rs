@@ -1,15 +1,13 @@
 use crate::base::tresult;
-use bitflags::bitflags;
+use crate::vst::AutomationStates::{kReadState, kWriteState};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
-bitflags! {
-    pub struct AutomationStates: i32 {
-        const kNoAutomation = 0;
-        const kReadState = 1;
-        const kWriteState = 2;
-        const kReadWriteState = AutomationStates::kReadState.bits | AutomationStates::kWriteState.bits;
-    }
+pub enum AutomationStates {
+    kNoAutomation = 0,
+    kReadState = 1,
+    kWriteState = 2,
+    kReadWriteState = kReadState as isize | kWriteState as isize,
 }
 
 #[com_interface("B4E8287F-1BB3-46AA-83A4-666768937BAB")]
