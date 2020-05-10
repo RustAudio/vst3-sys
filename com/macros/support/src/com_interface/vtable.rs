@@ -117,12 +117,10 @@ fn gen_raw_params(interface_ident: &Ident, method: &TraitItemMethod) -> HelperTo
                     s.reference.is_some(),
                     "COM interface methods cannot take ownership of self"
                 );
-                /*
                 assert!(
                     s.mutability.is_none(),
                     "COM interface methods cannot take mutable reference to self"
                 );
-                */
                 params.push(quote!(
                     *mut #vptr_ident,
                 ));

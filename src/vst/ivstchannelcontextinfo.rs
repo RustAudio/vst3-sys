@@ -6,7 +6,7 @@ use crate::vst::{CString, ColorSpec};
 
 #[com_interface("0F194781-8D98-4ADA-BBA0-C1EFC011D8D0")]
 pub trait IInfoListener: IUnknown {
-    unsafe fn set_channel_context_infos(&mut self, list: *mut c_void) -> tresult;
+    unsafe fn set_channel_context_infos(&self, list: *mut c_void) -> tresult;
 }
 
 pub enum ChannelPluginLocation {

@@ -60,15 +60,15 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IEditController for PassthruPlugin {
-    unsafe fn set_component_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, _state: *mut c_void) -> tresult {
         info!("set_component_state");
         kResultOk
     }
-    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
         info!("set_state");
         kResultOk
     }
-    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
         info!("get_state");
         kResultOk
     }
@@ -114,7 +114,7 @@ impl IEditController for PassthruPlugin {
         info!("set_param_normalized");
         kResultOk
     }
-    unsafe fn set_component_handler(&mut self, _handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, _handler: *mut c_void) -> tresult {
         info!("set_component_handler");
         kResultOk
     }

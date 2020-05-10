@@ -4,8 +4,7 @@ use std::ptr::{copy_nonoverlapping, null_mut};
 use log::*;
 
 use flexi_logger::{opt_format, Logger};
-use std::borrow::{Borrow, BorrowMut};
-use std::cell::{Ref, RefCell};
+use std::cell::RefCell;
 use std::intrinsics::write_bytes;
 use std::mem;
 use vst3_com::sys::GUID;
@@ -551,7 +550,7 @@ impl AGainController {
 }
 
 impl IEditController for AGainController {
-    unsafe fn set_component_state(&mut self, state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, state: *mut c_void) -> tresult {
         info!("Called: AGainController::set_component_state()");
 
         if state.is_null() {
@@ -582,12 +581,12 @@ impl IEditController for AGainController {
 
         kResultOk
     }
-    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
         info!("Called: AGainController::set_state()");
 
         kResultOk
     }
-    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
         info!("Called: AGainController::get_state()");
 
         kResultOk
@@ -677,7 +676,7 @@ impl IEditController for AGainController {
             _ => kResultFalse,
         }
     }
-    unsafe fn set_component_handler(&mut self, handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, handler: *mut c_void) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
         if self.component_handler.borrow().0 == handler {
