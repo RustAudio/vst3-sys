@@ -69,13 +69,13 @@ pub trait IComponent: IPluginBase {
         out_info: *mut RoutingInfo,
     ) -> tresult;
     unsafe fn activate_bus(
-        &mut self,
+        &self,
         type_: MediaType,
         dir: BusDirection,
         index: i32,
         state: TBool,
     ) -> tresult;
     unsafe fn set_active(&self, state: TBool) -> tresult;
-    unsafe fn set_state(&mut self, state: *mut c_void) -> tresult;
-    unsafe fn get_state(&mut self, state: *mut c_void) -> tresult;
+    unsafe fn set_state(&self, state: *mut c_void) -> tresult;
+    unsafe fn get_state(&self, state: *mut c_void) -> tresult;
 }
