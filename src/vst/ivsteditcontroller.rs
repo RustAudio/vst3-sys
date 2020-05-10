@@ -1,7 +1,10 @@
 use crate::base::{tresult, FIDString, IPluginBase};
-use crate::vst::{ParamID, ParamValue, String128, TChar};
+use crate::vst::{CString, ParamID, ParamValue, String128, TChar};
 use vst3_com::interfaces::IUnknown;
 use vst3_com::{c_void, com_interface};
+
+pub const kVstComponentControllerClass: CString =
+    b"Component Controller Class\0".as_ptr() as *const _;
 
 pub enum ParameterFlags {
     kNoFlags = 0,
@@ -40,9 +43,9 @@ pub trait IComponentHandler: IUnknown {
 /// Edit controller component interface.
 #[com_interface("DCD7BBE3-7742-448D-A874-AACC979C759E")]
 pub trait IEditController: IPluginBase {
-    unsafe fn set_component_state(&mut self, state: *mut c_void) -> tresult;
-    unsafe fn set_state(&mut self, state: *mut c_void) -> tresult;
-    unsafe fn get_state(&mut self, state: *mut c_void) -> tresult;
+    unsafe fn set_component_state(&self, state: *mut c_void) -> tresult;
+    unsafe fn set_state(&self, state: *mut c_void) -> tresult;
+    unsafe fn get_state(&self, state: *mut c_void) -> tresult;
     unsafe fn get_parameter_count(&self) -> i32;
     unsafe fn get_parameter_info(&self, param_index: i32, info: *mut ParameterInfo) -> tresult;
     unsafe fn get_param_string_by_value(
@@ -60,7 +63,7 @@ pub trait IEditController: IPluginBase {
     unsafe fn normalized_param_to_plain(&self, id: u32, value_normalized: f64) -> f64;
     unsafe fn plain_param_to_normalized(&self, id: u32, plain_value: f64) -> f64;
     unsafe fn get_param_normalized(&self, id: u32) -> f64;
-    unsafe fn set_param_normalized(&mut self, id: u32, value: f64) -> tresult;
-    unsafe fn set_component_handler(&mut self, handler: *mut c_void) -> tresult;
+    unsafe fn set_param_normalized(&self, id: u32, value: f64) -> tresult;
+    unsafe fn set_component_handler(&self, handler: *mut c_void) -> tresult;
     unsafe fn create_view(&self, name: FIDString) -> *mut c_void;
 }

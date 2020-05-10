@@ -60,15 +60,15 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IEditController for PassthruPlugin {
-    unsafe fn set_component_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, _state: *mut c_void) -> tresult {
         info!("set_component_state");
         kResultOk
     }
-    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
         info!("set_state");
         kResultOk
     }
-    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
         info!("get_state");
         kResultOk
     }
@@ -110,11 +110,11 @@ impl IEditController for PassthruPlugin {
         info!("get_param_normalized");
         0.0
     }
-    unsafe fn set_param_normalized(&mut self, _id: u32, _value: f64) -> tresult {
+    unsafe fn set_param_normalized(&self, _id: u32, _value: f64) -> tresult {
         info!("set_param_normalized");
         kResultOk
     }
-    unsafe fn set_component_handler(&mut self, _handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, _handler: *mut c_void) -> tresult {
         info!("set_component_handler");
         kResultOk
     }
@@ -152,13 +152,13 @@ impl IAudioProcessor for PassthruPlugin {
     unsafe fn get_latency_sample(&self) -> u32 {
         0
     }
-    unsafe fn setup_processing(&mut self, _setup: *mut ProcessSetup) -> tresult {
+    unsafe fn setup_processing(&self, _setup: *mut ProcessSetup) -> tresult {
         kResultOk
     }
     unsafe fn set_processing(&self, _state: TBool) -> tresult {
         kResultOk
     }
-    unsafe fn process(&mut self, data: *mut ProcessData) -> tresult {
+    unsafe fn process(&self, data: *mut ProcessData) -> tresult {
         let data = &*data;
         let num_samples = data.num_samples as usize;
         if data.inputs.is_null() || data.outputs.is_null() {
@@ -198,10 +198,10 @@ impl IAutomationState for PassthruPlugin {
 }
 
 impl IPluginBase for PassthruPlugin {
-    unsafe fn initialize(&mut self, _host_context: *mut c_void) -> tresult {
+    unsafe fn initialize(&self, _host_context: *mut c_void) -> tresult {
         kResultOk
     }
-    unsafe fn terminate(&mut self) -> tresult {
+    unsafe fn terminate(&self) -> tresult {
         kResultOk
     }
 }
@@ -253,7 +253,7 @@ impl IComponent for PassthruPlugin {
         kResultFalse
     }
 
-    unsafe fn activate_bus(&mut self, _type_: i32, _dir: i32, _idx: i32, _state: TBool) -> tresult {
+    unsafe fn activate_bus(&self, _type_: i32, _dir: i32, _idx: i32, _state: TBool) -> tresult {
         kResultOk
     }
 
@@ -261,11 +261,11 @@ impl IComponent for PassthruPlugin {
         kResultOk
     }
 
-    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
         kResultOk
     }
 
-    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
         kResultOk
     }
 }

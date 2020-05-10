@@ -1,10 +1,28 @@
 use crate::base::{tresult, TBool};
-use crate::vst::{BusDirection, IEventList, IParameterChanges, ProcessContext, SpeakerArrangement};
+use crate::vst::{
+    BusDirection, CString, IEventList, IParameterChanges, ProcessContext, SpeakerArrangement,
+};
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 
+pub const kVstAudioEffectClass: CString = b"Audio Module Class\0".as_ptr() as *const _;
+
+/// todo: add all subcategories
+pub const kFx: CString = b"Fx\0".as_ptr() as *const _;
+
 pub const K_SAMPLE32: i32 = 0;
 pub const K_SAMPLE64: i32 = 1;
+
+pub enum ProcessModes {
+    kRealtime = 0,
+    kPrefetch = 1,
+    kOffline = 2,
+}
+
+pub enum SymbolicSampleSizes {
+    kSample32 = 0,
+    kSample64 = 1,
+}
 
 #[repr(C)]
 #[derive(Copy, Clone, Default, Debug)]
@@ -57,9 +75,9 @@ pub trait IAudioProcessor: IUnknown {
     ) -> tresult;
     unsafe fn can_process_sample_size(&self, symbolic_sample_size: i32) -> tresult;
     unsafe fn get_latency_sample(&self) -> u32;
-    unsafe fn setup_processing(&mut self, setup: *mut ProcessSetup) -> tresult;
+    unsafe fn setup_processing(&self, setup: *mut ProcessSetup) -> tresult;
     unsafe fn set_processing(&self, state: TBool) -> tresult;
-    unsafe fn process(&mut self, data: *mut ProcessData) -> tresult;
+    unsafe fn process(&self, data: *mut ProcessData) -> tresult;
     unsafe fn get_tail_samples(&self) -> u32;
 }
 

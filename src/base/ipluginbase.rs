@@ -59,8 +59,8 @@ pub struct PClassInfoW {
 /// Basic interface to a Plug-in component.
 #[com_interface("22888DDB-156E-45AE-8358-B34808190625")]
 pub trait IPluginBase: IUnknown {
-    unsafe fn initialize(&mut self, context: *mut c_void) -> tresult;
-    unsafe fn terminate(&mut self) -> tresult;
+    unsafe fn initialize(&self, context: *mut c_void) -> tresult;
+    unsafe fn terminate(&self) -> tresult;
 }
 
 /// Class factory that any Plug-in defines for creating class instances.
@@ -84,6 +84,6 @@ pub trait IPluginFactory2: IPluginFactory {
 
 #[com_interface("4555A2AB-C123-4E57-9B12-291036878931")]
 pub trait IPluginFactory3: IPluginFactory2 {
-    unsafe fn get_class_info_unicode(&self, idx: i32, info: *mut PClassInfoW) -> tresult;
+    unsafe fn get_class_info_unicode(&self, index: i32, info: *mut PClassInfoW) -> tresult;
     unsafe fn set_host_context(&self, context: *mut c_void) -> tresult;
 }

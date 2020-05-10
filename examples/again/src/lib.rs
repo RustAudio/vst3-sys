@@ -4,6 +4,7 @@ use std::ptr::{copy_nonoverlapping, null_mut};
 use log::*;
 
 use flexi_logger::{opt_format, Logger};
+use std::cell::RefCell;
 use std::intrinsics::write_bytes;
 use std::mem;
 use vst3_com::sys::GUID;
@@ -42,15 +43,23 @@ pub struct AudioBus {
     speaker_arr: SpeakerArrangement,
 }
 
+struct CurrentProcessorMode(i32);
+struct ProcessSetupWrapper(ProcessSetup);
+struct AudioInputs(Vec<AudioBus>);
+struct AudioOutputs(Vec<AudioBus>);
+struct Gain(f64);
+struct Bypass(bool);
+struct ContextPtr(*mut c_void);
+
 #[VST3(implements(IComponent, IAudioProcessor))]
 pub struct AGainProcessor {
-    current_process_mode: i32,
-    process_setup: ProcessSetup,
-    audio_inputs: Vec<AudioBus>,
-    audio_outputs: Vec<AudioBus>,
-    gain: f64,
-    bypass: bool,
-    context: *mut c_void,
+    current_process_mode: RefCell<CurrentProcessorMode>,
+    process_setup: RefCell<ProcessSetupWrapper>,
+    audio_inputs: RefCell<AudioInputs>,
+    audio_outputs: RefCell<AudioOutputs>,
+    gain: RefCell<Gain>,
+    bypass: RefCell<Bypass>,
+    context: RefCell<ContextPtr>,
 }
 impl AGainProcessor {
     const CID: GUID = GUID {
@@ -61,18 +70,18 @@ impl AGainProcessor {
     };
 
     pub fn new() -> Box<Self> {
-        let current_process_mode = 0;
-        let process_setup = ProcessSetup {
+        let current_process_mode = RefCell::new(CurrentProcessorMode(0));
+        let process_setup = RefCell::new(ProcessSetupWrapper(ProcessSetup {
             process_mode: 0,
             symbolic_sample_size: 0,
             max_samples_per_block: 0,
             sample_rate: 0.0,
-        };
-        let audio_inputs = vec![];
-        let audio_outputs = vec![];
-        let gain = 1.0;
-        let bypass = false;
-        let context = null_mut();
+        }));
+        let audio_inputs = RefCell::new(AudioInputs(vec![]));
+        let audio_outputs = RefCell::new(AudioOutputs(vec![]));
+        let gain = RefCell::new(Gain(1.0));
+        let bypass = RefCell::new(Bypass(false));
+        let context = RefCell::new(ContextPtr(null_mut()));
         AGainProcessor::allocate(
             current_process_mode,
             process_setup,
@@ -88,15 +97,15 @@ impl AGainProcessor {
         Box::into_raw(Self::new()) as *mut c_void
     }
 
-    pub unsafe fn setup_processing_ae(&mut self, new_setup: *mut ProcessSetup) -> tresult {
+    pub unsafe fn setup_processing_ae(&self, new_setup: *mut ProcessSetup) -> tresult {
         if self.can_process_sample_size((*new_setup).symbolic_sample_size) != kResultTrue {
             return kResultFalse;
         }
-        self.process_setup = (*new_setup).clone();
+        self.process_setup.borrow_mut().0 = (*new_setup).clone();
         kResultOk
     }
 
-    pub unsafe fn add_audio_input(&mut self, name: &str, arr: SpeakerArrangement) {
+    pub unsafe fn add_audio_input(&self, name: &str, arr: SpeakerArrangement) {
         let new_bus = AudioBus {
             name: String::from(name),
             bus_type: 0,
@@ -104,10 +113,10 @@ impl AGainProcessor {
             active: false as u8,
             speaker_arr: arr,
         };
-        self.audio_inputs.push(new_bus);
+        self.audio_inputs.borrow_mut().0.push(new_bus);
     }
 
-    pub unsafe fn add_audio_output(&mut self, name: &str, arr: SpeakerArrangement) {
+    pub unsafe fn add_audio_output(&self, name: &str, arr: SpeakerArrangement) {
         let new_bus = AudioBus {
             name: String::from(name),
             bus_type: 0,
@@ -115,7 +124,7 @@ impl AGainProcessor {
             active: false as u8,
             speaker_arr: arr,
         };
-        self.audio_outputs.push(new_bus);
+        self.audio_outputs.borrow_mut().0.push(new_bus);
     }
 }
 
@@ -150,8 +159,8 @@ impl IComponent for AGainProcessor {
 
         match type_ {
             0 => match dir {
-                0 => self.audio_inputs.len() as i32,
-                _ => self.audio_outputs.len() as i32,
+                0 => self.audio_inputs.borrow().0.len() as i32,
+                _ => self.audio_outputs.borrow().0.len() as i32,
             },
             _ => 0,
         }
@@ -171,10 +180,10 @@ impl IComponent for AGainProcessor {
         match type_ {
             0 => match dir {
                 0 => {
-                    if index as usize >= self.audio_inputs.len() {
+                    if index as usize >= self.audio_inputs.borrow().0.len() {
                         kInvalidArgument
                     } else {
-                        let bus = &self.audio_inputs[index as usize];
+                        let bus = &self.audio_inputs.borrow().0[index as usize];
                         wstrcpy(&bus.name, (*info).name.as_mut_ptr());
                         (*info).channel_count = get_channel_count(bus.speaker_arr);
                         (*info).bus_type = bus.bus_type;
@@ -183,10 +192,10 @@ impl IComponent for AGainProcessor {
                     }
                 }
                 _ => {
-                    if index as usize >= self.audio_outputs.len() {
+                    if index as usize >= self.audio_outputs.borrow().0.len() {
                         kInvalidArgument
                     } else {
-                        let bus = &self.audio_outputs[index as usize];
+                        let bus = &self.audio_outputs.borrow().0[index as usize];
                         wstrcpy(&bus.name, (*info).name.as_mut_ptr());
                         (*info).channel_count = get_channel_count(bus.speaker_arr);
                         (*info).bus_type = bus.bus_type;
@@ -210,7 +219,7 @@ impl IComponent for AGainProcessor {
     }
 
     unsafe fn activate_bus(
-        &mut self,
+        &self,
         type_: MediaType,
         dir: BusDirection,
         index: i32,
@@ -219,8 +228,8 @@ impl IComponent for AGainProcessor {
         info!("Called: AGainProcessor::activate_bus()");
 
         if index < 0
-            || index >= self.audio_inputs.len() as i32
-            || index >= self.audio_outputs.len() as i32
+            || index >= self.audio_inputs.borrow().0.len() as i32
+            || index >= self.audio_outputs.borrow().0.len() as i32
         {
             return kInvalidArgument;
         }
@@ -228,10 +237,10 @@ impl IComponent for AGainProcessor {
         match type_ {
             0 => match dir {
                 0 => {
-                    self.audio_inputs[index as usize].active = state;
+                    self.audio_inputs.borrow_mut().0[index as usize].active = state;
                 }
                 _ => {
-                    self.audio_outputs[index as usize].active = state;
+                    self.audio_outputs.borrow_mut().0[index as usize].active = state;
                 }
             },
             _ => return kInvalidArgument,
@@ -245,7 +254,7 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn set_state(&mut self, state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, state: *mut c_void) -> tresult {
         info!("Called: AGainProcessor::set_state()");
 
         if state.is_null() {
@@ -268,13 +277,13 @@ impl IComponent for AGainProcessor {
             &mut num_bytes_read,
         );
 
-        self.gain = saved_gain;
-        self.bypass = saved_bypass;
+        self.gain.borrow_mut().0 = saved_gain;
+        self.bypass.borrow_mut().0 = saved_bypass;
 
         kResultOk
     }
 
-    unsafe fn get_state(&mut self, state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, state: *mut c_void) -> tresult {
         info!("Called: AGainProcessor::get_state()");
 
         if state.is_null() {
@@ -285,8 +294,8 @@ impl IComponent for AGainProcessor {
         let state: ComPtr<dyn IBStream> = ComPtr::new(state);
 
         let mut num_bytes_written = 0;
-        let gain_ptr = &mut self.gain as *mut f64 as *mut c_void;
-        let bypass_ptr = &mut self.bypass as *mut bool as *mut c_void;
+        let gain_ptr = &mut self.gain.borrow_mut().0 as *mut f64 as *mut c_void;
+        let bypass_ptr = &mut self.bypass.borrow_mut().0 as *mut bool as *mut c_void;
 
         state.write(
             gain_ptr,
@@ -304,25 +313,25 @@ impl IComponent for AGainProcessor {
 }
 
 impl IPluginBase for AGainProcessor {
-    unsafe fn initialize(&mut self, context: *mut c_void) -> tresult {
+    unsafe fn initialize(&self, context: *mut c_void) -> tresult {
         info!("Called: AGainProcessor::initialize()");
 
-        if !self.context.is_null() {
+        if !self.context.borrow().0.is_null() {
             return kResultFalse;
         }
-        self.context = context;
+        self.context.borrow_mut().0 = context;
 
         self.add_audio_input("Stereo In", 3);
         self.add_audio_output("Stereo Out", 3);
 
         kResultOk
     }
-    unsafe fn terminate(&mut self) -> tresult {
+    unsafe fn terminate(&self) -> tresult {
         info!("Called: AGainProcessor::terminate()");
 
-        self.audio_inputs.clear();
-        self.audio_outputs.clear();
-        self.context = null_mut();
+        self.audio_inputs.borrow_mut().0.clear();
+        self.audio_outputs.borrow_mut().0.clear();
+        self.context.borrow_mut().0 = null_mut();
         kResultOk
     }
 }
@@ -349,18 +358,18 @@ impl IAudioProcessor for AGainProcessor {
 
         match dir {
             0 => {
-                if index as usize >= self.audio_inputs.len() {
+                if index as usize >= self.audio_inputs.borrow().0.len() {
                     kResultFalse
                 } else {
-                    *arr = self.audio_inputs[index as usize].speaker_arr;
+                    *arr = self.audio_inputs.borrow().0[index as usize].speaker_arr;
                     kResultTrue
                 }
             }
             _ => {
-                if index as usize >= self.audio_outputs.len() {
+                if index as usize >= self.audio_outputs.borrow().0.len() {
                     kResultFalse
                 } else {
-                    *arr = self.audio_outputs[index as usize].speaker_arr;
+                    *arr = self.audio_outputs.borrow().0[index as usize].speaker_arr;
                     kResultTrue
                 }
             }
@@ -380,10 +389,10 @@ impl IAudioProcessor for AGainProcessor {
 
         0
     }
-    unsafe fn setup_processing(&mut self, setup: *mut ProcessSetup) -> tresult {
+    unsafe fn setup_processing(&self, setup: *mut ProcessSetup) -> tresult {
         info!("Called: AGainProcessor::setup_processing()");
 
-        self.current_process_mode = (*setup).process_mode;
+        self.current_process_mode.borrow_mut().0 = (*setup).process_mode;
         self.setup_processing_ae(setup)
     }
     unsafe fn set_processing(&self, _state: TBool) -> tresult {
@@ -391,7 +400,7 @@ impl IAudioProcessor for AGainProcessor {
 
         kNotImplemented
     }
-    unsafe fn process(&mut self, data: *mut ProcessData) -> tresult {
+    unsafe fn process(&self, data: *mut ProcessData) -> tresult {
         info!("Called: AGainProcessor::process()");
 
         let param_changes = (*data).input_param_changes as *mut c_void;
@@ -415,8 +424,8 @@ impl IAudioProcessor for AGainProcessor {
                                 &mut value as *mut _,
                             ) == kResultTrue
                             {
-                                self.gain = value;
-                                info!("Gain value: {}", self.gain);
+                                self.gain.borrow_mut().0 = value;
+                                info!("Gain value: {}", self.gain.borrow().0);
                             }
                         }
                         1 => {
@@ -426,8 +435,8 @@ impl IAudioProcessor for AGainProcessor {
                                 &mut value as *mut _,
                             ) == kResultTrue
                             {
-                                self.bypass = value > 0.5;
-                                info!("Bypass value: {}", self.bypass);
+                                self.bypass.borrow_mut().0 = value > 0.5;
+                                info!("Bypass value: {}", self.bypass.borrow().0);
                             }
                         }
                         _ => (),
@@ -445,7 +454,7 @@ impl IAudioProcessor for AGainProcessor {
         let in_ = (*(*data).inputs).buffers;
         let out_ = (*(*data).outputs).buffers;
         let sample_frames_size = {
-            match self.process_setup.symbolic_sample_size {
+            match self.process_setup.borrow().0.symbolic_sample_size {
                 K_SAMPLE32 => (*data).num_samples as usize * mem::size_of::<f32>(),
                 K_SAMPLE64 => (*data).num_samples as usize * mem::size_of::<f64>(),
                 _ => unreachable!(),
@@ -462,7 +471,7 @@ impl IAudioProcessor for AGainProcessor {
 
         (*(*data).outputs).silence_flags = 0;
 
-        if self.bypass {
+        if self.bypass.borrow().0 {
             for i in 0..num_channels as isize {
                 if *in_.offset(i) != *out_.offset(i) {
                     copy_nonoverlapping(
@@ -473,14 +482,15 @@ impl IAudioProcessor for AGainProcessor {
                 }
             }
         } else {
-            match self.process_setup.symbolic_sample_size {
+            match self.process_setup.borrow().0.symbolic_sample_size {
                 K_SAMPLE32 => {
                     info!("Processing at 32bit");
                     for i in 0..num_channels as isize {
                         let channel_in = *in_.offset(i) as *const f32;
                         let channel_out = *out_.offset(i) as *mut f32;
                         for j in 0..num_samples as isize {
-                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain as f32;
+                            *channel_out.offset(j) =
+                                *channel_in.offset(j) * self.gain.borrow().0 as f32;
                         }
                     }
                 }
@@ -490,7 +500,7 @@ impl IAudioProcessor for AGainProcessor {
                         let channel_in = *in_.offset(i) as *const f64;
                         let channel_out = *out_.offset(i) as *mut f64;
                         for j in 0..num_samples as isize {
-                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain;
+                            *channel_out.offset(j) = *channel_in.offset(j) * self.gain.borrow().0;
                         }
                     }
                 }
@@ -508,12 +518,16 @@ impl IAudioProcessor for AGainProcessor {
     }
 }
 
+struct Units(Vec<UnitInfo>);
+struct Parameters(Vec<(ParameterInfo, f64)>);
+struct ComponentHandler(*mut c_void);
+
 #[VST3(implements(IEditController, IUnitInfo))]
 pub struct AGainController {
-    units: Vec<UnitInfo>,
-    parameters: Vec<(ParameterInfo, f64)>,
-    context: *mut c_void,
-    component_handler: *mut c_void,
+    units: RefCell<Units>,
+    parameters: RefCell<Parameters>,
+    context: RefCell<ContextPtr>,
+    component_handler: RefCell<ComponentHandler>,
 }
 impl AGainController {
     const CID: GUID = GUID {
@@ -523,10 +537,10 @@ impl AGainController {
         ],
     };
     pub fn new() -> Box<Self> {
-        let units = vec![];
-        let parameters = vec![];
-        let context = null_mut();
-        let component_handler = null_mut();
+        let units = RefCell::new(Units(vec![]));
+        let parameters = RefCell::new(Parameters(vec![]));
+        let context = RefCell::new(ContextPtr(null_mut()));
+        let component_handler = RefCell::new(ComponentHandler(null_mut()));
         AGainController::allocate(units, parameters, context, component_handler)
     }
 
@@ -536,7 +550,7 @@ impl AGainController {
 }
 
 impl IEditController for AGainController {
-    unsafe fn set_component_state(&mut self, state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, state: *mut c_void) -> tresult {
         info!("Called: AGainController::set_component_state()");
 
         if state.is_null() {
@@ -567,12 +581,12 @@ impl IEditController for AGainController {
 
         kResultOk
     }
-    unsafe fn set_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
         info!("Called: AGainController::set_state()");
 
         kResultOk
     }
-    unsafe fn get_state(&mut self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
         info!("Called: AGainController::get_state()");
 
         kResultOk
@@ -580,7 +594,7 @@ impl IEditController for AGainController {
     unsafe fn get_parameter_count(&self) -> i32 {
         info!("Called: AGainController::get_parameter_count()");
 
-        self.parameters.len() as i32
+        self.parameters.borrow().0.len() as i32
     }
     unsafe fn get_parameter_info(&self, param_index: i32, info: *mut ParameterInfo) -> tresult {
         info!(
@@ -588,8 +602,8 @@ impl IEditController for AGainController {
             param_index
         );
 
-        if param_index >= 0 && param_index < self.parameters.len() as i32 {
-            *info = self.parameters[param_index as usize].0.clone();
+        if param_index >= 0 && param_index < self.parameters.borrow().0.len() as i32 {
+            *info = self.parameters.borrow().0[param_index as usize].0.clone();
             return kResultTrue;
         }
         kResultFalse
@@ -642,42 +656,42 @@ impl IEditController for AGainController {
         info!("Called: AGainController::get_param_normalized()");
 
         match id {
-            0 => self.parameters[0].1,
-            1 => self.parameters[1].1,
+            0 => self.parameters.borrow().0[0].1,
+            1 => self.parameters.borrow().0[1].1,
             _ => unreachable!(),
         }
     }
-    unsafe fn set_param_normalized(&mut self, id: u32, value: f64) -> tresult {
+    unsafe fn set_param_normalized(&self, id: u32, value: f64) -> tresult {
         info!("Called: AGainController::set_param_normalized()");
 
         match id {
             0 => {
-                self.parameters[0].1 = value;
+                self.parameters.borrow_mut().0[0].1 = value;
                 kResultTrue
             }
             1 => {
-                self.parameters[1].1 = value;
+                self.parameters.borrow_mut().0[1].1 = value;
                 kResultTrue
             }
             _ => kResultFalse,
         }
     }
-    unsafe fn set_component_handler(&mut self, handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, handler: *mut c_void) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
-        if self.component_handler == handler {
+        if self.component_handler.borrow().0 == handler {
             return kResultTrue;
         }
 
-        if !self.component_handler.is_null() {
-            let component_handler = self.component_handler as *mut *mut _;
+        if !self.component_handler.borrow().0.is_null() {
+            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
             let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
             component_handler.release();
         }
 
-        self.component_handler = handler;
-        if !self.component_handler.is_null() {
-            let component_handler = self.component_handler as *mut *mut _;
+        self.component_handler.borrow_mut().0 = handler;
+        if !self.component_handler.borrow().0.is_null() {
+            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
             let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
             component_handler.add_ref();
         }
@@ -692,13 +706,13 @@ impl IEditController for AGainController {
 }
 
 impl IPluginBase for AGainController {
-    unsafe fn initialize(&mut self, context: *mut c_void) -> tresult {
+    unsafe fn initialize(&self, context: *mut c_void) -> tresult {
         info!("Called: AGainController::initialize()");
 
-        if !self.context.is_null() {
+        if !self.context.borrow().0.is_null() {
             return kResultFalse;
         }
-        self.context = context;
+        self.context.borrow_mut().0 = context;
 
         let mut unit_info = UnitInfo {
             id: 1,
@@ -707,7 +721,7 @@ impl IPluginBase for AGainController {
             program_list_id: -1,
         };
         wstrcpy("Unit1", unit_info.name.as_mut_ptr());
-        self.units.push(unit_info);
+        self.units.borrow_mut().0.push(unit_info);
 
         let mut gain_parameter = ParameterInfo {
             id: 0,
@@ -722,7 +736,7 @@ impl IPluginBase for AGainController {
         wstrcpy("Gain", gain_parameter.title.as_mut_ptr());
         wstrcpy("Gain", gain_parameter.short_title.as_mut_ptr());
         wstrcpy("%", gain_parameter.units.as_mut_ptr());
-        self.parameters.push((gain_parameter, 1.0));
+        self.parameters.borrow_mut().0.push((gain_parameter, 1.0));
 
         let mut bypass_parameter = ParameterInfo {
             id: 1,
@@ -735,24 +749,24 @@ impl IPluginBase for AGainController {
             flags: kCanAutomate as i32 | kIsBypass as i32,
         };
         wstrcpy("Bypass", bypass_parameter.title.as_mut_ptr());
-        self.parameters.push((bypass_parameter, 0.0));
+        self.parameters.borrow_mut().0.push((bypass_parameter, 0.0));
 
         kResultOk
     }
-    unsafe fn terminate(&mut self) -> tresult {
+    unsafe fn terminate(&self) -> tresult {
         info!("Called: AGainController::terminate()");
 
-        self.units.clear();
-        self.parameters.clear();
+        self.units.borrow_mut().0.clear();
+        self.parameters.borrow_mut().0.clear();
 
-        if !self.component_handler.is_null() {
-            let component_handler = self.component_handler as *mut *mut _;
+        if !self.component_handler.borrow().0.is_null() {
+            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
             let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
             component_handler.release();
-            self.component_handler = null_mut();
+            self.component_handler.borrow_mut().0 = null_mut();
         }
 
-        self.context = null_mut();
+        self.context.borrow_mut().0 = null_mut();
         kResultOk
     }
 }
@@ -767,8 +781,8 @@ impl IUnitInfo for AGainController {
     unsafe fn get_unit_info(&self, unit_index: i32, info: *mut UnitInfo) -> i32 {
         info!("Called: AGainController::get_unit_info()");
 
-        if unit_index >= 0 && unit_index < self.units.len() as i32 {
-            *info = self.units[unit_index as usize].clone();
+        if unit_index >= 0 && unit_index < self.units.borrow().0.len() as i32 {
+            *info = self.units.borrow().0[unit_index as usize].clone();
             return kResultTrue;
         }
         kResultFalse
