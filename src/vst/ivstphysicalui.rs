@@ -1,12 +1,22 @@
 use crate::base::tresult;
+use crate::vst::ivstnoteexpression::NoteExpressionTypeID;
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
+
+pub enum PhysicalUITypeID
+{
+	kPUIXMovement = 0,
+	kPUIYMovement = 1,
+	kPUIPressure = 2,
+	kPUITypeCount = 3,
+	kInvalidPUITypeID = 0xFFFFFFFF
+}
 
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct PhysicalUIMap {
-    pub physical_ui_type_id: u32,
-    pub note_expression_type_id: u32,
+    pub physical_ui_type_id: PhysicalUITypeID,
+    pub note_expression_type_id: NoteExpressionTypeID,
 }
 
 #[repr(C)]
