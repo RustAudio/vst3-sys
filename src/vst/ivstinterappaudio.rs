@@ -1,4 +1,4 @@
-use crate::base::tresult;
+use crate::base::{tresult, TBool};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
