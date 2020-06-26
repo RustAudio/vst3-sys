@@ -13,4 +13,3 @@ pub use vst3_com::co_class as VST3;
 pub use vst3_com::REFIID;
 pub use vst3_com::*;
 pub mod utils;
-pub use vst3_com::co_class as VST3;
