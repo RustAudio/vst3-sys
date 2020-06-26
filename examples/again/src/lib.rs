@@ -1,7 +1,7 @@
+use log::*;
 use std::os::raw::{c_char, c_short, c_void};
 use std::ptr::{copy_nonoverlapping, null_mut};
-
-use log::*;
+use vst3_sys::utils::VstPtr;
 
 use flexi_logger::{opt_format, Logger};
 use std::cell::RefCell;
@@ -403,16 +403,12 @@ impl IAudioProcessor for AGainProcessor {
     unsafe fn process(&self, data: *mut ProcessData) -> tresult {
         info!("Called: AGainProcessor::process()");
 
-        let param_changes = (*data).input_param_changes as *mut c_void;
-        if !param_changes.is_null() {
-            let param_changes = param_changes as *mut *mut _;
-            let param_changes: ComPtr<dyn IParameterChanges> = ComPtr::new(param_changes);
+        let param_changes = &(*data).input_param_changes;
+        if let Some(param_changes) = param_changes.upgrade() {
             let num_params_changed = param_changes.get_parameter_count();
             for i in 0..num_params_changed {
                 let param_queue = param_changes.get_parameter_data(i);
-                if !param_queue.is_null() {
-                    let param_queue = param_queue as *mut *mut _;
-                    let param_queue: ComPtr<dyn IParamValueQueue> = ComPtr::new(param_queue);
+                if let Some(param_queue) = param_queue.upgrade() {
                     let mut value = 0.0;
                     let mut sample_offset = 0;
                     let num_points = param_queue.get_point_count();
@@ -870,7 +866,7 @@ impl IUnitInfo for AGainController {
         &self,
         _list_or_unit: i32,
         _program_index: i32,
-        _data: *mut dyn IBStream,
+        _data: VstPtr<dyn IBStream>,
     ) -> i32 {
         info!("Called: AGainController::set_unit_program_data()");
 

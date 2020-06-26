@@ -1,4 +1,5 @@
 use crate::base::{char16, tresult, FIDString, TBool};
+use crate::utils::VstPtr;
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 
@@ -27,7 +28,7 @@ pub trait IPlugView: IUnknown {
 
 #[com_interface("367FAF01-AFA9-4693-8D4D-A2A0ED0882A3")]
 pub trait IPlugFrame: IUnknown {
-    unsafe fn resize_view(&self, view: *mut dyn IPlugView, new_size: *mut ViewRect) -> tresult;
+    unsafe fn resize_view(&self, view: VstPtr<dyn IPlugView>, new_size: *mut ViewRect) -> tresult;
 }
 
 #[cfg(linux)]
@@ -53,11 +54,12 @@ pub mod linux {
     pub trait IRunLoop: IUnknown {
         unsafe fn register_event_handler(
             &self,
-            h: *mut dyn IEventHandler,
+            h: VstPtr<IEventHandler>,
             fd: FileDescriptor,
         ) -> tresult;
-        unsafe fn unregister_event_handler(&self, h: *mut dyn IEventHandler) -> tresult;
-        unsafe fn register_timer(&self, t: *mut dyn ITimerHandler, ms: TimerInterval) -> tresult;
-        unsafe fn unregister_timer(&self, t: *mut dyn ITimerHandler) -> tresult;
+        unsafe fn unregister_event_handler(&self, h: VstPtr<dyn IEventHandler>) -> tresult;
+        unsafe fn register_timer(&self, t: VstPtr<dyn ITimerHandler>, ms: TimerInterval)
+            -> tresult;
+        unsafe fn unregister_timer(&self, t: VstPtr<dyn ITimerHandler>) -> tresult;
     }
 }

@@ -1,6 +1,7 @@
 use crate::base::tresult;
+use crate::utils::VstPtr;
+use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
-use vst3_com::{c_void, com_interface};
 
 #[com_interface("01263A18-ED07-4F6F-98C9-D3564686F9BA")]
 pub trait IParamValueQueue: IUnknown {
@@ -14,7 +15,11 @@ pub trait IParamValueQueue: IUnknown {
 pub trait IParameterChanges: IUnknown {
     unsafe fn get_parameter_count(&self) -> i32;
     // Returns a pointer to IParamValueQueue
-    unsafe fn get_parameter_data(&self, index: i32) -> *mut c_void;
+    unsafe fn get_parameter_data(&self, index: i32) -> VstPtr<dyn IParamValueQueue>;
     // Returns a pointer to IParamValueQueue
-    unsafe fn add_parameter_data(&self, id: *const u32, index: *mut i32) -> *mut c_void;
+    unsafe fn add_parameter_data(
+        &self,
+        id: *const u32,
+        index: *mut i32,
+    ) -> VstPtr<dyn IParameterChanges>;
 }

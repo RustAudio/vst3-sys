@@ -1,6 +1,8 @@
 use crate::base::{char8, tchar, tresult};
+use crate::utils::VstPtr;
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
+
 pub type AttrID = *const char8;
 
 #[com_interface("1E5F0AEB-CC7F-4533-A254-401138AD5EE4")]
@@ -18,5 +20,5 @@ pub trait IAttributeList: IUnknown {
 #[com_interface("D6CE2FFC-EFAF-4B8C-9E74-F1BB12DA44B4")]
 pub trait IStreamAttributes: IUnknown {
     unsafe fn get_filename(&self, name: *const tchar) -> tresult;
-    unsafe fn get_attributes(&self) -> *mut dyn IAttributeList;
+    unsafe fn get_attributes(&self) -> VstPtr<dyn IAttributeList>;
 }
