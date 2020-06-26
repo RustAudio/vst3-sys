@@ -9,13 +9,18 @@ pub struct VstPtr<I: ComInterface + ?Sized> {
 }
 
 impl<I: ComInterface + ?Sized> VstPtr<I> {
+    /// check if the underlying pointer is null
     pub fn is_null(&self) -> bool {
         self.inst.is_null()
     }
+    /// Promote the pointer to a reference count, returns `None` if the pointer is null. 
     pub fn upgrade(&self) -> Option<ComRc<I>> {
         if self.inst.is_null() {
             None
         } else {
+            // Safety: we only guarantee the pointer is not null, 
+            // if the code that allocated the pointer is flawed 
+            // it could still point to garbage.
             unsafe { Some(ComRc::from_raw(self.inst)) }
         }
     }
