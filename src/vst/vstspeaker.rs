@@ -1,3 +1,4 @@
+#![allow(clippy::unreadable_literal)]
 use crate::vst::{Speaker, SpeakerArrangement};
 pub const kSpeakerL: Speaker = 1;
 pub const kSpeakerR: Speaker = 2;
