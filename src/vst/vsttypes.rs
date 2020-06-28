@@ -18,6 +18,7 @@ pub type Sample64 = f64;
 pub type SampleRate = f64;
 pub type SpeakerArrangement = u64;
 pub type Speaker = u64;
+pub type KnobMode = i32;
 
 pub const kNoParamId: ParamID = 0xFFFF_FFFF;
 pub const kVstVersionMajor: i32 = 3;

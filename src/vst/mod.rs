@@ -18,6 +18,7 @@ mod ivstprefetchablesupport;
 mod ivstprocesscontext;
 mod ivstrepresentation;
 mod ivstunits;
+mod vstspeaker;
 mod vsttypes;
 
 pub use ivstattributes::*;
@@ -40,6 +41,6 @@ pub use ivstprefetchablesupport::*;
 pub use ivstprocesscontext::*;
 pub use ivstrepresentation::*;
 pub use ivstunits::*;
+pub use vstspeaker::*;
 pub use vsttypes::*;
-
-//todo: ivsttestplugprovider, test/itest vstspeaker.h,
+// test/itest vstspeaker.h,
