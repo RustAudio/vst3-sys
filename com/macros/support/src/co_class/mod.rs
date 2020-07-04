@@ -24,7 +24,9 @@ pub fn expand_co_class(input: &ItemStruct, attr_args: &AttributeArgs) -> TokenSt
     out.push(co_class_impl::generate(input).into());
 
     out.push(iunknown_impl::generate(&base_interface_idents, &aggr_interface_idents, input).into());
-    out.push(class_factory::generate(input).into());
+
+    // Removing some bloat
+    //out.push(class_factory::generate(input).into());
 
     TokenStream::from_iter(out)
 }

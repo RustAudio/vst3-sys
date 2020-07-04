@@ -11,7 +11,7 @@ pub trait IBStream: IUnknown {
         -> tresult;
     unsafe fn write(
         &self,
-        buffer: *mut c_void,
+        buffer: *const c_void,
         num_bytes: i32,
         num_bytes_written: *mut i32,
     ) -> tresult;

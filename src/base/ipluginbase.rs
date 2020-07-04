@@ -71,8 +71,8 @@ pub trait IPluginFactory: IUnknown {
     unsafe fn get_class_info(&self, index: i32, info: *mut PClassInfo) -> tresult;
     unsafe fn create_instance(
         &self,
-        cid: *mut IID,
-        _iid: *mut IID,
+        cid: *const IID,
+        _iid: *const IID,
         obj: *mut *mut c_void,
     ) -> tresult;
 }

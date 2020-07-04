@@ -13,8 +13,6 @@ pub trait IParamValueQueue: IUnknown {
 #[com_interface("A4779663-0BB6-4A56-B443-84A8466FEB9D")]
 pub trait IParameterChanges: IUnknown {
     unsafe fn get_parameter_count(&self) -> i32;
-    // Returns a pointer to IParamValueQueue
     unsafe fn get_parameter_data(&self, index: i32) -> *mut c_void;
-    // Returns a pointer to IParamValueQueue
     unsafe fn add_parameter_data(&self, id: *const u32, index: *mut i32) -> *mut c_void;
 }

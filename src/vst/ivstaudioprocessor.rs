@@ -51,10 +51,10 @@ pub struct ProcessData {
     pub num_outputs: i32,
     pub inputs: *mut AudioBusBuffers,
     pub outputs: *mut AudioBusBuffers,
-    pub input_param_changes: *mut dyn IParameterChanges,
-    pub output_param_changes: *mut dyn IParameterChanges,
-    pub input_events: *mut dyn IEventList,
-    pub output_events: *mut dyn IEventList,
+    pub input_parameter_changes: *mut c_void,
+    pub output_parameter_changes: *mut c_void,
+    pub input_events: *mut c_void,
+    pub output_events: *mut c_void,
     pub context: *mut ProcessContext,
 }
 
@@ -67,15 +67,15 @@ pub trait IAudioProcessor: IUnknown {
         outputs: *mut SpeakerArrangement,
         num_outs: i32,
     ) -> tresult;
-    unsafe fn get_bus_arrangements(
+    unsafe fn get_bus_arrangement(
         &self,
         dir: BusDirection,
         index: i32,
         arr: *mut SpeakerArrangement,
     ) -> tresult;
     unsafe fn can_process_sample_size(&self, symbolic_sample_size: i32) -> tresult;
-    unsafe fn get_latency_sample(&self) -> u32;
-    unsafe fn setup_processing(&self, setup: *mut ProcessSetup) -> tresult;
+    unsafe fn get_latency_samples(&self) -> u32;
+    unsafe fn setup_processing(&self, setup: *const ProcessSetup) -> tresult;
     unsafe fn set_processing(&self, state: TBool) -> tresult;
     unsafe fn process(&self, data: *mut ProcessData) -> tresult;
     unsafe fn get_tail_samples(&self) -> u32;

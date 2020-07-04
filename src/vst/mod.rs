@@ -6,6 +6,7 @@ mod ivstcomponent;
 mod ivstcontextmenu;
 mod ivsteditcontroller;
 mod ivstevents;
+mod ivsthostapplication;
 mod ivstmessage;
 mod ivstmidicontroller;
 mod ivstmidilearn;
@@ -18,6 +19,7 @@ mod ivstprefetchablesupport;
 mod ivstprocesscontext;
 mod ivstrepresentation;
 mod ivstunits;
+mod vstspeaker;
 mod vsttypes;
 
 pub use ivstattributes::*;
@@ -28,6 +30,7 @@ pub use ivstcomponent::*;
 pub use ivstcontextmenu::*;
 pub use ivsteditcontroller::*;
 pub use ivstevents::*;
+pub use ivsthostapplication::*;
 pub use ivstmessage::*;
 pub use ivstmidicontroller::*;
 pub use ivstmidilearn::*;
@@ -40,6 +43,7 @@ pub use ivstprefetchablesupport::*;
 pub use ivstprocesscontext::*;
 pub use ivstrepresentation::*;
 pub use ivstunits::*;
+pub use vstspeaker::*;
 pub use vsttypes::*;
 
 //todo: ivsttestplugprovider, test/itest vstspeaker.h,
