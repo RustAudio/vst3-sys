@@ -1,5 +1,5 @@
 //! Utilities for consumers of the raw API
-use vst3_com::{ComInterface, ComRc};
+use vst3_com::{ComInterface, ComPtr};
 
 /// A thin wrapper around a raw pointer to a vtable. Used in traits that return pointers to instances.
 #[repr(transparent)]
@@ -14,12 +14,12 @@ impl<I: ComInterface + ?Sized> VstPtr<I> {
         self.inst.is_null()
     }
     /// Promote the pointer to a reference count, returns `None` if the pointer is null.
-    pub fn upgrade(&self) -> Option<ComRc<I>> {
+    pub fn upgrade(&self) -> Option<ComPtr<I>> {
         if self.inst.is_null() {
             None
         } else {
             // Safety: we only guarantee the pointer is not null, if the code that allocated the pointer is flawed  it could still point to garbage.
-            unsafe { Some(ComRc::from_raw(self.inst)) }
+            unsafe { Some(ComPtr::new(self.inst)) }
         }
     }
 }
