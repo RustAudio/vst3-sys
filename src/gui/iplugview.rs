@@ -32,7 +32,7 @@ pub trait IPlugFrame: IUnknown {
     unsafe fn resize_view(&self, view: *mut c_void, new_size: *mut ViewRect) -> tresult;
 }
 
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub mod linux {
     use crate::base::tresult;
     use vst3_com::interfaces::iunknown::IUnknown;
