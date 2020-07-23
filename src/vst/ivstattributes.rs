@@ -1,5 +1,5 @@
-use vst3_com::{com_interface, c_void};
 use vst3_com::interfaces::iunknown::IUnknown;
+use vst3_com::{c_void, com_interface};
 
 use crate::base::{char8, tchar, tresult};
 

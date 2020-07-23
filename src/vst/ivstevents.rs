@@ -1,6 +1,5 @@
 use crate::base::tresult;
 use crate::vst::{NoteExpressionTextEvent, NoteExpressionValueEvent};
-use std::os::raw::c_void;
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 

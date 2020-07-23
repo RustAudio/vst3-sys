@@ -1,5 +1,5 @@
 use super::IUnknown;
-use crate::base::{tresult, IString};
+use crate::base::tresult;
 use std::os::raw::c_void;
 use vst3_com::com_interface;
 

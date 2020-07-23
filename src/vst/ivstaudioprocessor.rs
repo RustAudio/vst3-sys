@@ -1,7 +1,5 @@
 use crate::base::{tresult, TBool};
-use crate::vst::{
-    BusDirection, CString, IEventList, IParameterChanges, ProcessContext, SpeakerArrangement,
-};
+use crate::vst::{BusDirection, CString, ProcessContext, SpeakerArrangement};
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
 

@@ -808,12 +808,7 @@ impl IUnitInfo for AGainController {
         kResultFalse
     }
 
-    unsafe fn get_program_name(
-        &self,
-        _list_id: i32,
-        _program_index: i32,
-        _name: *mut u16,
-    ) -> i32 {
+    unsafe fn get_program_name(&self, _list_id: i32, _program_index: i32, _name: *mut u16) -> i32 {
         info!("Called: AGainController::get_program_name()");
 
         kResultFalse
