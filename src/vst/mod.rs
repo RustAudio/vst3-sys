@@ -45,5 +45,4 @@ pub use ivstrepresentation::*;
 pub use ivstunits::*;
 pub use vstspeaker::*;
 pub use vsttypes::*;
-
-//todo: ivsttestplugprovider, test/itest vstspeaker.h,
+// test/itest vstspeaker.h,

@@ -2,7 +2,7 @@
 
 A port of the VST3 API in pure Rust. 
 
-We do not distribute the SDK nor try and wrap it in clean abstractions, just port compatiable bindings to the API which is based on COM. The full SDK can be found at sdk.steinberg.net or cloned from github [here](https://github.com/steinbergmedia/vst3sdk). 
+We do not distribute the SDK nor try and wrap it in clean abstractions, just port compatible bindings to the COM API. The full SDK can be found at sdk.steinberg.net or cloned from github [here](https://github.com/steinbergmedia/vst3sdk). 
 
 ## Building Examples 
 
