@@ -1,6 +1,7 @@
 use crate::base::tresult;
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
+use crate::vst::String128;
 
 pub const kRootUnitId: i32 = 0;
 pub const kNoParentUnitId: i32 = -1;
@@ -12,7 +13,7 @@ pub const kNoProgramListId: i32 = -1;
 pub struct UnitInfo {
     pub id: i32,
     pub parent_unit_id: i32,
-    pub name: [u16; 128],
+    pub name: String128,
     pub program_list_id: i32,
 }
 
