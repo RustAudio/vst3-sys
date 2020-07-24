@@ -1,4 +1,5 @@
 use crate::base::{tresult, TBool};
+use crate::utils::VstPtr;
 use crate::vst::{
     BusDirection, CString, IEventList, IParameterChanges, ProcessContext, SpeakerArrangement,
 };
@@ -42,7 +43,6 @@ pub struct AudioBusBuffers {
 }
 
 #[repr(C)]
-#[derive(Debug)]
 pub struct ProcessData {
     pub process_mode: i32,
     pub symbolic_sample_size: i32,
@@ -51,10 +51,10 @@ pub struct ProcessData {
     pub num_outputs: i32,
     pub inputs: *mut AudioBusBuffers,
     pub outputs: *mut AudioBusBuffers,
-    pub input_param_changes: *mut dyn IParameterChanges,
-    pub output_param_changes: *mut dyn IParameterChanges,
-    pub input_events: *mut dyn IEventList,
-    pub output_events: *mut dyn IEventList,
+    pub input_param_changes: VstPtr<dyn IParameterChanges>,
+    pub output_param_changes: VstPtr<dyn IParameterChanges>,
+    pub input_events: VstPtr<dyn IEventList>,
+    pub output_events: VstPtr<dyn IEventList>,
     pub context: *mut ProcessContext,
 }
 

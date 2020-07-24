@@ -1,4 +1,6 @@
 use crate::base::tresult;
+use crate::utils::VstPtr;
+
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
@@ -6,21 +8,21 @@ use vst3_com::interfaces::iunknown::IUnknown;
 pub trait IUpdateHandler: IUnknown {
     unsafe fn add_dependent(
         &self,
-        object: *mut dyn IUnknown,
-        dependent: *mut dyn IDependent,
+        object: VstPtr<dyn IUnknown>,
+        dependent: VstPtr<dyn IDependent>,
     ) -> tresult;
     unsafe fn remove_dependent(
         &self,
-        object: *mut dyn IUnknown,
-        dependent: *mut dyn IDependent,
+        object: VstPtr<dyn IUnknown>,
+        dependent: VstPtr<dyn IDependent>,
     ) -> tresult;
-    unsafe fn trigger_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
-    unsafe fn defer_updates(&self, object: *mut dyn IUnknown, message: i32) -> tresult;
+    unsafe fn trigger_updates(&self, object: VstPtr<dyn IUnknown>, message: i32) -> tresult;
+    unsafe fn defer_updates(&self, object: VstPtr<dyn IUnknown>, message: i32) -> tresult;
 }
 
 #[com_interface("F52B7AAE-DE72-416d-8AF1-8ACE9DD7BD5E")]
 pub trait IDependent: IUnknown {
-    unsafe fn update(&self, changed_unknown: *mut dyn IUnknown, message: i32);
+    unsafe fn update(&self, changed_unknown: VstPtr<dyn IUnknown>, message: i32);
 }
 
 pub const kWillChange: i32 = 0;
