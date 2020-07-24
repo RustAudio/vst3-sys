@@ -31,7 +31,7 @@ pub trait IPlugFrame: IUnknown {
     unsafe fn resize_view(&self, view: VstPtr<dyn IPlugView>, new_size: *mut ViewRect) -> tresult;
 }
 
-#[cfg(linux)]
+#[cfg(target_os = "linux")]
 pub mod linux {
     use crate::base::tresult;
     use vst3_com::com_interface;
@@ -42,12 +42,12 @@ pub mod linux {
 
     #[com_interface("561E65C9-13A0-496F-813A-2C35654D7983")]
     pub trait IEventHandler: IUnknown {
-        fn on_fd_is_set(&self, fd: FileDescriptor);
+        unsafe fn on_fd_is_set(&self, fd: FileDescriptor);
     }
 
     #[com_interface("10BDD94F-4142-4774-821F-AD8FECA72CA9")]
     pub trait ITimerHandler: IUnknown {
-        fn on_timer(&self);
+        unsafe fn on_timer(&self);
     }
 
     #[com_interface("18C35366-9776-4F1A-9C5B-83857A871389")]
