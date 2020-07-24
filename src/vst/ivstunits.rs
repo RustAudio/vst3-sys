@@ -1,7 +1,7 @@
 use crate::base::tresult;
+use crate::vst::String128;
 use vst3_com::interfaces::iunknown::IUnknown;
 use vst3_com::{c_void, com_interface};
-use crate::vst::String128;
 
 pub const kRootUnitId: i32 = 0;
 pub const kNoParentUnitId: i32 = -1;
