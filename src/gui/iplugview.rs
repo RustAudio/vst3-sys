@@ -31,7 +31,7 @@ pub trait IPlugFrame: IUnknown {
     unsafe fn resize_view(&self, view: VstPtr<dyn IPlugView>, new_size: *mut ViewRect) -> tresult;
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(target_os = "linux")]
 pub mod linux {
     use crate::base::tresult;
     use crate::utils::VstPtr;
