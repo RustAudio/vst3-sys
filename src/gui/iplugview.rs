@@ -31,12 +31,12 @@ pub trait IPlugFrame: IUnknown {
     unsafe fn resize_view(&self, view: VstPtr<dyn IPlugView>, new_size: *mut ViewRect) -> tresult;
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(target_os = "windows")]
 pub mod linux {
     use crate::base::tresult;
+    use crate::utils::VstPtr;
     use vst3_com::com_interface;
     use vst3_com::interfaces::iunknown::IUnknown;
-    use crate::utils::VstPtr;
 
     pub type TimerInterval = u64;
     pub type FileDescriptor = i32;
