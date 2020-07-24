@@ -36,6 +36,7 @@ pub mod linux {
     use crate::base::tresult;
     use vst3_com::com_interface;
     use vst3_com::interfaces::iunknown::IUnknown;
+    use crate::utils::VstPtr;
 
     pub type TimerInterval = u64;
     pub type FileDescriptor = i32;
@@ -54,7 +55,7 @@ pub mod linux {
     pub trait IRunLoop: IUnknown {
         unsafe fn register_event_handler(
             &self,
-            h: VstPtr<IEventHandler>,
+            h: VstPtr<dyn IEventHandler>,
             fd: FileDescriptor,
         ) -> tresult;
         unsafe fn unregister_event_handler(&self, h: VstPtr<dyn IEventHandler>) -> tresult;
