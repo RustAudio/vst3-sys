@@ -17,7 +17,7 @@ use vst3_sys::base::{
 use vst3_sys::vst::ParameterFlags::{kCanAutomate, kIsBypass};
 use vst3_sys::vst::{
     BusDirection, BusInfo, BusType, IAudioProcessor, IComponent, IComponentHandler,
-    IEditController, IParamValueQueue, IParameterChanges, IUnitInfo, IoMode, MediaType,
+    IEditController, IEventList, IParamValueQueue, IParameterChanges, IUnitInfo, IoMode, MediaType,
     ParameterInfo, ProcessData, ProcessSetup, ProgramListInfo, RoutingInfo, SpeakerArrangement,
     TChar, UnitInfo, K_SAMPLE32, K_SAMPLE64,
 };
@@ -97,7 +97,7 @@ impl AGainProcessor {
         Box::into_raw(Self::new()) as *mut c_void
     }
 
-    pub unsafe fn setup_processing_ae(&self, new_setup: *mut ProcessSetup) -> tresult {
+    pub unsafe fn setup_processing_ae(&self, new_setup: *const ProcessSetup) -> tresult {
         if self.can_process_sample_size((*new_setup).symbolic_sample_size) != kResultTrue {
             return kResultFalse;
         }
@@ -348,7 +348,7 @@ impl IAudioProcessor for AGainProcessor {
 
         kResultFalse
     }
-    unsafe fn get_bus_arrangements(
+    unsafe fn get_bus_arrangement(
         &self,
         dir: BusDirection,
         index: i32,
@@ -384,12 +384,12 @@ impl IAudioProcessor for AGainProcessor {
             _ => kResultFalse,
         }
     }
-    unsafe fn get_latency_sample(&self) -> u32 {
+    unsafe fn get_latency_samples(&self) -> u32 {
         info!("Called: AGainProcessor::get_latency_sample()");
 
         0
     }
-    unsafe fn setup_processing(&self, setup: *mut ProcessSetup) -> tresult {
+    unsafe fn setup_processing(&self, setup: *const ProcessSetup) -> tresult {
         info!("Called: AGainProcessor::setup_processing()");
 
         self.current_process_mode.borrow_mut().0 = (*setup).process_mode;
@@ -439,6 +439,11 @@ impl IAudioProcessor for AGainProcessor {
                     }
                 }
             }
+        }
+
+        if let Some(input_events) = (*data).input_events.upgrade() {
+            let num_events = input_events.get_event_count();
+            info!("NUM EVENTS {}", num_events);
         }
 
         if (*data).num_inputs == 0 && (*data).num_outputs == 0 {
@@ -623,7 +628,7 @@ impl IEditController for AGainController {
     unsafe fn get_param_value_by_string(
         &self,
         _id: u32,
-        _string: *mut TChar,
+        _string: *const TChar,
         _value_normalized: *mut f64,
     ) -> tresult {
         info!("Called: AGainController::get_param_value_by_string()");
@@ -716,7 +721,7 @@ impl IPluginBase for AGainController {
             name: [0; 128],
             program_list_id: -1,
         };
-        wstrcpy("Unit1", unit_info.name.as_mut_ptr());
+        wstrcpy("Unit1", unit_info.name.as_mut_ptr() as *mut i16);
         self.units.borrow_mut().0.push(unit_info);
 
         let mut gain_parameter = ParameterInfo {
@@ -796,12 +801,7 @@ impl IUnitInfo for AGainController {
         kResultFalse
     }
 
-    unsafe fn get_program_name(
-        &self,
-        _list_id: i32,
-        _program_index: i32,
-        _name: [i16; 128],
-    ) -> i32 {
+    unsafe fn get_program_name(&self, _list_id: i32, _program_index: i32, _name: *mut u16) -> i32 {
         info!("Called: AGainController::get_program_name()");
 
         kResultFalse
@@ -811,8 +811,8 @@ impl IUnitInfo for AGainController {
         &self,
         _list_id: i32,
         _program_index: i32,
-        _attribute_id: *const i8,
-        _attribute_value: [i16; 128],
+        _attribute_id: *const u8,
+        _attribute_value: *mut u16,
     ) -> i32 {
         info!("Called: AGainController::get_program_info()");
 
@@ -830,7 +830,7 @@ impl IUnitInfo for AGainController {
         _id: i32,
         _index: i32,
         _pitch: i16,
-        _name: *mut i16,
+        _name: *mut u16,
     ) -> i32 {
         info!("Called: AGainController::get_program_pitch_name()");
 
@@ -966,13 +966,14 @@ impl IPluginFactory for Factory {
     }
     unsafe fn create_instance(
         &self,
-        cid: *mut IID,
-        _iid: *mut IID,
+        cid: *const IID,
+        _iid: *const IID,
         obj: *mut *mut c_void,
     ) -> tresult {
         let processor_cid = AGainProcessor::CID;
         let controller_cid = AGainController::CID;
 
+        info!("Query _iid: {:?}", *_iid);
         info!("Creating instance of {:?}", *cid);
         if (*cid) == processor_cid {
             *obj = AGainProcessor::create_instance();

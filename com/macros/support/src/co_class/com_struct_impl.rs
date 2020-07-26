@@ -12,12 +12,17 @@ pub fn generate<S: ::std::hash::BuildHasher>(
 
     let allocate_fn = gen_allocate_fn(aggr_map, base_interface_idents, struct_item);
     let set_aggregate_fns = gen_set_aggregate_fns(aggr_map);
-    let get_class_object_fn = gen_get_class_object_fn(struct_item);
+
+    // Removing some bloat
+    //let get_class_object_fn = gen_get_class_object_fn(struct_item);
 
     quote!(
         impl #struct_ident {
             #allocate_fn
-            #get_class_object_fn
+
+            // Removing some bloat
+            //#get_class_object_fn
+
             #set_aggregate_fns
         }
     )
