@@ -42,19 +42,19 @@ jobs:
           profile: minimal
       - uses: actions-rs/cargo@v1
         with:
-          command: install
-          args: --debug cargo-make
-      - uses: actions-rs/cargo@v1
-        with:
-          command: make
-          args: again
+          command: build
+          args: --package again
+      - name: setup plugin
+        run: mkdir -p target/debug/again.vst3/Contents/x86_64-linux &&
+          mkdir -p target/debug/again.vst3/Contents/Resources &&
+          cp target/debug/libagain.so target/debug/again.vst3/Contents/x86_64-linux/again.so
       - uses: actions/checkout@v2
         with:
           repository: steinbergmedia/vst3sdk
           path: vst3sdk
           submodules: recursive
       - name: Install dependencies
-        run: sudo apt-get install cmake gcc "libstdc++6" libx11-xcb-dev libxcb-util-dev
+        run: sudo apt-get install cmake gcc libstdc++6 libx11-xcb-dev libxcb-util-dev
           libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
           libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
       - name: Compile validator
