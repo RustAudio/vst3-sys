@@ -29,6 +29,9 @@ jobs:
           args: --all-targets --all-features -- -D warnings
 
   validate:
+    strategy:
+      matrix:
+        plugin: [again, passthru]
     runs-on: ubuntu-latest
     name: validate-linux
     steps:
@@ -46,7 +49,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: make
-          args: again
+          args: ${{ matrix.plugin }}
       - name: Checkout steinbergmedia/vst3sdk
         uses: actions/checkout@v2
         with:
@@ -59,10 +62,8 @@ jobs:
           libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
       - name: Compile validator
         run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
-      - name: List files
-        run: ls -aux
       - name: Validate plugin
-        run: ./build/bin/Debug/validator target/debug/again.vst3
+        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
 
   test: 
     strategy:
