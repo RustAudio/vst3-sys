@@ -41,9 +41,11 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-      - uses: davidB/rust-cargo-make@v1
+      - name: Install cargo-make
+        uses: actions-rs/cargo@v1
         with:
-          version: latest
+          command: install
+          args: --debug cargo-make
       - name: Make plugin
         uses: actions-rs/cargo@v1
         with:
