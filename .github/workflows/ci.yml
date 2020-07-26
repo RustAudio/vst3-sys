@@ -28,6 +28,23 @@ jobs:
           command: clippy 
           args: --all-targets --all-features -- -D warnings
 
+  validate:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    name: validate
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --force cargo-make
+
   test: 
     strategy:
       matrix: 
