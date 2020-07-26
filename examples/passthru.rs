@@ -365,6 +365,13 @@ pub extern "system" fn bundleEntry() -> bool {
     true
 }
 
+#[cfg(target_os = "macos")]
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn bundleExit() -> bool {
+    true
+}
+
 #[cfg(target_os = "linux")]
 #[no_mangle]
 #[allow(non_snake_case)]
