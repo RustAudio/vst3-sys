@@ -116,6 +116,7 @@ impl AGainProcessor {
         self.audio_inputs.borrow_mut().0.push(new_bus);
     }
 
+    #[allow(clippy::missing_safety_doc)]
     pub unsafe fn add_audio_output(&self, name: &str, arr: SpeakerArrangement) {
         let new_bus = AudioBus {
             name: String::from(name),
@@ -144,7 +145,7 @@ impl IComponent for AGainProcessor {
     unsafe fn get_controller_class_id(&self, tuid: *mut IID) -> tresult {
         info!("Called: AGainProcessor::get_controller_class_id()");
 
-        *tuid = AGainController::CID.clone();
+        *tuid = AGainController::CID;
         kResultOk
     }
 
@@ -604,7 +605,7 @@ impl IEditController for AGainController {
         );
 
         if param_index >= 0 && param_index < self.parameters.borrow().0.len() as i32 {
-            *info = self.parameters.borrow().0[param_index as usize].0.clone();
+            *info = self.parameters.borrow().0[param_index as usize].0;
             return kResultTrue;
         }
         kResultFalse
@@ -783,7 +784,7 @@ impl IUnitInfo for AGainController {
         info!("Called: AGainController::get_unit_info()");
 
         if unit_index >= 0 && unit_index < self.units.borrow().0.len() as i32 {
-            *info = self.units.borrow().0[unit_index as usize].clone();
+            *info = self.units.borrow().0[unit_index as usize];
             return kResultTrue;
         }
         kResultFalse
@@ -1033,23 +1034,18 @@ pub extern "system" fn bundleExit() -> bool {
 static mut INIT_LOGGER: bool = false;
 
 #[no_mangle]
-#[allow(non_snake_case)]
+#[allow(non_snake_case, clippy::missing_safety_doc)]
 pub unsafe extern "system" fn GetPluginFactory() -> *mut c_void {
     if !INIT_LOGGER {
-        let log_path = std::env::var("VST3_LOG_PATH");
-        match log_path {
-            Ok(path) => {
-                match Logger::with_env_or_str("info")
-                    .log_to_file()
-                    .directory(path)
-                    .format(opt_format)
-                    .start()
-                {
-                    Ok(_) => info!("Started logger..."),
-                    Err(_) => (),
-                }
+        if let Ok(path) = std::env::var("VST3_LOG_PATH") {
+            let init = Logger::with_env_or_str("info")
+                .log_to_file()
+                .directory(path)
+                .format(opt_format)
+                .start();
+            if let Ok(_) = init {
+                info!("Started logger...");
             }
-            Err(_) => (),
         }
         INIT_LOGGER = true;
     }
