@@ -44,6 +44,21 @@ jobs:
         with:
           command: install
           args: --force cargo-make
+      - uses: actions-rs/cargo@v1
+        with:
+          command: make
+          args: again
+      - uses: actions/checkout@v2
+        with:
+          repository: steinbergmedia/vst3sdk
+          path: vst3sdk
+          submodules: recursive
+      - name: Install dependencies
+        run: sudo apt-get install cmake gcc "libstdc++6" libx11-xcb-dev libxcb-util-dev
+          libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
+          libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+      - name: Compile validator
+        run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
 
   test: 
     strategy:
