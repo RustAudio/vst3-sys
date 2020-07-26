@@ -41,7 +41,7 @@ jobs:
         with:
           command: build
           args: --package again
-      - name: set up plugin
+      - name: Set up plugin
         run: mkdir -p target/debug/again.vst3/Contents/x86_64-linux &&
           mkdir -p target/debug/again.vst3/Contents/Resources &&
           cp target/debug/libagain.so target/debug/again.vst3/Contents/x86_64-linux/again.so
@@ -50,13 +50,15 @@ jobs:
           repository: steinbergmedia/vst3sdk
           path: vst3sdk
           submodules: recursive
-      - name: install validator dependencies
+      - name: Install validator dependencies
         run: sudo apt-get install cmake gcc libstdc++6 libx11-xcb-dev libxcb-util-dev
           libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
           libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
-      - name: compile validator
+      - name: Compile validator
         run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
-      - name: validate plugin
+      - name: List files
+        run: ls -aux
+      - name: Validate plugin
         run: ./bin/Debug/validator target/debug/again.vst3
 
   test: 
