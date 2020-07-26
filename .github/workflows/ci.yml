@@ -62,7 +62,7 @@ jobs:
         run: mkdir build && cd build && cmake -GXcode ../vst3sdk && cmake --build . --config Debug --target validator
       - name: Validate plugin (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: ./build/bin/Debug/validator target/debug/lib${{ matrix.plugin }}.dylib
+        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
       - name: Compile validator (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: mkdir build &&
