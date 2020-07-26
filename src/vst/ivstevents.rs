@@ -3,6 +3,18 @@ use crate::vst::{NoteExpressionTextEvent, NoteExpressionValueEvent};
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
 
+pub enum EventTypes {
+    kNoteOnEvent = 0,
+    kNoteOffEvent = 1,
+    kDataEvent = 2,
+    kPolyPressureEvent = 3,
+    kNoteExpressionValueEvent = 4,
+    kNoteExpressionTextEvent = 5,
+    kChordEvent = 6,
+    kScaleEvent = 7,
+    kLegacyMIDICCOutEvent = 65535,
+}
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NoteOnEvent {
@@ -72,15 +84,15 @@ pub struct LegacyMidiCCOutEvent {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union EventData {
-    note_on: NoteOnEvent,
-    note_off: NoteOffEvent,
-    data: DataEvent,
-    poly: PolyPressureEvent,
-    note_expression: NoteExpressionValueEvent,
-    note_expression_text: NoteExpressionTextEvent,
-    chord: ChordEvent,
-    scale: ScaleEvent,
-    midi_cc_out: LegacyMidiCCOutEvent,
+    pub note_on: NoteOnEvent,
+    pub note_off: NoteOffEvent,
+    pub data: DataEvent,
+    pub poly_pressure: PolyPressureEvent,
+    pub note_expression_value: NoteExpressionValueEvent,
+    pub note_expression_text: NoteExpressionTextEvent,
+    pub chord: ChordEvent,
+    pub scale: ScaleEvent,
+    pub legacy_midi_cc_out: LegacyMidiCCOutEvent,
 }
 
 #[repr(C)]
@@ -88,7 +100,7 @@ pub union EventData {
 pub struct Event {
     pub bus_index: i32,
     pub sample_offset: i32,
-    pub ppq_pos: f64,
+    pub ppq_position: f64,
     pub flags: u16,
     pub type_: u16,
     pub event: EventData,
@@ -97,6 +109,6 @@ pub struct Event {
 #[com_interface("3A2C4214-3463-49FE-B2C4-F397B9695A44")]
 pub trait IEventList: IUnknown {
     unsafe fn get_event_count(&self) -> i32;
-    unsafe fn get_event(&self, idx: i32, event: *mut Event) -> tresult;
+    unsafe fn get_event(&self, index: i32, e: *mut Event) -> tresult;
     unsafe fn add_event(&self, e: *mut Event) -> tresult;
 }

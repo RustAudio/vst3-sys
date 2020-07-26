@@ -92,7 +92,7 @@ impl IEditController for PassthruPlugin {
     unsafe fn get_param_value_by_string(
         &self,
         _id: u32,
-        _string: *mut TChar,
+        _string: *const TChar,
         _value_normalized: *mut f64,
     ) -> tresult {
         info!("get_param_value_by_string");
@@ -134,7 +134,7 @@ impl IAudioProcessor for PassthruPlugin {
         kResultFalse
     }
 
-    unsafe fn get_bus_arrangements(&self, dir: i32, idx: i32, arr: *mut u64) -> i32 {
+    unsafe fn get_bus_arrangement(&self, dir: i32, idx: i32, arr: *mut u64) -> i32 {
         info!("get_bus(): dir: {}, idx: {}, arr: {:016b}", dir, idx, *arr);
         let arr = &mut *arr;
         if (*arr == 0x0) || (*arr == 0x1) || (*arr == 0x3) {
@@ -149,10 +149,10 @@ impl IAudioProcessor for PassthruPlugin {
         kResultOk
     }
 
-    unsafe fn get_latency_sample(&self) -> u32 {
+    unsafe fn get_latency_samples(&self) -> u32 {
         0
     }
-    unsafe fn setup_processing(&self, _setup: *mut ProcessSetup) -> tresult {
+    unsafe fn setup_processing(&self, _setup: *const ProcessSetup) -> tresult {
         kResultOk
     }
     unsafe fn set_processing(&self, _state: TBool) -> tresult {
@@ -311,8 +311,8 @@ impl IPluginFactory for Factory {
     }
     unsafe fn create_instance(
         &self,
-        cid: *mut vst3_com::sys::GUID,
-        _riid: *mut vst3_com::sys::GUID,
+        cid: *const vst3_com::sys::GUID,
+        _riid: *const vst3_com::sys::GUID,
         obj: *mut *mut core::ffi::c_void,
     ) -> i32 {
         let iid = *cid;

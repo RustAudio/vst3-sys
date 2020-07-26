@@ -12,16 +12,18 @@ pub struct ViewRect {
     pub bottom: i32,
 }
 
-#[com_interface("5bc32507-d060-49ea-a615-1b522b755b29")]
+#[com_interface("5BC32507-D060-49EA-A615-1B522B755B29")]
 pub trait IPlugView: IUnknown {
     unsafe fn is_platform_type_supported(&self, type_: FIDString) -> tresult;
     unsafe fn attached(&self, parent: *mut c_void, type_: FIDString) -> tresult;
     unsafe fn removed(&self) -> tresult;
     unsafe fn on_wheel(&self, distance: f32) -> tresult;
-    unsafe fn on_key_down(&self, key: char16, keycode: i16, modifiers: i16) -> tresult;
-    unsafe fn on_key_up(&self, key: char16, keycode: i16, modifiers: i16) -> tresult;
-    unsafe fn get_size(&self, rect: *mut ViewRect) -> tresult;
+    unsafe fn on_key_down(&self, key: char16, key_code: i16, modifiers: i16) -> tresult;
+    unsafe fn on_key_up(&self, key: char16, key_code: i16, modifiers: i16) -> tresult;
+    unsafe fn get_size(&self, size: *mut ViewRect) -> tresult;
+    unsafe fn on_size(&self, new_size: *mut ViewRect) -> tresult;
     unsafe fn on_focus(&self, state: TBool) -> tresult;
+    unsafe fn set_frame(&self, frame: *mut c_void) -> tresult;
     unsafe fn can_resize(&self) -> tresult;
     unsafe fn check_size_constraint(&self, rect: *mut ViewRect) -> tresult;
 }
