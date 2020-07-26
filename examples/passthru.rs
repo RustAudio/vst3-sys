@@ -173,7 +173,7 @@ impl IAudioProcessor for PassthruPlugin {
         for (i, o) in input_ptr.iter().zip(output_ptr.iter()) {
             copy_nonoverlapping(*i, *o, num_samples * sample_size);
         }
-        kResultOk
+        kResultFalse
     }
     unsafe fn get_tail_samples(&self) -> u32 {
         0
