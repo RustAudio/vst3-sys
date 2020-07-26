@@ -31,7 +31,7 @@ jobs:
   validate:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         plugin: [again, passthru]
     runs-on: ${{ matrix.os }}
     name: validate
@@ -57,25 +57,31 @@ jobs:
           repository: steinbergmedia/vst3sdk
           path: vst3sdk
           submodules: recursive
-      - name: Install validator dependencies
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt-get install cmake gcc libstdc++6 libx11-xcb-dev libxcb-util-dev
-          libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
-          libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
-      - name: Compile validator
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
-      - name: Compile validator
+      - name: Compile validator (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: mkdir build && cd build && cmake -GXcode ../vst3sdk && cmake --build . --config Debug --target validator
+      - name: Validate plugin (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: ./build/bin/Debug/validator target/debug/lib${{ matrix.plugin }}.dylib
+      - name: Compile validator (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: mkdir build &&
           cd build && cmake -G "Visual Studio 16 2019" -A x64 ../vst3sdk &&
           cmake --build . --config Debug --target validator
-      - name: Validate plugin
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
-      - name: Validate plugin
+      - name: Validate plugin (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: build\bin\Debug\validator target\debug\${{ matrix.plugin }}.vst3
+      - name: Install validator dependencies (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: sudo apt-get install cmake gcc libstdc++6 libx11-xcb-dev libxcb-util-dev
+          libxcb-cursor-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
+          libfontconfig1-dev libcairo2-dev libgtkmm-3.0-dev libsqlite3-dev libxcb-keysyms1-dev
+      - name: Compile validator (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
+      - name: Validate plugin (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
 
   test: 
     strategy:
