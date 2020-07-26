@@ -37,15 +37,18 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
-      - uses: actions-rs/cargo@v1
+      - name: Install cargo-make
+        uses: actions-rs/cargo@v1
         with:
-          command: build
-          args: --package again
-      - name: Set up plugin
-        run: mkdir -p target/debug/again.vst3/Contents/x86_64-linux &&
-          mkdir -p target/debug/again.vst3/Contents/Resources &&
-          cp target/debug/libagain.so target/debug/again.vst3/Contents/x86_64-linux/again.so
-      - uses: actions/checkout@v2
+          command: install
+          args: --debug cargo-make
+      - name: Make plugin
+        uses: actions-rs/cargo@v1
+        with:
+          command: make
+          args: again
+      - name: Checkout steinbergmedia/vst3sdk
+        uses: actions/checkout@v2
         with:
           repository: steinbergmedia/vst3sdk
           path: vst3sdk
