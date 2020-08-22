@@ -10,15 +10,16 @@ use std::{
     ptr::{copy_nonoverlapping, null_mut},
 };
 use vst3_com::{sys::GUID, IID};
+use vst3_sys::utils::VstPtr;
 use vst3_sys::{
     base::{
-        kInvalidArgument, kResultFalse, kResultOk, tresult, FIDString, IPluginBase, IPluginFactory,
-        TBool,
+        kInvalidArgument, kResultFalse, kResultOk, tresult, FIDString, IBStream, IPluginBase,
+        IPluginFactory, TBool,
     },
     vst::{
         AudioBusBuffers, BusDirection, BusDirections, BusFlags, BusInfo, IAudioPresentationLatency,
-        IAudioProcessor, IAutomationState, IComponent, IEditController, MediaTypes, ParameterInfo,
-        ProcessData, ProcessSetup, RoutingInfo, TChar,
+        IAudioProcessor, IAutomationState, IComponent, IComponentHandler, IEditController,
+        MediaTypes, ParameterInfo, ProcessData, ProcessSetup, RoutingInfo, TChar,
     },
     VST3,
 };
@@ -60,15 +61,15 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IEditController for PassthruPlugin {
-    unsafe fn set_component_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         info!("set_component_state");
         kResultOk
     }
-    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         info!("set_state");
         kResultOk
     }
-    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         info!("get_state");
         kResultOk
     }
@@ -114,7 +115,7 @@ impl IEditController for PassthruPlugin {
         info!("set_param_normalized");
         kResultOk
     }
-    unsafe fn set_component_handler(&self, _handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, _handler: VstPtr<dyn IComponentHandler>) -> tresult {
         info!("set_component_handler");
         kResultOk
     }
@@ -261,11 +262,11 @@ impl IComponent for PassthruPlugin {
         kResultOk
     }
 
-    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         kResultOk
     }
 
-    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         kResultOk
     }
 }
