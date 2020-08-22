@@ -96,7 +96,7 @@ pub trait IAudioPresentationLatency: IUnknown {
 /// plan to support > 3.7.0 hosts.
 #[allow(non_snake_case)]
 pub mod IProcessContextRequirementsFlags {
-    pub const kNeedSystemTime: u32 = 1 << 0;
+    pub const kNeedSystemTime: u32 = 1;
     pub const kNeedContinousTimeSamples: u32 = 1 << 1;
     pub const kNeedProjectTimeMusic: u32 = 1 << 2;
     pub const kNeedBarPositionMusic: u32 = 1 << 3;
