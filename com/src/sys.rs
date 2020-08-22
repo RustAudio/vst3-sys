@@ -51,7 +51,7 @@ pub const COINIT_MULTITHREADED: u32 = 0x0;
 
 /// A globally unique identifier
 #[repr(C)]
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct GUID {
     /// bytes of the GUID
     pub data: [u8; 16],
