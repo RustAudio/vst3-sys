@@ -1,7 +1,7 @@
-use crate::base::{tresult, FactoryFlags, IPluginBase, TBool};
+use crate::base::{tresult, FactoryFlags, IBStream, IPluginBase, TBool};
+use crate::utils::VstPtr;
 use crate::vst::{BusDirection, IoMode, MediaType, String128};
-use vst3_com::{c_void, com_interface, IID};
-
+use vst3_com::{com_interface, IID};
 pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode as i32;
 
 pub enum MediaTypes {
@@ -76,6 +76,6 @@ pub trait IComponent: IPluginBase {
         state: TBool,
     ) -> tresult;
     unsafe fn set_active(&self, state: TBool) -> tresult;
-    unsafe fn set_state(&self, state: *mut c_void) -> tresult;
-    unsafe fn get_state(&self, state: *mut c_void) -> tresult;
+    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
 }
