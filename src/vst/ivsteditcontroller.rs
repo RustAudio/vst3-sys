@@ -1,4 +1,4 @@
-use crate::base::{tresult, FIDString, IBStream, IPluginBase, TBool};
+use crate::base::{tchar, tresult, FIDString, IBStream, IPluginBase, TBool};
 use crate::utils::VstPtr;
 use crate::vst::{
     BusDirection, CString, CtrlNumber, KnobMode, MediaType, ParamID, ParamValue, String128, TChar,
