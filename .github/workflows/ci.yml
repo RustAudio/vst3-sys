@@ -35,8 +35,8 @@ jobs:
         plugin: [again, passthru]
     runs-on: ${{ matrix.os }}
     name: validate
+    timeout-minutes: 10
     steps:
-      timeout-minutes: 10
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
