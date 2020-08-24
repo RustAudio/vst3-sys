@@ -28,49 +28,40 @@ jobs:
           command: clippy 
           args: --all-targets --all-features -- -D warnings
 
-  validate:
+  build-validator:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        plugin: [again, passthru]
     runs-on: ${{ matrix.os }}
-    name: validate
+    name: build validator
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-      - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
-      - name: Make plugin
-        uses: actions-rs/cargo@v1
-        with:
-          command: make
-          args: ${{ matrix.plugin }}
       - name: Checkout steinbergmedia/vst3sdk
         uses: actions/checkout@v2
         with:
           repository: steinbergmedia/vst3sdk
+          ref: 0908f475f52af56682321192d800ef25d1823dd2
           path: vst3sdk
           submodules: recursive
       - name: Compile validator (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: mkdir build && cd build && cmake -GXcode ../vst3sdk && cmake --build . --config Debug --target validator
-      - name: Validate plugin (macOS)
+      - name: Persist validator (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
+        uses: actions/upload-artifact@v2
+        with:
+          name: validator-macos
+          path: build/bin/Debug/validator
       - name: Compile validator (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: mkdir build &&
           cd build && cmake -G "Visual Studio 16 2019" -A x64 ../vst3sdk &&
           cmake --build . --config Debug --target validator
-      - name: Validate plugin (Windows)
+      - name: Persist validator (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: build\bin\Debug\validator target\debug\${{ matrix.plugin }}.vst3
+        uses: actions/upload-artifact@v2
+        with:
+          name: validator-win
+          path: build\bin\Debug\validator.exe
       - name: Install validator dependencies (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt-get install cmake gcc libstdc++6 libx11-xcb-dev libxcb-util-dev
@@ -79,9 +70,57 @@ jobs:
       - name: Compile validator (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: mkdir build && cd build && cmake ../vst3sdk && cmake --build . --config Debug --target validator
+      - name: Persist validator (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: validator-linux
+          path: build/bin/Debug/validator
+
+  validate:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        plugin: [again, passthru]
+    runs-on: ${{ matrix.os }}
+    needs: [build-validator]
+    name: validate
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - uses: davidB/rust-cargo-make@v1
+      - name: Make plugin
+        uses: actions-rs/cargo@v1
+        with:
+          command: make
+          args: ${{ matrix.plugin }}
+      - name: Restore validator (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: validator-macos
+      - name: Validate plugin (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: sudo chmod +x validator && ./validator target/debug/${{ matrix.plugin }}.vst3
+      - name: Restore validator (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: validator-win
+      - name: Validate plugin (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: .\validator.exe target\debug\${{ matrix.plugin }}.vst3
+      - name: Restore validator (Linux)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: validator-linux
       - name: Validate plugin (Linux)
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: ./build/bin/Debug/validator target/debug/${{ matrix.plugin }}.vst3
+        run: sudo chmod +x validator && ./validator target/debug/${{ matrix.plugin }}.vst3
 
   test: 
     strategy:
@@ -98,4 +137,4 @@ jobs:
     - uses: actions-rs/cargo@v1 
       with: 
         command: test 
-        args: --all 
+        args: --all
