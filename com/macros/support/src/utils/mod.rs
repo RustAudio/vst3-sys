@@ -26,7 +26,7 @@ pub fn camel_to_snake(input: &str) -> String {
         if c.is_uppercase() {
             if seen_lowercase {
                 seen_lowercase = false;
-                new.push_str("_");
+                new.push('_');
             }
             new.push_str(&c.to_lowercase().to_string());
         } else {
