@@ -80,7 +80,9 @@ impl std::fmt::Debug for GUID {
 #[cfg(windows)]
 #[link(name = "ole32")]
 extern "system" {
+    /// Keeps MTA support active when no MTA threads are running
     pub fn CoIncrementMTAUsage(cookie: *mut c_void) -> HRESULT;
+    /// Creates the specified registry key
     pub fn RegCreateKeyExA(
         hKey: HKEY,
         lpSubKey: *const i8,
@@ -92,8 +94,11 @@ extern "system" {
         phkResult: *mut HKEY,
         lpdwDisposition: *mut u32,
     ) -> LSTATUS;
+    /// Retrieves the fully qualified path for the file that contains the specified module
     pub fn GetModuleFileNameA(hModule: *mut c_void, lpFilename: *mut i8, nSize: u32) -> u32;
+    /// Closes a handle to the specified registry key
     pub fn RegCloseKey(hKey: HKEY) -> LSTATUS;
+    /// Sets the data and type of a specified value under a registry key
     pub fn RegSetValueExA(
         hKey: HKEY,
         lpValueName: *const i8,
@@ -102,9 +107,13 @@ extern "system" {
         lpData: *const u8,
         cbData: u32,
     ) -> LSTATUS;
+    /// Deletes a subkey and its values
     pub fn RegDeleteKeyA(hKey: HKEY, lpSubKey: *const i8) -> LSTATUS;
+    /// Retrieves a module handle for the specified module
     pub fn GetModuleHandleA(lpModuleName: *const i8) -> *mut c_void;
+    /// Initializes the COM library for use by the calling thread, sets the thread's concurrency model, and creates a new apartment for the thread if one is required
     pub fn CoInitializeEx(pvReserved: *mut c_void, dwCoInit: u32) -> HRESULT;
+    /// Provides a pointer to an interface on a class object associated with a specified CLSID
     pub fn CoGetClassObject(
         rclsid: *const IID,
         dwClsContext: u32,
@@ -112,6 +121,7 @@ extern "system" {
         riid: *const IID,
         ppv: *mut *mut c_void,
     ) -> HRESULT;
+    /// Creates and default-initializes a single object of the class associated with a specified CLSID
     pub fn CoCreateInstance(
         rclsid: *const IID,
         pUnkOuter: *mut c_void,
@@ -119,5 +129,6 @@ extern "system" {
         riid: *const IID,
         ppv: *mut *mut c_void,
     ) -> HRESULT;
+    /// Closes the COM library on the current thread, unloads all DLLs loaded by the thread, frees any other resources that the thread maintains, and forces all RPC connections on the thread to close
     pub fn CoUninitialize();
 }
