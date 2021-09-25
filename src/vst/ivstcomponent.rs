@@ -4,17 +4,20 @@ use vst3_com::{c_void, com_interface, IID};
 
 pub const kDefaultFactoryFlags: i32 = FactoryFlags::kUnicode as i32;
 
+#[derive(Copy, Clone)]
 pub enum MediaTypes {
     kAudio = 0,
     kEvent = 1,
     kNumMediaTypes = 2,
 }
 
+#[derive(Copy, Clone)]
 pub enum BusDirections {
     kInput = 0,
     kOutput = 1,
 }
 
+#[derive(Copy, Clone)]
 pub enum BusTypes {
     kMain = 0,
     kAux = 1,
@@ -26,11 +29,13 @@ pub enum IoModes {
     kOfflineProcessing = 2,
 }
 
+#[derive(Copy, Clone)]
 pub enum BusFlags {
     kDefaultActive = 1,
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct BusInfo {
     pub media_type: i32,
     pub direction: i32,
