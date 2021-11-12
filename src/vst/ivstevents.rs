@@ -21,7 +21,7 @@ pub struct NoteOnEvent {
     pub channel: i16,
     pub pitch: i16,
     pub tuning: f32,
-    pub velocity: i32,
+    pub velocity: f32,
     pub length: i32,
     pub note_id: i32,
 }
@@ -31,7 +31,7 @@ pub struct NoteOnEvent {
 pub struct NoteOffEvent {
     pub channel: i16,
     pub pitch: i16,
-    pub velocity: i32,
+    pub velocity: f32,
     pub length: i32,
     pub note_id: i32,
 }
