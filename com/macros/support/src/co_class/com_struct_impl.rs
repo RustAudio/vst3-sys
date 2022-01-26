@@ -67,10 +67,16 @@ pub fn gen_allocate_fn<S: ::std::hash::BuildHasher>(
 }
 
 pub fn gen_allocate_function_parameters_signature(struct_item: &ItemStruct) -> HelperTokenStream {
-    let fields = match &struct_item.fields {
-        Fields::Named(f) => &f.named,
+    let mut fields = match &struct_item.fields {
+        Fields::Named(f) => f.named.clone(),
         _ => panic!("Found non Named fields in struct."),
     };
+
+    // Attributes and comments need to be stripped out since those are not vallid in the middle of a
+    // function signature
+    for field in fields.iter_mut() {
+        field.attrs.clear();
+    }
 
     quote!(#fields)
 }
