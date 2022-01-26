@@ -11,6 +11,8 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
 
     let struct_ident = &struct_item.ident;
     let class_factory_ident = crate::utils::class_factory_ident(&struct_ident);
+    let (class_factory_impl_generics, class_factory_ty_generics, class_factory_where_clause) =
+        struct_item.generics.split_for_impl();
 
     let struct_definition =
         crate::co_class::class_factory::gen_class_factory_struct_definition(&class_factory_ident);
@@ -19,16 +21,18 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
         &base_interface_idents,
         &aggr_map,
         &class_factory_ident,
+        &class_factory_ty_generics,
     );
     let class_factory_impl = crate::co_class::class_factory::gen_class_factory_impl(
         &base_interface_idents,
         &class_factory_ident,
+        &class_factory_ty_generics,
     );
 
     quote! {
         #struct_definition
 
-        impl vst3_com::interfaces::IClassFactory for #class_factory_ident {
+        impl #class_factory_impl_generics vst3_com::interfaces::IClassFactory for #class_factory_ident #class_factory_ty_generics #class_factory_where_clause {
             unsafe fn create_instance(
                 &self,
                 aggr: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,

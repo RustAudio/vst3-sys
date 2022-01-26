@@ -7,11 +7,13 @@ use syn::ItemStruct;
 /// delegate to the interface pointer at __iunknown_to_use.
 pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
+    let (impl_generics, ty_generics, where_clause) = struct_item.generics.split_for_impl();
+
     let iunknown_to_use_field_ident = crate::utils::iunknown_to_use_field_ident();
     let ptr_casting = quote! { as *mut _ };
 
     quote!(
-        impl vst3_com::interfaces::IUnknown for #struct_ident {
+        impl #impl_generics vst3_com::interfaces::IUnknown for #struct_ident #ty_generics #where_clause {
             unsafe fn query_interface(
                 &self,
                 riid: *const vst3_com::sys::IID,
