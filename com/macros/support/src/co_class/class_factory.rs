@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, TokenStream as HelperTokenStream};
 use quote::{format_ident, quote};
 use std::collections::HashMap;
-use syn::ItemStruct;
+use syn::{ItemStruct, TypeGenerics};
 
 fn get_iclass_factory_interface_ident() -> Ident {
     format_ident!("IClassFactory")
@@ -25,17 +25,28 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let aggr_map = get_class_factory_aggr_map();
 
     let struct_ident = &struct_item.ident;
+    let (class_factory_impl_generics, class_factory_ty_generics, class_factory_where_clause) =
+        struct_item.generics.split_for_impl();
     let class_factory_ident = crate::utils::class_factory_ident(&struct_ident);
 
     let struct_definition = gen_class_factory_struct_definition(&class_factory_ident);
     let lock_server = gen_lock_server();
-    let iunknown_impl = gen_iunknown_impl(&base_interface_idents, &aggr_map, &class_factory_ident);
-    let class_factory_impl = gen_class_factory_impl(&base_interface_idents, &class_factory_ident);
+    let iunknown_impl = gen_iunknown_impl(
+        &base_interface_idents,
+        &aggr_map,
+        &class_factory_ident,
+        &class_factory_ty_generics,
+    );
+    let class_factory_impl = gen_class_factory_impl(
+        &base_interface_idents,
+        &class_factory_ident,
+        &class_factory_ty_generics,
+    );
 
     quote! {
         #struct_definition
 
-        impl vst3_com::interfaces::IClassFactory for #class_factory_ident {
+        impl #class_factory_impl_generics vst3_com::interfaces::IClassFactory for #class_factory_ident #class_factory_ty_generics #class_factory_where_clause {
             unsafe fn create_instance(
                 &self,
                 aggr: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
@@ -94,10 +105,16 @@ pub fn gen_iunknown_impl<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     class_factory_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let query_interface = gen_query_interface();
     let add_ref = super::iunknown_impl::gen_add_ref();
-    let release = gen_release(&base_interface_idents, &aggr_map, class_factory_ident);
+    let release = gen_release(
+        &base_interface_idents,
+        &aggr_map,
+        class_factory_ident,
+        ty_generics,
+    );
     quote! {
         impl vst3_com::interfaces::IUnknown for #class_factory_ident {
             #query_interface
@@ -111,6 +128,7 @@ pub fn gen_release<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
 
@@ -121,8 +139,12 @@ pub fn gen_release<S: ::std::hash::BuildHasher>(
     );
     let release_new_count_var_zero_check =
         super::iunknown_impl::gen_new_count_var_zero_check(&ref_count_ident);
-    let release_drops =
-        super::iunknown_impl::gen_release_drops(base_interface_idents, aggr_map, struct_ident);
+    let release_drops = super::iunknown_impl::gen_release_drops(
+        base_interface_idents,
+        aggr_map,
+        struct_ident,
+        ty_generics,
+    );
 
     quote! {
         unsafe fn release(&self) -> u32 {
@@ -163,11 +185,15 @@ fn gen_query_interface() -> HelperTokenStream {
 pub fn gen_class_factory_impl(
     base_interface_idents: &[Ident],
     class_factory_ident: &Ident,
+    class_factory_ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_field = super::com_struct_impl::gen_allocate_ref_count_field();
     let base_fields = super::com_struct_impl::gen_allocate_base_fields(base_interface_idents);
-    let base_inits =
-        super::com_struct_impl::gen_allocate_base_inits(class_factory_ident, base_interface_idents);
+    let base_inits = super::com_struct_impl::gen_allocate_base_inits(
+        class_factory_ident,
+        class_factory_ty_generics,
+        base_interface_idents,
+    );
 
     quote! {
         impl #class_factory_ident {

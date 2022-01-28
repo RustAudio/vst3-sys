@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream as HelperTokenStream;
 use quote::quote;
 use std::collections::HashMap;
-use syn::{Ident, ItemStruct};
+use syn::{Ident, ItemStruct, TypeGenerics};
 
 /// Generates the IUnknown implementation for the COM Object.
 /// Takes into account the base interfaces exposed, as well as
@@ -12,13 +12,14 @@ pub fn generate<S: ::std::hash::BuildHasher>(
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
+    let (impl_generics, ty_generics, where_clause) = struct_item.generics.split_for_impl();
 
     let query_interface = gen_query_interface(base_interface_idents, aggr_map);
     let add_ref = gen_add_ref();
-    let release = gen_release(base_interface_idents, aggr_map, struct_ident);
+    let release = gen_release(base_interface_idents, aggr_map, struct_ident, &ty_generics);
 
     quote!(
-        impl vst3_com::interfaces::IUnknown for #struct_ident {
+        impl #impl_generics vst3_com::interfaces::IUnknown for #struct_ident #ty_generics #where_clause {
             #query_interface
             #add_ref
             #release
@@ -49,6 +50,7 @@ pub fn gen_release<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
 
@@ -56,7 +58,8 @@ pub fn gen_release<S: ::std::hash::BuildHasher>(
     let release_assign_new_count_to_var =
         gen_release_assign_new_count_to_var(&ref_count_ident, &ref_count_ident);
     let release_new_count_var_zero_check = gen_new_count_var_zero_check(&ref_count_ident);
-    let release_drops = gen_release_drops(base_interface_idents, aggr_map, struct_ident);
+    let release_drops =
+        gen_release_drops(base_interface_idents, aggr_map, struct_ident, ty_generics);
 
     quote! {
         unsafe fn release(&self) -> u32 {
@@ -75,10 +78,11 @@ pub fn gen_release_drops<S: ::std::hash::BuildHasher>(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>, S>,
     struct_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let vptr_drops = gen_vptr_drops(base_interface_idents);
     let aggregate_drops = gen_aggregate_drops(aggr_map);
-    let com_object_drop = gen_com_object_drop(struct_ident);
+    let com_object_drop = gen_com_object_drop(struct_ident, ty_generics);
 
     quote!(
         #vptr_drops
@@ -113,9 +117,9 @@ fn gen_vptr_drops(base_interface_idents: &[Ident]) -> HelperTokenStream {
     quote!(#(#vptr_drops)*)
 }
 
-fn gen_com_object_drop(struct_ident: &Ident) -> HelperTokenStream {
+fn gen_com_object_drop(struct_ident: &Ident, ty_generics: &TypeGenerics) -> HelperTokenStream {
     quote!(
-        Box::from_raw(self as *const _ as *mut #struct_ident);
+        Box::from_raw(self as *const _ as *mut #struct_ident #ty_generics);
     )
 }
 

@@ -14,6 +14,7 @@ pub fn generate(
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
     let vis = &struct_item.vis;
+    let generics = &struct_item.generics;
 
     let base_fields = co_class::com_struct::gen_base_fields(base_interface_idents);
     let ref_count_field = co_class::com_struct::gen_ref_count_field();
@@ -26,7 +27,7 @@ pub fn generate(
 
     quote!(
         #[repr(C)]
-        #vis struct #struct_ident {
+        #vis struct #struct_ident #generics {
             #base_fields
             #non_delegating_iunknown_field_ident: *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
             // Non-reference counted interface pointer to outer IUnknown.

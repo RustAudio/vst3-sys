@@ -4,9 +4,10 @@ use syn::ItemStruct;
 
 pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
+    let (impl_generics, ty_generics, where_clause) = struct_item.generics.split_for_impl();
 
     quote! {
-        unsafe impl vst3_com::CoClass for #struct_ident {
+        unsafe impl #impl_generics vst3_com::CoClass for #struct_ident #ty_generics #where_clause {
         }
     }
 }

@@ -17,6 +17,7 @@ pub fn generate<S: ::std::hash::BuildHasher>(
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
     let vis = &struct_item.vis;
+    let generics = &struct_item.generics;
 
     let base_fields = gen_base_fields(base_interface_idents);
     let ref_count_field = gen_ref_count_field();
@@ -25,7 +26,7 @@ pub fn generate<S: ::std::hash::BuildHasher>(
 
     quote!(
         #[repr(C)]
-        #vis struct #struct_ident {
+        #vis struct #struct_ident #generics {
             #base_fields
             #ref_count_field
             #aggregate_fields

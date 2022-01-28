@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream as HelperTokenStream;
 use quote::quote;
 use std::collections::HashMap;
-use syn::{Ident, ItemStruct};
+use syn::{Ident, ItemStruct, TypeGenerics};
 
 /// Generates the methods that the com struct needs to have. These include:
 /// allocate: To initialise the vtables, including the non_delegatingegating_iunknown one.
@@ -15,15 +15,18 @@ pub fn generate(
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
+    let (impl_generics, ty_generics, where_clause) = struct_item.generics.split_for_impl();
+
     let allocate_fn = gen_allocate_fn(aggr_map, base_interface_idents, struct_item);
     let set_iunknown_fn = gen_set_iunknown_fn();
-    let inner_iunknown_fns = gen_inner_iunknown_fns(base_interface_idents, aggr_map, struct_ident);
+    let inner_iunknown_fns =
+        gen_inner_iunknown_fns(base_interface_idents, aggr_map, struct_ident, &ty_generics);
     let get_class_object_fn =
         crate::co_class::com_struct_impl::gen_get_class_object_fn(struct_item);
     let set_aggregate_fns = crate::co_class::com_struct_impl::gen_set_aggregate_fns(aggr_map);
 
     quote!(
-        impl #struct_ident {
+        impl #impl_generics #struct_ident #ty_generics #where_clause {
             #allocate_fn
             #set_iunknown_fn
             #inner_iunknown_fns
@@ -56,10 +59,12 @@ fn gen_inner_iunknown_fns(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>>,
     struct_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let inner_query_interface = gen_inner_query_interface(base_interface_idents, aggr_map);
     let inner_add_ref = gen_inner_add_ref();
-    let inner_release = gen_inner_release(base_interface_idents, aggr_map, struct_ident);
+    let inner_release =
+        gen_inner_release(base_interface_idents, aggr_map, struct_ident, ty_generics);
 
     quote!(
         #inner_query_interface
@@ -82,6 +87,7 @@ pub fn gen_inner_release(
     base_interface_idents: &[Ident],
     aggr_map: &HashMap<Ident, Vec<Ident>>,
     struct_ident: &Ident,
+    ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
 
@@ -97,6 +103,7 @@ pub fn gen_inner_release(
         base_interface_idents,
         aggr_map,
         struct_ident,
+        ty_generics,
     );
     let non_delegating_iunknown_drop = gen_non_delegating_iunknown_drop();
 
@@ -163,9 +170,11 @@ fn gen_allocate_fn(
     struct_item: &ItemStruct,
 ) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
+    let (_, ty_generics, _) = struct_item.generics.split_for_impl();
 
     let base_inits = crate::co_class::com_struct_impl::gen_allocate_base_inits(
         struct_ident,
+        &ty_generics,
         base_interface_idents,
     );
 
@@ -187,7 +196,7 @@ fn gen_allocate_fn(
     let non_delegating_iunknown_offset = base_interface_idents.len();
 
     quote!(
-        fn allocate(#allocate_parameters) -> Box<#struct_ident> {
+        fn allocate(#allocate_parameters) -> Box<#struct_ident #ty_generics> {
             // Non-delegating methods.
             unsafe extern "system" fn non_delegatingegating_query_interface(
                 this: *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable,
