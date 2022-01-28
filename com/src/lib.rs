@@ -83,8 +83,8 @@ pub trait ProductionComInterface<T: IUnknown>: ComInterface {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! vtable {
-    ($class:ident$( <$generics:tt>)?: $interface:ident, $offset:path) => {
-        <dyn $interface as $crate::ProductionComInterface<$class$( <$generics>)?>>::vtable::<$offset>();
+    ($class:ty: $interface:ident, $offset:path) => {
+        <dyn $interface as $crate::ProductionComInterface<$class>>::vtable::<$offset>();
     };
 }
 
