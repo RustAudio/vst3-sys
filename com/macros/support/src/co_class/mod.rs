@@ -3,7 +3,6 @@ use syn::{AttributeArgs, ItemStruct};
 
 use std::iter::FromIterator;
 
-pub mod class_factory;
 pub mod co_class_impl;
 pub mod com_struct;
 pub mod com_struct_impl;

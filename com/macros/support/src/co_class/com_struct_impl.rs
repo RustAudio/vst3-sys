@@ -14,15 +14,9 @@ pub fn generate<S: ::std::hash::BuildHasher>(
     let allocate_fn = gen_allocate_fn(aggr_map, base_interface_idents, struct_item);
     let set_aggregate_fns = gen_set_aggregate_fns(aggr_map);
 
-    // Removing some bloat
-    //let get_class_object_fn = gen_get_class_object_fn(struct_item);
-
     quote!(
         impl #impl_generics #struct_ident #ty_generics #where_clause {
             #allocate_fn
-
-            // Removing some bloat
-            //#get_class_object_fn
 
             #set_aggregate_fns
         }
@@ -148,19 +142,6 @@ pub fn gen_allocate_base_inits(
     });
 
     quote!(#(#base_inits)*)
-}
-
-/// Function used by in-process DLL macro to get an instance of the
-/// class object.
-pub fn gen_get_class_object_fn(struct_item: &ItemStruct) -> HelperTokenStream {
-    let struct_ident = &struct_item.ident;
-    let class_factory_ident = crate::utils::class_factory_ident(struct_ident);
-
-    quote!(
-        pub fn get_class_object() -> Box<#class_factory_ident> {
-            <#class_factory_ident>::new()
-        }
-    )
 }
 
 pub fn gen_set_aggregate_fns<S: ::std::hash::BuildHasher>(

@@ -21,8 +21,6 @@ pub fn generate(
     let set_iunknown_fn = gen_set_iunknown_fn();
     let inner_iunknown_fns =
         gen_inner_iunknown_fns(base_interface_idents, aggr_map, struct_ident, &ty_generics);
-    let get_class_object_fn =
-        crate::co_class::com_struct_impl::gen_get_class_object_fn(struct_item);
     let set_aggregate_fns = crate::co_class::com_struct_impl::gen_set_aggregate_fns(aggr_map);
 
     quote!(
@@ -30,7 +28,6 @@ pub fn generate(
             #allocate_fn
             #set_iunknown_fn
             #inner_iunknown_fns
-            #get_class_object_fn
             #set_aggregate_fns
         }
     )
