@@ -329,7 +329,7 @@ impl IPluginFactory for Factory {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 pub fn init() {
-    if let Err(e) = simple_logger::init() {
+    if let Err(e) = simple_logger::SimpleLogger::new().with_utc_timestamps().init().unwrap(); {
         println!("{:?}", e);
     }
     info!("plugin library loaded");
