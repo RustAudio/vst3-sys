@@ -26,7 +26,7 @@ pub mod offset;
 
 pub mod sys;
 
-pub use ptr::ComPtr;
+pub use ptr::VstPtr;
 pub use rc::ComRc;
 
 pub use std::ffi::c_void;

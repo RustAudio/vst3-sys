@@ -22,7 +22,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
             #(#impl_methods)*
         }
 
-        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::ComPtr<T> {
+        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::VstPtr<T> {
             #(#impl_methods)*
         }
     }

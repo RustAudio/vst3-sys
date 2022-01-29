@@ -8,7 +8,7 @@ use std::cell::RefCell;
 use std::intrinsics::write_bytes;
 use std::mem;
 use vst3_com::sys::GUID;
-use vst3_com::{ComPtr, IID};
+use vst3_com::{VstPtr, IID};
 use vst3_sys::base::{
     kInvalidArgument, kNotImplemented, kResultFalse, kResultOk, kResultTrue, tresult,
     ClassCardinality, FIDString, IBStream, IPluginBase, IPluginFactory, IPluginFactory2, IUnknown,
@@ -683,14 +683,14 @@ impl IEditController for AGainController {
 
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
             component_handler.release();
         }
 
         self.component_handler.borrow_mut().0 = handler.as_raw_mut() as *mut _;
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
             component_handler.add_ref();
         }
 
@@ -759,7 +759,7 @@ impl IPluginBase for AGainController {
 
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
             component_handler.release();
             self.component_handler.borrow_mut().0 = null_mut();
         }

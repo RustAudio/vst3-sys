@@ -1,4 +1,4 @@
-use crate::{interfaces::IUnknown, ComInterface, ComPtr};
+use crate::{interfaces::IUnknown, ComInterface, VstPtr};
 
 /// A reference counted COM interface.
 ///
@@ -7,17 +7,17 @@ use crate::{interfaces::IUnknown, ComInterface, ComPtr};
 ///
 /// This is normally the correct way to interact with an interface. If for some
 /// (usually unsafe) reason, you need to interact with an interface without
-/// automatically performing `AddRef` and `Release`, you can use the [`ComPtr`]
+/// automatically performing `AddRef` and `Release`, you can use the [`VstPtr`]
 /// type.
 ///
-/// [`ComPtr`]: struct.ComPtr.html
+/// [`VstPtr`]: struct.VstPtr.html
 pub struct ComRc<T: ComInterface + ?Sized> {
-    ptr: ComPtr<T>,
+    ptr: VstPtr<T>,
 }
 
 impl<T: ComInterface + ?Sized> ComRc<T> {
     /// Creates a new `ComRc` that comforms to the interface T.
-    pub fn new(ptr: ComPtr<T>) -> ComRc<T> {
+    pub fn new(ptr: VstPtr<T>) -> ComRc<T> {
         ComRc { ptr }
     }
 
@@ -25,9 +25,9 @@ impl<T: ComInterface + ?Sized> ComRc<T> {
     ///
     /// # Safety
     ///
-    /// The same safety guarantees as `ComPtr::new` must be upheld by the function.
+    /// The same safety guarantees as `VstPtr::new` must be upheld by the function.
     pub unsafe fn from_raw(ptr: *mut *mut <T as ComInterface>::VTable) -> Self {
-        Self::new(ComPtr::new(ptr))
+        Self::new(VstPtr::new(ptr))
     }
 
     /// Gets the underlying interface ptr. This ptr is only guarnteed to live for

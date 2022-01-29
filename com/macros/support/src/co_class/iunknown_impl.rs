@@ -97,7 +97,7 @@ fn gen_aggregate_drops<S: ::std::hash::BuildHasher>(
     let aggregate_drops = aggr_map.iter().map(|(aggr_field_ident, _)| {
         quote!(
             if !self.#aggr_field_ident.is_null() {
-                let mut aggr_interface_ptr = vst3_com::ComPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
+                let mut aggr_interface_ptr = vst3_com::VstPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
                 aggr_interface_ptr.release();
             }
         )
@@ -216,7 +216,7 @@ pub fn gen_aggregate_match_arms<S: ::std::hash::BuildHasher>(
                     return vst3_com::sys::E_NOINTERFACE;
                 }
 
-                let mut aggr_interface_ptr = vst3_com::ComPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
+                let mut aggr_interface_ptr = vst3_com::VstPtr::<dyn vst3_com::interfaces::iunknown::IUnknown>::new(self.#aggr_field_ident as *mut _);
                 let hr = aggr_interface_ptr.query_interface(riid, ppv);
                 if vst3_com::sys::FAILED(hr) {
                     *ppv = std::ptr::null_mut::<std::ffi::c_void>();

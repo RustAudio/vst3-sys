@@ -62,8 +62,8 @@ pub mod ianimal {
         }
     }
 
-    // Allowing `eat` to be called on on an `ComPtr<dyn IAnimal>`
-    impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComPtr<T> {
+    // Allowing `eat` to be called on on an `VstPtr<dyn IAnimal>`
+    impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::VstPtr<T> {
         unsafe fn eat(&self) -> HRESULT {
             let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
@@ -113,7 +113,7 @@ pub mod ianimal {
 There's a few occasions where we're going outside of the Rust type system and relying that the 
 programmer has verified everything will be ok. 
 
-The first we should look at is where we implement `IAnimal` for `ComRc<dyn IAnimal>` and `ComPtr<dyn IAnimal>`:
+The first we should look at is where we implement `IAnimal` for `ComRc<dyn IAnimal>` and `VstPtr<dyn IAnimal>`:
 
 ```rust
 impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
@@ -123,8 +123,8 @@ impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
         }
     }
 
-    // Allowing `eat` to be called on on an `ComPtr<dyn IAnimal>`
-    impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComPtr<T> {
+    // Allowing `eat` to be called on on an `VstPtr<dyn IAnimal>`
+    impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::VstPtr<T> {
         unsafe fn eat(&self) -> HRESULT {
             let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
@@ -132,7 +132,7 @@ impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
     }
 ```
 
-Here we are casting whatever pointer the `ComRc` or `ComPtr` is holding on to
+Here we are casting whatever pointer the `ComRc` or `VstPtr` is holding on to
 as an `*mut IAnimalVPtr` or in other words a `*mut *const IAnimalVTable`. When working 
 with raw pointers there are several things we need to sure in order to verify it's safe usage
 within Rust:
@@ -142,7 +142,7 @@ within Rust:
 the pointer but only for as long as `&self` lives. 
 * The contents pointed are not mutated if there are other readers of `&self`. In other words, because we have non-exclusive access, we are not allowed to mutate the contents the pointer is pointing to. If we cannot be sure about this at compile time we should wrap this interface in an `Rc`.
 
-The first two points should be verified in other parts of the code. The `ComRc` and `ComPtr` 
+The first two points should be verified in other parts of the code. The `ComRc` and `VstPtr` 
 types should only be constructed if the first two points hold. If they do not hold, then some code 
 somewhere else is incorrect.
 

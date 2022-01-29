@@ -13,13 +13,13 @@ use std::ptr::NonNull;
 ///
 /// [`ComRc`]: struct.ComRc.html
 #[repr(transparent)]
-pub struct ComPtr<T: ComInterface + ?Sized> {
+pub struct VstPtr<T: ComInterface + ?Sized> {
     ptr: NonNull<*mut <T as ComInterface>::VTable>,
     phantom: PhantomData<T>,
 }
 
-impl<T: ComInterface + ?Sized> ComPtr<T> {
-    /// Creates a new `ComPtr` that comforms to the interface T
+impl<T: ComInterface + ?Sized> VstPtr<T> {
+    /// Creates a new `VstPtr` that comforms to the interface T
     ///
     /// # Safety
     ///
@@ -28,7 +28,7 @@ impl<T: ComInterface + ?Sized> ComPtr<T> {
     /// interface is itself trivial castable to a `*mut T::VTable`. In other words,
     /// `ptr` should also be equal to `*mut *mut T::VTable`
     ///
-    /// `ptr` must live for at least as long as the `ComPtr`. The underlying
+    /// `ptr` must live for at least as long as the `VstPtr`. The underlying
     /// COM interface is assumed to correctly implement AddRef and Release such that
     /// the interface will be valid as long as AddRef has been called more times than
     /// Release.
@@ -43,20 +43,20 @@ impl<T: ComInterface + ?Sized> ComPtr<T> {
     /// # Panics
     ///
     /// Panics if `ptr` is null
-    pub unsafe fn new(ptr: *mut *mut <T as ComInterface>::VTable) -> ComPtr<T> {
-        ComPtr {
-            ptr: NonNull::new(ptr).expect("ComPtr's ptr was null"),
+    pub unsafe fn new(ptr: *mut *mut <T as ComInterface>::VTable) -> VstPtr<T> {
+        VstPtr {
+            ptr: NonNull::new(ptr).expect("VstPtr's ptr was null"),
             phantom: PhantomData,
         }
     }
 
-    /// Upgrade the `ComPtr` to an `ComRc`
+    /// Upgrade the `VstPtr` to an `ComRc`
     pub fn upgrade(self) -> ComRc<T> {
         ComRc::new(self)
     }
 
     /// Gets the underlying interface ptr. This ptr is only guarnteed to live for
-    /// as long as the current `ComPtr` is alive.
+    /// as long as the current `VstPtr` is alive.
     pub fn as_raw(&self) -> *mut *mut <T as ComInterface>::VTable {
         self.ptr.as_ptr()
     }
@@ -64,37 +64,37 @@ impl<T: ComInterface + ?Sized> ComPtr<T> {
     /// A safe version of `QueryInterface`. If the backing CoClass implements the
     /// interface `I` then a `Some` containing an `ComRc` pointing to that
     /// interface will be returned otherwise `None` will be returned.
-    pub fn get_interface<I: ComInterface + ?Sized>(&self) -> Option<ComPtr<I>> {
+    pub fn get_interface<I: ComInterface + ?Sized>(&self) -> Option<VstPtr<I>> {
         let mut ppv = std::ptr::null_mut::<c_void>();
         let hr = unsafe { self.query_interface(&I::IID as *const IID, &mut ppv) };
         if FAILED(hr) {
             return None;
         }
         assert!(!ppv.is_null(), "The pointer to the interface returned from a successful call to QueryInterface was null");
-        Some(unsafe { ComPtr::new(ppv as *mut *mut _) })
+        Some(unsafe { VstPtr::new(ppv as *mut *mut _) })
     }
 }
 
-impl<T: ComInterface + ?Sized> std::convert::From<ComRc<T>> for ComPtr<T> {
-    /// Convert from an `ComRc` to an `ComPtr`
+impl<T: ComInterface + ?Sized> std::convert::From<ComRc<T>> for VstPtr<T> {
+    /// Convert from an `ComRc` to an `VstPtr`
     ///
     /// Note that this does not call the release on the underlying interface
-    /// which gurantees that the ComPtr will still point to a valid
+    /// which gurantees that the VstPtr will still point to a valid
     /// interface. If Release is never called on this pointer, than memory
     /// may be leaked.
     fn from(rc: crate::ComRc<T>) -> Self {
-        let result = unsafe { ComPtr::new(rc.as_raw()) };
+        let result = unsafe { VstPtr::new(rc.as_raw()) };
         // for get the rc so that its drop impl which calls release is not called
         std::mem::forget(rc);
         result
     }
 }
 
-impl<T: ComInterface + ?Sized> Clone for ComPtr<T> {
+impl<T: ComInterface + ?Sized> Clone for VstPtr<T> {
     fn clone(&self) -> Self {
         unsafe {
             self.add_ref();
-            ComPtr::new(self.ptr.as_ptr())
+            VstPtr::new(self.ptr.as_ptr())
         }
     }
 }
