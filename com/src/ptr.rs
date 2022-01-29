@@ -15,6 +15,15 @@ pub struct VstPtr<T: ComInterface + ?Sized> {
     ptr: NonNull<*mut <T as ComInterface>::VTable>,
 }
 
+/// [VstPtr], but without any lifetime management. This is only used for the parts of the API where
+/// the host may not have implemented the correct lifetime management features, such as in the
+/// process context. You should never use this yourself.
+#[repr(transparent)]
+#[derive(Clone)]
+pub struct RawVstPtr<T: ComInterface + ?Sized> {
+    ptr: NonNull<*mut <T as ComInterface>::VTable>,
+}
+
 impl<T: ComInterface + ?Sized> VstPtr<T> {
     /// Adopt a pointer returned by a VST3 method call. This will return a `None` if the pointer is
     /// a null pointer. This function must be called whenever a method returns an interface opinter,
@@ -33,8 +42,6 @@ impl<T: ComInterface + ?Sized> VstPtr<T> {
     /// COM interface is assumed to correctly implement AddRef and Release such that
     /// the interface will be valid as long as AddRef has been called more times than
     /// Release.
-    ///
-    /// When this struct is dropped, `release` will be called on the underlying interface.
     pub unsafe fn owned(ptr: *mut *mut <T as ComInterface>::VTable) -> Option<Self> {
         Some(Self {
             ptr: NonNull::new(ptr)?,
@@ -93,5 +100,25 @@ impl<T: ComInterface + ?Sized> Drop for VstPtr<T> {
         unsafe {
             self.release();
         }
+    }
+}
+
+impl<T: ComInterface + ?Sized> RawVstPtr<T> {
+    /// Construct an unmanaged VST interface pointer from a raw pointer. This will return a `None`
+    /// if the pointer is a null pointer. Consider using [VstPtr] instead.
+    ///
+    /// # Safety
+    ///
+    /// See the safety notes in [VstPtr::owned].
+    pub unsafe fn new(ptr: *mut *mut <T as ComInterface>::VTable) -> Option<Self> {
+        Some(Self {
+            ptr: NonNull::new(ptr)?,
+        })
+    }
+
+    /// Get the underlying interface pointer. This pointer is only guarnteed to live for as long as
+    /// the current `VstPtr` is alive.
+    pub fn as_ptr(&self) -> *mut *mut <T as ComInterface>::VTable {
+        self.ptr.as_ptr()
     }
 }

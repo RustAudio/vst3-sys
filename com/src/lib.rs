@@ -25,7 +25,7 @@ pub mod offset;
 
 pub mod sys;
 
-pub use ptr::VstPtr;
+pub use ptr::{RawVstPtr, VstPtr};
 
 pub use std::ffi::c_void;
 #[doc(inline)]
