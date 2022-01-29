@@ -154,7 +154,7 @@ pub fn gen_set_aggregate_fns<S: ::std::hash::BuildHasher>(
             fns.push(quote!(
                 fn #set_aggregate_fn_ident(&mut self, aggr: vst3_com::VstPtr<dyn vst3_com::interfaces::iunknown::IUnknown>) {
                     // FaTODO: What happens if we are overwriting an existing aggregate?
-                    self.#aggr_field_ident = aggr.as_raw() as *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable;
+                    self.#aggr_field_ident = aggr.as_ptr() as *mut *const <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable;
                 }
             ));
         }

@@ -57,7 +57,7 @@ pub mod ianimal {
     // Allowing `eat` to be called on on an `ComRc<dyn IAnimal>`
     impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
         unsafe fn eat(&self) -> HRESULT {
-            let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
+            let interface_ptr = self.as_ptr() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
         }
     }
@@ -65,7 +65,7 @@ pub mod ianimal {
     // Allowing `eat` to be called on on an `VstPtr<dyn IAnimal>`
     impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::VstPtr<T> {
         unsafe fn eat(&self) -> HRESULT {
-            let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
+            let interface_ptr = self.as_ptr() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
         }
     }
@@ -118,7 +118,7 @@ The first we should look at is where we implement `IAnimal` for `ComRc<dyn IAnim
 ```rust
 impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
         unsafe fn eat(&self) -> HRESULT {
-            let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
+            let interface_ptr = self.as_ptr() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
         }
     }
@@ -126,7 +126,7 @@ impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::ComRc<T> {
     // Allowing `eat` to be called on on an `VstPtr<dyn IAnimal>`
     impl<T: IAnimal + com::ComInterface + ?Sized> IAnimal for com::VstPtr<T> {
         unsafe fn eat(&self) -> HRESULT {
-            let interface_ptr = self.as_raw() as *mut IAnimalVPtr;
+            let interface_ptr = self.as_ptr() as *mut IAnimalVPtr;
             ((**interface_ptr).Eat)(interface_ptr)
         }
     }

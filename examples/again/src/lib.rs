@@ -677,20 +677,23 @@ impl IEditController for AGainController {
     ) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
-        if self.component_handler.borrow().0 == handler.as_raw_mut() as *mut _ {
+        if self.component_handler.borrow().0 == handler.as_ptr() as *mut _ {
             return kResultTrue;
         }
 
+        // FIXME: This was written when ComPtr was a dumb wrapper, rewrite this properly
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> =
+                VstPtr::shared(component_handler).unwrap();
             component_handler.release();
         }
 
-        self.component_handler.borrow_mut().0 = handler.as_raw_mut() as *mut _;
+        self.component_handler.borrow_mut().0 = handler.as_ptr() as *mut _;
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> =
+                VstPtr::shared(component_handler).unwrap();
             component_handler.add_ref();
         }
 
@@ -759,7 +762,8 @@ impl IPluginBase for AGainController {
 
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: VstPtr<dyn IComponentHandler> = VstPtr::new(component_handler);
+            let component_handler: VstPtr<dyn IComponentHandler> =
+                VstPtr::shared(component_handler).unwrap();
             component_handler.release();
             self.component_handler.borrow_mut().0 = null_mut();
         }

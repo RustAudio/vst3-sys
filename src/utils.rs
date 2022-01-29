@@ -1,29 +1,29 @@
-//! Utilities for consumers of the raw API
-use vst3_com::{ComInterface, VstPtr};
+//! Utilities for working with VST3 interface objects.
 
-/// A thin wrapper around a raw pointer to a vtable. Used in traits that return pointers to instances.
+use vst3_com::ComInterface;
+
+pub use vst3_com::VstPtr;
+
+/// A [VstPtr] with shared semantics. Used only as a function parameter in the interface traits.
 #[repr(transparent)]
 #[derive(Copy, Clone, Debug)]
 pub struct SharedVstPtr<I: ComInterface + ?Sized> {
-    inst: *mut *mut <I as ComInterface>::VTable,
+    ptr: *mut *mut <I as ComInterface>::VTable,
 }
 
 impl<I: ComInterface + ?Sized> SharedVstPtr<I> {
-    pub fn as_raw_mut(&mut self) -> *mut *mut <I as ComInterface>::VTable {
-        self.inst
+    pub fn as_ptr(&mut self) -> *mut *mut <I as ComInterface>::VTable {
+        self.ptr
     }
-    /// check if the underlying pointer is null
+
+    /// Check if the underlying pointer is null.
     pub fn is_null(&self) -> bool {
-        self.inst.is_null()
+        self.ptr.is_null()
     }
 
     /// Promote the pointer to a reference count, returns `None` if the pointer is null.
     pub fn upgrade(&self) -> Option<VstPtr<I>> {
-        if self.inst.is_null() {
-            None
-        } else {
-            // Safety: we only guarantee the pointer is not null, if the code that allocated the pointer is flawed  it could still point to garbage.
-            unsafe { Some(VstPtr::new(self.inst)) }
-        }
+        // Safety: we only guarantee the pointer is not null, if the code that allocated the pointer is flawed  it could still point to garbage.
+        unsafe { VstPtr::shared(self.ptr) }
     }
 }

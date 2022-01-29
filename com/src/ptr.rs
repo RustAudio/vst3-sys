@@ -1,25 +1,26 @@
-use crate::sys::FAILED;
-use crate::{interfaces::IUnknown, ComInterface, ComRc, IID};
-
 use std::ffi::c_void;
-use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-/// A transparent ptr to a COM interface.
-///
-/// This is normally _not_ the correct way to interact with an interface. Normally
-/// you'll want to to interact with an interface through a [`ComRc`] which
-/// automatically calls `AddRef` and `Release` at the right time .
-///
-/// [`ComRc`]: struct.ComRc.html
+use crate::sys::S_OK;
+use crate::{interfaces::IUnknown, ComInterface, IID};
+
+/// A smart pointer for VST3 interface objects. You'll find these objects in two different places in
+/// the VST3 API: passed as a parameter to a method (owned), and returned by a method (shared). In
+/// the first situation, the object already has a reference count of 1, and the caller should take
+/// ownership of it. In the second situation, the callee should add a reference if it decides to use
+/// the pointer. The semantics of these two situations are encoded in the [VstPtr::owned] and
+/// [VstPtr::shared] function respectively.
 #[repr(transparent)]
 pub struct VstPtr<T: ComInterface + ?Sized> {
     ptr: NonNull<*mut <T as ComInterface>::VTable>,
-    phantom: PhantomData<T>,
 }
 
 impl<T: ComInterface + ?Sized> VstPtr<T> {
-    /// Creates a new `VstPtr` that comforms to the interface T
+    /// Adopt a pointer returned by a VST3 method call. This will return a `None` if the pointer is
+    /// a null pointer. This function must be called whenever a method returns an interface opinter,
+    /// even if you do not plan on using the value. Otherwise the object will leak.
+    ///
+    /// The object will be released when the last reference to it gets dropped.
     ///
     /// # Safety
     ///
@@ -33,68 +34,64 @@ impl<T: ComInterface + ?Sized> VstPtr<T> {
     /// the interface will be valid as long as AddRef has been called more times than
     /// Release.
     ///
-    /// AddRef must have been called on the underlying COM interface that `ptr` is pointing
-    /// to such that the reference count must be at least 1. It is expected that Release
-    /// will eventually be called on this pointer either manually or by passing it into
-    /// `ComRc::new` which will cause Release to be called on drop of the rc.
-    ///
     /// When this struct is dropped, `release` will be called on the underlying interface.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `ptr` is null
-    pub unsafe fn new(ptr: *mut *mut <T as ComInterface>::VTable) -> VstPtr<T> {
-        VstPtr {
-            ptr: NonNull::new(ptr).expect("VstPtr's ptr was null"),
-            phantom: PhantomData,
-        }
+    pub unsafe fn owned(ptr: *mut *mut <T as ComInterface>::VTable) -> Option<Self> {
+        Some(Self {
+            ptr: NonNull::new(ptr)?,
+        })
     }
 
-    /// Upgrade the `VstPtr` to an `ComRc`
-    pub fn upgrade(self) -> ComRc<T> {
-        ComRc::new(self)
+    /// Add another reference for a VST3 interface object passed as an argument to a method call.
+    /// This will return a `None` if the pointer is a null pointer.
+    ///
+    /// The object will be released when the last reference to it gets dropped.
+    ///
+    /// # Safety
+    ///
+    /// See the safety notes in [Self::owned].
+    pub unsafe fn shared(ptr: *mut *mut <T as ComInterface>::VTable) -> Option<Self> {
+        let vst_ptr = Self {
+            ptr: NonNull::new(ptr)?,
+        };
+        vst_ptr.add_ref();
+
+        Some(vst_ptr)
     }
 
-    /// Gets the underlying interface ptr. This ptr is only guarnteed to live for
-    /// as long as the current `VstPtr` is alive.
-    pub fn as_raw(&self) -> *mut *mut <T as ComInterface>::VTable {
+    /// Get the underlying interface pointer. This pointer is only guarnteed to live for as long as
+    /// the current `VstPtr` is alive.
+    pub fn as_ptr(&self) -> *mut *mut <T as ComInterface>::VTable {
         self.ptr.as_ptr()
     }
 
-    /// A safe version of `QueryInterface`. If the backing CoClass implements the
-    /// interface `I` then a `Some` containing an `ComRc` pointing to that
-    /// interface will be returned otherwise `None` will be returned.
-    pub fn get_interface<I: ComInterface + ?Sized>(&self) -> Option<VstPtr<I>> {
-        let mut ppv = std::ptr::null_mut::<c_void>();
-        let hr = unsafe { self.query_interface(&I::IID as *const IID, &mut ppv) };
-        if FAILED(hr) {
-            return None;
+    /// A smart cast from this interface to another interface implemented by the same object. If the
+    /// object does not implement the interface, then this will return a `None`.
+    pub fn cast<I: ComInterface + ?Sized>(&self) -> Option<VstPtr<I>> {
+        let mut obj = std::ptr::null_mut::<c_void>();
+        let result = unsafe { self.query_interface(&I::IID as *const IID, &mut obj) };
+        if result == S_OK {
+            // There's no way to guarentee that the returned object actually impelemnts this
+            // interface, but you got to have a little faith
+            unsafe { VstPtr::owned(obj as *mut *mut _) }
+        } else {
+            None
         }
-        assert!(!ppv.is_null(), "The pointer to the interface returned from a successful call to QueryInterface was null");
-        Some(unsafe { VstPtr::new(ppv as *mut *mut _) })
-    }
-}
-
-impl<T: ComInterface + ?Sized> std::convert::From<ComRc<T>> for VstPtr<T> {
-    /// Convert from an `ComRc` to an `VstPtr`
-    ///
-    /// Note that this does not call the release on the underlying interface
-    /// which gurantees that the VstPtr will still point to a valid
-    /// interface. If Release is never called on this pointer, than memory
-    /// may be leaked.
-    fn from(rc: crate::ComRc<T>) -> Self {
-        let result = unsafe { VstPtr::new(rc.as_raw()) };
-        // for get the rc so that its drop impl which calls release is not called
-        std::mem::forget(rc);
-        result
     }
 }
 
 impl<T: ComInterface + ?Sized> Clone for VstPtr<T> {
     fn clone(&self) -> Self {
         unsafe {
-            self.add_ref();
-            VstPtr::new(self.ptr.as_ptr())
+            VstPtr::shared(self.ptr.as_ptr())
+                .expect("Wait, it's all null pointers? Always has been.")
+        }
+    }
+}
+
+impl<T: ComInterface + ?Sized> Drop for VstPtr<T> {
+    fn drop(&mut self) {
+        unsafe {
+            self.release();
         }
     }
 }

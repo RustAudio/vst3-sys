@@ -45,7 +45,7 @@ fn gen_impl_method(interface_ident: &Ident, method: &TraitItemMethod) -> HelperT
     quote!(
         #[allow(missing_docs)]
         #method_sig {
-            let #interface_ptr_ident = self.as_raw() as *mut #vptr_ident;
+            let #interface_ptr_ident = self.as_ptr() as *mut #vptr_ident;
             ((**#interface_ptr_ident).#method_ident)(#(#params),*)
         }
     )
