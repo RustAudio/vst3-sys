@@ -1,5 +1,5 @@
 use crate::base::{tchar, tresult, FIDString, IBStream, IPluginBase, TBool};
-use crate::utils::VstPtr;
+use crate::utils::SharedVstPtr;
 use crate::vst::{
     BusDirection, CString, CtrlNumber, KnobMode, MediaType, ParamID, ParamValue, String128, TChar,
 };
@@ -65,9 +65,9 @@ pub trait IComponentHandler: IUnknown {
 /// Edit controller component interface.
 #[com_interface("DCD7BBE3-7742-448D-A874-AACC979C759E")]
 pub trait IEditController: IPluginBase {
-    unsafe fn set_component_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
-    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
-    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_component_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult;
+    unsafe fn get_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult;
     unsafe fn get_parameter_count(&self) -> i32;
     unsafe fn get_parameter_info(&self, param_index: i32, info: *mut ParameterInfo) -> tresult;
     unsafe fn get_param_string_by_value(
@@ -86,7 +86,7 @@ pub trait IEditController: IPluginBase {
     unsafe fn plain_param_to_normalized(&self, id: u32, plain_value: f64) -> f64;
     unsafe fn get_param_normalized(&self, id: u32) -> f64;
     unsafe fn set_param_normalized(&self, id: u32, value: f64) -> tresult;
-    unsafe fn set_component_handler(&self, handler: VstPtr<dyn IComponentHandler>) -> tresult;
+    unsafe fn set_component_handler(&self, handler: SharedVstPtr<dyn IComponentHandler>) -> tresult;
     unsafe fn create_view(&self, name: FIDString) -> *mut c_void;
 }
 

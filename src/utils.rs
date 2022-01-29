@@ -1,13 +1,14 @@
 //! Utilities for consumers of the raw API
 use vst3_com::{ComInterface, ComPtr};
+
 /// A thin wrapper around a raw pointer to a vtable. Used in traits that return pointers to instances.
 #[repr(transparent)]
 #[derive(Copy, Clone, Debug)]
-pub struct VstPtr<I: ComInterface + ?Sized> {
+pub struct SharedVstPtr<I: ComInterface + ?Sized> {
     inst: *mut *mut <I as ComInterface>::VTable,
 }
 
-impl<I: ComInterface + ?Sized> VstPtr<I> {
+impl<I: ComInterface + ?Sized> SharedVstPtr<I> {
     pub fn as_raw_mut(&mut self) -> *mut *mut <I as ComInterface>::VTable {
         self.inst
     }

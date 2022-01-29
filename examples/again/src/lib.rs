@@ -1,7 +1,7 @@
 use log::*;
 use std::os::raw::{c_char, c_short, c_void};
 use std::ptr::{copy_nonoverlapping, null_mut};
-use vst3_sys::utils::VstPtr;
+use vst3_sys::utils::SharedVstPtr;
 
 use flexi_logger::{opt_format, Logger};
 use std::cell::RefCell;
@@ -255,7 +255,7 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::set_state()");
 
         let state = state.upgrade();
@@ -282,7 +282,7 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::get_state()");
         let state = state.upgrade();
         if state.is_none() {
@@ -548,7 +548,7 @@ impl AGainController {
 }
 
 impl IEditController for AGainController {
-    unsafe fn set_component_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_component_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_component_state()");
 
         if state.is_null() {
@@ -576,12 +576,12 @@ impl IEditController for AGainController {
         }
         kResultOk
     }
-    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_state()");
 
         kResultOk
     }
-    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::get_state()");
 
         kResultOk
@@ -671,7 +671,10 @@ impl IEditController for AGainController {
             _ => kResultFalse,
         }
     }
-    unsafe fn set_component_handler(&self, mut handler: VstPtr<dyn IComponentHandler>) -> tresult {
+    unsafe fn set_component_handler(
+        &self,
+        mut handler: SharedVstPtr<dyn IComponentHandler>,
+    ) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
         if self.component_handler.borrow().0 == handler.as_raw_mut() as *mut _ {
@@ -860,7 +863,7 @@ impl IUnitInfo for AGainController {
         &self,
         _list_or_unit: i32,
         _program_index: i32,
-        _data: VstPtr<dyn IBStream>,
+        _data: SharedVstPtr<dyn IBStream>,
     ) -> i32 {
         info!("Called: AGainController::set_unit_program_data()");
 
