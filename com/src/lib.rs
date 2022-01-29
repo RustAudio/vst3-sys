@@ -24,8 +24,6 @@ use interfaces::IUnknown;
 #[doc(hidden)]
 pub mod offset;
 
-#[cfg(windows)]
-pub mod runtime;
 pub mod sys;
 
 pub use ptr::ComPtr;
