@@ -8,7 +8,7 @@ pub fn generate(trait_item: &ItemTrait) -> HelperTokenStream {
     let interface_ident = &trait_item.ident;
     let vtable_ident = vtable::ident(&interface_ident.to_string());
     let iid_ident = iid::ident(interface_ident);
-    let vtable_macro = vtable_macro::ident(&interface_ident);
+    let vtable_macro = vtable_macro::ident(interface_ident);
     let parent = if let Some(TypeParamBound::Trait(t)) = trait_item.supertraits.first() {
         quote! { #t }
     } else {

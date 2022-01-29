@@ -134,7 +134,7 @@ pub fn gen_allocate_base_inits(
     let mut offset_count: usize = 0;
     let base_inits = base_interface_idents.iter().map(|base| {
         let vtable_var_ident = format_ident!("{}_vtable", base.to_string().to_lowercase());
-        let vptr_field_ident = crate::utils::vptr_field_ident(&base);
+        let vptr_field_ident = crate::utils::vptr_field_ident(base);
 
         // struct_ident: #base, $offset_count 
         let offset_ident = format_ident!("Offset{}", offset_count);
@@ -154,7 +154,7 @@ pub fn gen_allocate_base_inits(
 /// class object.
 pub fn gen_get_class_object_fn(struct_item: &ItemStruct) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
-    let class_factory_ident = crate::utils::class_factory_ident(&struct_ident);
+    let class_factory_ident = crate::utils::class_factory_ident(struct_ident);
 
     quote!(
         pub fn get_class_object() -> Box<#class_factory_ident> {
@@ -169,7 +169,7 @@ pub fn gen_set_aggregate_fns<S: ::std::hash::BuildHasher>(
     let mut fns = Vec::new();
     for (aggr_field_ident, aggr_base_interface_idents) in aggr_map.iter() {
         for base in aggr_base_interface_idents {
-            let set_aggregate_fn_ident = crate::utils::set_aggregate_fn_ident(&base);
+            let set_aggregate_fn_ident = crate::utils::set_aggregate_fn_ident(base);
             fns.push(quote!(
                 fn #set_aggregate_fn_ident(&mut self, aggr: vst3_com::ComPtr<dyn vst3_com::interfaces::iunknown::IUnknown>) {
                     // FaTODO: What happens if we are overwriting an existing aggregate?

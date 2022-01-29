@@ -10,7 +10,7 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let aggr_map = crate::co_class::class_factory::get_class_factory_aggr_map();
 
     let struct_ident = &struct_item.ident;
-    let class_factory_ident = crate::utils::class_factory_ident(&struct_ident);
+    let class_factory_ident = crate::utils::class_factory_ident(struct_ident);
     let (class_factory_impl_generics, class_factory_ty_generics, class_factory_where_clause) =
         struct_item.generics.split_for_impl();
 
