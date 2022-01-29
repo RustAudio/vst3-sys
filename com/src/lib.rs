@@ -16,7 +16,6 @@
 #![deny(missing_docs)]
 
 mod ptr;
-mod rc;
 
 pub mod interfaces;
 use interfaces::IUnknown;
@@ -27,7 +26,6 @@ pub mod offset;
 pub mod sys;
 
 pub use ptr::VstPtr;
-pub use rc::ComRc;
 
 pub use std::ffi::c_void;
 #[doc(inline)]

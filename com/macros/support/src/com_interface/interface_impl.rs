@@ -18,10 +18,6 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
     }
 
     quote! {
-        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::ComRc<T> {
-            #(#impl_methods)*
-        }
-
         impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::VstPtr<T> {
             #(#impl_methods)*
         }
