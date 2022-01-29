@@ -90,3 +90,26 @@ pub trait IAudioPresentationLatency: IUnknown {
         latency_samples: u32,
     ) -> tresult;
 }
+
+/// Flags used by [IProcessContextRequirements] to signal to the host what
+/// data is required by the process context for your plugin. Required if you
+/// plan to support > 3.7.0 hosts.
+#[allow(non_snake_case)]
+pub mod IProcessContextRequirementsFlags {
+    pub const kNeedSystemTime: u32 = 1;
+    pub const kNeedContinousTimeSamples: u32 = 1 << 1;
+    pub const kNeedProjectTimeMusic: u32 = 1 << 2;
+    pub const kNeedBarPositionMusic: u32 = 1 << 3;
+    pub const kNeedCycleMusic: u32 = 1 << 4;
+    pub const kNeedSamplesToNextClock: u32 = 1 << 5;
+    pub const kNeedTempo: u32 = 1 << 6;
+    pub const kNeedTimeSignature: u32 = 1 << 7;
+    pub const kNeedChord: u32 = 1 << 8;
+    pub const kNeedFrameRate: u32 = 1 << 9;
+    pub const kNeedTransportState: u32 = 1 << 10;
+}
+
+#[com_interface("2A654303-EF76-4E3D-95B5-FE83730EF6D0")]
+pub trait IProcessContextRequirements: IUnknown {
+    unsafe fn get_process_context_requirements(&self) -> u32;
+}

@@ -1,4 +1,5 @@
-use crate::base::{tresult, FIDString, IPluginBase, TBool};
+use crate::base::{tchar, tresult, FIDString, IBStream, IPluginBase, TBool};
+use crate::utils::VstPtr;
 use crate::vst::{
     BusDirection, CString, CtrlNumber, KnobMode, MediaType, ParamID, ParamValue, String128, TChar,
 };
@@ -64,9 +65,9 @@ pub trait IComponentHandler: IUnknown {
 /// Edit controller component interface.
 #[com_interface("DCD7BBE3-7742-448D-A874-AACC979C759E")]
 pub trait IEditController: IPluginBase {
-    unsafe fn set_component_state(&self, state: *mut c_void) -> tresult;
-    unsafe fn set_state(&self, state: *mut c_void) -> tresult;
-    unsafe fn get_state(&self, state: *mut c_void) -> tresult;
+    unsafe fn set_component_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult;
     unsafe fn get_parameter_count(&self) -> i32;
     unsafe fn get_parameter_info(&self, param_index: i32, info: *mut ParameterInfo) -> tresult;
     unsafe fn get_param_string_by_value(
@@ -85,7 +86,7 @@ pub trait IEditController: IPluginBase {
     unsafe fn plain_param_to_normalized(&self, id: u32, plain_value: f64) -> f64;
     unsafe fn get_param_normalized(&self, id: u32) -> f64;
     unsafe fn set_param_normalized(&self, id: u32, value: f64) -> tresult;
-    unsafe fn set_component_handler(&self, handler: *mut c_void) -> tresult;
+    unsafe fn set_component_handler(&self, handler: VstPtr<dyn IComponentHandler>) -> tresult;
     unsafe fn create_view(&self, name: FIDString) -> *mut c_void;
 }
 
@@ -121,4 +122,22 @@ pub trait IComponentHandlerBusActivation: IUnknown {
 pub trait IEditControllerHostEditing: IUnknown {
     unsafe fn begin_edit_from_host(&self, id: ParamID) -> tresult;
     unsafe fn end_edit_from_host(&self, id: ParamID) -> tresult;
+}
+
+#[allow(non_snake_case)]
+pub mod ProgressType {
+    pub const AsyncStateRestoration: u32 = 0;
+    pub const UIBackgroundTask: u32 = 1;
+}
+
+#[com_interface("00C9DC5B-9D90-4254-91A3-88C8B4E91B69")]
+pub trait IProgress: IUnknown {
+    unsafe fn start(
+        &self,
+        progress_type: u32,
+        optional_description: *const tchar,
+        out_id: *mut u64,
+    ) -> i32; // fucking _why_
+    unsafe fn update(&self, id: u64, value: f64);
+    unsafe fn finish(&self, id: u64);
 }

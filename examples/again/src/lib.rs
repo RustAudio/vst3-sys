@@ -255,16 +255,14 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn set_state(&self, state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::set_state()");
 
-        if state.is_null() {
+        let state = state.upgrade();
+        if state.is_none() {
             return kResultFalse;
         }
-
-        let state = state as *mut *mut _;
-        let state: ComPtr<dyn IBStream> = ComPtr::new(state);
-
+        let state = state.unwrap();
         let mut num_bytes_read = 0;
         let mut saved_gain = 0.0;
         let mut saved_bypass = false;
@@ -284,16 +282,14 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn get_state(&self, state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::get_state()");
-
-        if state.is_null() {
+        let state = state.upgrade();
+        if state.is_none() {
             return kResultFalse;
         }
 
-        let state = state as *mut *mut _;
-        let state: ComPtr<dyn IBStream> = ComPtr::new(state);
-
+        let state = state.unwrap();
         let mut num_bytes_written = 0;
         let gain_ptr = &mut self.gain.borrow_mut().0 as *mut f64 as *mut c_void;
         let bypass_ptr = &mut self.bypass.borrow_mut().0 as *mut bool as *mut c_void;
@@ -552,43 +548,40 @@ impl AGainController {
 }
 
 impl IEditController for AGainController {
-    unsafe fn set_component_state(&self, state: *mut c_void) -> tresult {
+    unsafe fn set_component_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_component_state()");
 
         if state.is_null() {
             return kResultFalse;
         }
 
-        let state = state as *mut *mut _;
-        let state: ComPtr<dyn IBStream> = ComPtr::new(state);
+        if let Some(state) = state.upgrade() {
+            let mut num_bytes_read = 0;
+            let mut saved_gain = 0.0;
+            let mut saved_bypass = false;
+            let gain_ptr = &mut saved_gain as *mut f64 as *mut c_void;
+            let bypass_ptr = &mut saved_bypass as *mut bool as *mut c_void;
+            state.read(gain_ptr, mem::size_of::<f64>() as i32, &mut num_bytes_read);
+            state.read(
+                bypass_ptr,
+                mem::size_of::<bool>() as i32,
+                &mut num_bytes_read,
+            );
 
-        let mut num_bytes_read = 0;
-        let mut saved_gain = 0.0;
-        let mut saved_bypass = false;
-        let gain_ptr = &mut saved_gain as *mut f64 as *mut c_void;
-        let bypass_ptr = &mut saved_bypass as *mut bool as *mut c_void;
+            info!("saved_gain: {}", saved_gain);
+            info!("saved_bypass: {}", saved_bypass);
 
-        state.read(gain_ptr, mem::size_of::<f64>() as i32, &mut num_bytes_read);
-        state.read(
-            bypass_ptr,
-            mem::size_of::<bool>() as i32,
-            &mut num_bytes_read,
-        );
-
-        info!("saved_gain: {}", saved_gain);
-        info!("saved_bypass: {}", saved_bypass);
-
-        self.set_param_normalized(0, saved_gain);
-        self.set_param_normalized(1, if saved_bypass { 1.0 } else { 0.0 });
-
+            self.set_param_normalized(0, saved_gain);
+            self.set_param_normalized(1, if saved_bypass { 1.0 } else { 0.0 });
+        }
         kResultOk
     }
-    unsafe fn set_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_state()");
 
         kResultOk
     }
-    unsafe fn get_state(&self, _state: *mut c_void) -> tresult {
+    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::get_state()");
 
         kResultOk
@@ -678,10 +671,10 @@ impl IEditController for AGainController {
             _ => kResultFalse,
         }
     }
-    unsafe fn set_component_handler(&self, handler: *mut c_void) -> tresult {
+    unsafe fn set_component_handler(&self, mut handler: VstPtr<dyn IComponentHandler>) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
-        if self.component_handler.borrow().0 == handler {
+        if self.component_handler.borrow().0 == handler.as_raw_mut() as *mut _ {
             return kResultTrue;
         }
 
@@ -691,7 +684,7 @@ impl IEditController for AGainController {
             component_handler.release();
         }
 
-        self.component_handler.borrow_mut().0 = handler;
+        self.component_handler.borrow_mut().0 = handler.as_raw_mut() as *mut _;
         if !self.component_handler.borrow().0.is_null() {
             let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
             let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
