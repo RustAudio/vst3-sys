@@ -6,7 +6,7 @@ pub use vst3_com::VstPtr;
 
 /// A [VstPtr] with shared semantics. Used only as a function parameter in the interface traits.
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SharedVstPtr<I: ComInterface + ?Sized> {
     ptr: *mut *mut <I as ComInterface>::VTable,
 }
@@ -14,7 +14,7 @@ pub struct SharedVstPtr<I: ComInterface + ?Sized> {
 /// A [VstPtr]-like object without any lifetime management. Used only as a field in structs
 /// containing interface pointers.
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StaticVstPtr<I: ComInterface + ?Sized> {
     ptr: *mut *mut <I as ComInterface>::VTable,
 }

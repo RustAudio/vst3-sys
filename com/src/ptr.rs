@@ -11,6 +11,7 @@ use crate::{interfaces::IUnknown, ComInterface, IID};
 /// the pointer. The semantics of these two situations are encoded in the [VstPtr::owned] and
 /// [VstPtr::shared] function respectively.
 #[repr(transparent)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct VstPtr<T: ComInterface + ?Sized> {
     ptr: NonNull<*mut <T as ComInterface>::VTable>,
 }
@@ -19,7 +20,7 @@ pub struct VstPtr<T: ComInterface + ?Sized> {
 /// the host may not have implemented the correct lifetime management features, such as in the
 /// process context. You should never use this yourself.
 #[repr(transparent)]
-#[derive(Clone)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct RawVstPtr<T: ComInterface + ?Sized> {
     ptr: NonNull<*mut <T as ComInterface>::VTable>,
 }
