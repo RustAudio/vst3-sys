@@ -43,7 +43,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
             pub #base_field_ident: <dyn #base_interface_path as vst3_com::ComInterface>::VTable,
         }
     };
-    let methods = gen_vtable_methods(&interface);
+    let methods = gen_vtable_methods(interface);
 
     quote!(
         #[allow(non_snake_case, missing_docs)]

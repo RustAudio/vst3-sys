@@ -37,7 +37,7 @@ pub fn generate<S: ::std::hash::BuildHasher>(
 
 pub fn gen_base_fields(base_interface_idents: &[Ident]) -> HelperTokenStream {
     let bases_interface_idents = base_interface_idents.iter().map(|base| {
-        let field_ident = crate::utils::vptr_field_ident(&base);
+        let field_ident = crate::utils::vptr_field_ident(base);
         quote!(#field_ident: *const <dyn #base as vst3_com::ComInterface>::VTable)
     });
     quote!(#(#bases_interface_idents,)*)

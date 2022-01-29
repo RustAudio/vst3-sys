@@ -108,7 +108,7 @@ fn gen_aggregate_drops<S: ::std::hash::BuildHasher>(
 
 fn gen_vptr_drops(base_interface_idents: &[Ident]) -> HelperTokenStream {
     let vptr_drops = base_interface_idents.iter().map(|base| {
-        let vptr_field_ident = crate::utils::vptr_field_ident(&base);
+        let vptr_field_ident = crate::utils::vptr_field_ident(base);
         quote!(
             Box::from_raw(self.#vptr_field_ident as *mut <dyn #base as vst3_com::ComInterface>::VTable);
         )
@@ -183,7 +183,7 @@ pub fn gen_base_match_arms(base_interface_idents: &[Ident]) -> HelperTokenStream
     let base_match_arms = base_interface_idents.iter().map(|base| {
         let match_condition =
             quote!(<dyn #base as vst3_com::ComInterface>::is_iid_in_inheritance_chain(riid));
-        let vptr_field_ident = crate::utils::vptr_field_ident(&base);
+        let vptr_field_ident = crate::utils::vptr_field_ident(base);
 
         quote!(
             else if #match_condition {

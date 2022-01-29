@@ -27,7 +27,7 @@ pub fn generate(struct_item: &ItemStruct) -> HelperTokenStream {
     let struct_ident = &struct_item.ident;
     let (class_factory_impl_generics, class_factory_ty_generics, class_factory_where_clause) =
         struct_item.generics.split_for_impl();
-    let class_factory_ident = crate::utils::class_factory_ident(&struct_ident);
+    let class_factory_ident = crate::utils::class_factory_ident(struct_ident);
 
     let struct_definition = gen_class_factory_struct_definition(&class_factory_ident);
     let lock_server = gen_lock_server();
@@ -110,8 +110,8 @@ pub fn gen_iunknown_impl<S: ::std::hash::BuildHasher>(
     let query_interface = gen_query_interface();
     let add_ref = super::iunknown_impl::gen_add_ref();
     let release = gen_release(
-        &base_interface_idents,
-        &aggr_map,
+        base_interface_idents,
+        aggr_map,
         class_factory_ident,
         ty_generics,
     );
