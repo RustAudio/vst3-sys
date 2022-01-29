@@ -1,4 +1,4 @@
-use crate::sys::{E_NOINTERFACE, E_POINTER, FAILED};
+use crate::sys::FAILED;
 use crate::{interfaces::IUnknown, ComInterface, ComRc, IID};
 
 use std::ffi::c_void;
@@ -68,10 +68,6 @@ impl<T: ComInterface + ?Sized> ComPtr<T> {
         let mut ppv = std::ptr::null_mut::<c_void>();
         let hr = unsafe { self.query_interface(&I::IID as *const IID, &mut ppv) };
         if FAILED(hr) {
-            assert!(
-                hr == E_NOINTERFACE || hr == E_POINTER,
-                "QueryInterface returned non-standard error"
-            );
             return None;
         }
         assert!(!ppv.is_null(), "The pointer to the interface returned from a successful call to QueryInterface was null");
