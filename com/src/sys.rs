@@ -9,7 +9,7 @@ pub type HRESULT = i32;
 
 /// Equivalent of the [FAILED macro](https://docs.microsoft.com/en-us/windows/win32/api/winerror/nf-winerror-failed)
 #[cfg(not(target_os = "windows"))]
-#[allow(non_snake_case)]
+#[allow(non_snake_case, clippy::manual_range_contains)]
 pub fn FAILED(result: HRESULT) -> bool {
     // See `vst3_sys::base::funknown` for all return codes
     result < 0 || result >= E_INVALIDARG

@@ -19,7 +19,7 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
         quote! {}
     } else {
         assert!(
-            !(interface.supertraits.len() > 1),
+            interface.supertraits.len() <= 1,
             "Multiple inheritance is not supported in COM interfaces"
         );
         assert!(
