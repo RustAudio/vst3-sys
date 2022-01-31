@@ -16,7 +16,6 @@
 #![deny(missing_docs)]
 
 mod ptr;
-mod rc;
 
 pub mod interfaces;
 use interfaces::IUnknown;
@@ -24,12 +23,9 @@ use interfaces::IUnknown;
 #[doc(hidden)]
 pub mod offset;
 
-#[cfg(windows)]
-pub mod runtime;
 pub mod sys;
 
-pub use ptr::ComPtr;
-pub use rc::ComRc;
+pub use ptr::{RawVstPtr, VstPtr};
 
 pub use std::ffi::c_void;
 #[doc(inline)]

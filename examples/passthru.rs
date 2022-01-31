@@ -10,7 +10,7 @@ use std::{
     ptr::{copy_nonoverlapping, null_mut},
 };
 use vst3_com::{sys::GUID, IID};
-use vst3_sys::utils::VstPtr;
+use vst3_sys::utils::SharedVstPtr;
 use vst3_sys::{
     base::{
         kInvalidArgument, kResultFalse, kResultOk, tresult, FIDString, IBStream, IPluginBase,
@@ -61,15 +61,15 @@ impl PassthruPlugin {
 pub struct Factory {}
 
 impl IEditController for PassthruPlugin {
-    unsafe fn set_component_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_component_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("set_component_state");
         kResultOk
     }
-    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("set_state");
         kResultOk
     }
-    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("get_state");
         kResultOk
     }
@@ -115,7 +115,10 @@ impl IEditController for PassthruPlugin {
         info!("set_param_normalized");
         kResultOk
     }
-    unsafe fn set_component_handler(&self, _handler: VstPtr<dyn IComponentHandler>) -> tresult {
+    unsafe fn set_component_handler(
+        &self,
+        _handler: SharedVstPtr<dyn IComponentHandler>,
+    ) -> tresult {
         info!("set_component_handler");
         kResultOk
     }
@@ -262,11 +265,11 @@ impl IComponent for PassthruPlugin {
         kResultOk
     }
 
-    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         kResultOk
     }
 
-    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         kResultOk
     }
 }

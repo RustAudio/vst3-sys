@@ -18,11 +18,11 @@ pub fn generate(interface: &ItemTrait) -> HelperTokenStream {
     }
 
     quote! {
-        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::ComRc<T> {
+        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::VstPtr<T> {
             #(#impl_methods)*
         }
 
-        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::ComPtr<T> {
+        impl <T: #interface_ident + vst3_com::ComInterface + ?Sized> #interface_ident for vst3_com::RawVstPtr<T> {
             #(#impl_methods)*
         }
     }
@@ -49,7 +49,7 @@ fn gen_impl_method(interface_ident: &Ident, method: &TraitItemMethod) -> HelperT
     quote!(
         #[allow(missing_docs)]
         #method_sig {
-            let #interface_ptr_ident = self.as_raw() as *mut #vptr_ident;
+            let #interface_ptr_ident = self.as_ptr() as *mut #vptr_ident;
             ((**#interface_ptr_ident).#method_ident)(#(#params),*)
         }
     )

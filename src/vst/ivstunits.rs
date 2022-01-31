@@ -1,5 +1,5 @@
 use crate::base::{tresult, IBStream};
-use crate::utils::VstPtr;
+use crate::utils::SharedVstPtr;
 use crate::vst::String128;
 use vst3_com::com_interface;
 use vst3_com::interfaces::iunknown::IUnknown;
@@ -75,7 +75,7 @@ pub trait IUnitInfo: IUnknown {
         &self,
         list_or_unit: i32,
         program_idx: i32,
-        data: VstPtr<dyn IBStream>,
+        data: SharedVstPtr<dyn IBStream>,
     ) -> tresult;
 }
 
@@ -86,14 +86,14 @@ pub trait IProgramListData: IUnknown {
         &self,
         list_id: i32,
         program_idx: i32,
-        stream: VstPtr<dyn IBStream>,
+        stream: SharedVstPtr<dyn IBStream>,
     ) -> tresult;
-    unsafe fn set_program_data(&self, id: i32, idx: i32, stream: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_program_data(&self, id: i32, idx: i32, stream: SharedVstPtr<dyn IBStream>) -> tresult;
 }
 
 #[com_interface("6C389611-D391-455D-B870-B83394A0EFDD")]
 pub trait IUnitData: IUnknown {
     unsafe fn unit_data_supported(&self, id: i32) -> tresult;
-    unsafe fn get_unit_data(&self, id: i32, data: VstPtr<dyn IBStream>) -> tresult;
-    unsafe fn set_unit_data(&self, id: i32, data: VstPtr<dyn IBStream>) -> tresult;
+    unsafe fn get_unit_data(&self, id: i32, data: SharedVstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_unit_data(&self, id: i32, data: SharedVstPtr<dyn IBStream>) -> tresult;
 }

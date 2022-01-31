@@ -1,14 +1,14 @@
 use log::*;
 use std::os::raw::{c_char, c_short, c_void};
 use std::ptr::{copy_nonoverlapping, null_mut};
-use vst3_sys::utils::VstPtr;
+use vst3_sys::utils::SharedVstPtr;
 
 use flexi_logger::{opt_format, Logger};
 use std::cell::RefCell;
 use std::intrinsics::write_bytes;
 use std::mem;
 use vst3_com::sys::GUID;
-use vst3_com::{ComPtr, IID};
+use vst3_com::{VstPtr, IID};
 use vst3_sys::base::{
     kInvalidArgument, kNotImplemented, kResultFalse, kResultOk, kResultTrue, tresult,
     ClassCardinality, FIDString, IBStream, IPluginBase, IPluginFactory, IPluginFactory2, IUnknown,
@@ -49,7 +49,6 @@ struct AudioInputs(Vec<AudioBus>);
 struct AudioOutputs(Vec<AudioBus>);
 struct Gain(f64);
 struct Bypass(bool);
-struct ContextPtr(*mut c_void);
 
 #[VST3(implements(IComponent, IAudioProcessor))]
 pub struct AGainProcessor {
@@ -59,7 +58,8 @@ pub struct AGainProcessor {
     audio_outputs: RefCell<AudioOutputs>,
     gain: RefCell<Gain>,
     bypass: RefCell<Bypass>,
-    context: RefCell<ContextPtr>,
+    // This almost always implements IHostApplication, but the API doesn't require that
+    context: RefCell<Option<VstPtr<dyn IUnknown>>>,
 }
 impl AGainProcessor {
     const CID: GUID = GUID {
@@ -81,7 +81,7 @@ impl AGainProcessor {
         let audio_outputs = RefCell::new(AudioOutputs(vec![]));
         let gain = RefCell::new(Gain(1.0));
         let bypass = RefCell::new(Bypass(false));
-        let context = RefCell::new(ContextPtr(null_mut()));
+        let context = RefCell::new(None);
         AGainProcessor::allocate(
             current_process_mode,
             process_setup,
@@ -255,7 +255,7 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn set_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::set_state()");
 
         let state = state.upgrade();
@@ -282,7 +282,7 @@ impl IComponent for AGainProcessor {
         kResultOk
     }
 
-    unsafe fn get_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainProcessor::get_state()");
         let state = state.upgrade();
         if state.is_none() {
@@ -313,10 +313,10 @@ impl IPluginBase for AGainProcessor {
     unsafe fn initialize(&self, context: *mut c_void) -> tresult {
         info!("Called: AGainProcessor::initialize()");
 
-        if !self.context.borrow().0.is_null() {
+        if self.context.borrow().is_some() || context.is_null() {
             return kResultFalse;
         }
-        self.context.borrow_mut().0 = context;
+        *self.context.borrow_mut() = VstPtr::shared(context as *mut _);
 
         self.add_audio_input("Stereo In", 3);
         self.add_audio_output("Stereo Out", 3);
@@ -328,7 +328,8 @@ impl IPluginBase for AGainProcessor {
 
         self.audio_inputs.borrow_mut().0.clear();
         self.audio_outputs.borrow_mut().0.clear();
-        self.context.borrow_mut().0 = null_mut();
+        *self.context.borrow_mut() = None;
+
         kResultOk
     }
 }
@@ -518,14 +519,13 @@ impl IAudioProcessor for AGainProcessor {
 
 struct Units(Vec<UnitInfo>);
 struct Parameters(Vec<(ParameterInfo, f64)>);
-struct ComponentHandler(*mut c_void);
 
 #[VST3(implements(IEditController, IUnitInfo))]
 pub struct AGainController {
     units: RefCell<Units>,
     parameters: RefCell<Parameters>,
-    context: RefCell<ContextPtr>,
-    component_handler: RefCell<ComponentHandler>,
+    context: RefCell<Option<VstPtr<dyn IUnknown>>>,
+    component_handler: RefCell<Option<VstPtr<dyn IComponentHandler>>>,
 }
 impl AGainController {
     const CID: GUID = GUID {
@@ -537,8 +537,8 @@ impl AGainController {
     pub fn new() -> Box<Self> {
         let units = RefCell::new(Units(vec![]));
         let parameters = RefCell::new(Parameters(vec![]));
-        let context = RefCell::new(ContextPtr(null_mut()));
-        let component_handler = RefCell::new(ComponentHandler(null_mut()));
+        let context = RefCell::new(None);
+        let component_handler = RefCell::new(None);
         AGainController::allocate(units, parameters, context, component_handler)
     }
 
@@ -548,7 +548,7 @@ impl AGainController {
 }
 
 impl IEditController for AGainController {
-    unsafe fn set_component_state(&self, state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_component_state(&self, state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_component_state()");
 
         if state.is_null() {
@@ -576,12 +576,12 @@ impl IEditController for AGainController {
         }
         kResultOk
     }
-    unsafe fn set_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn set_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::set_state()");
 
         kResultOk
     }
-    unsafe fn get_state(&self, _state: VstPtr<dyn IBStream>) -> tresult {
+    unsafe fn get_state(&self, _state: SharedVstPtr<dyn IBStream>) -> tresult {
         info!("Called: AGainController::get_state()");
 
         kResultOk
@@ -671,28 +671,19 @@ impl IEditController for AGainController {
             _ => kResultFalse,
         }
     }
-    unsafe fn set_component_handler(&self, mut handler: VstPtr<dyn IComponentHandler>) -> tresult {
+    unsafe fn set_component_handler(
+        &self,
+        handler: SharedVstPtr<dyn IComponentHandler>,
+    ) -> tresult {
         info!("Called: AGainController::set_component_handler()");
 
-        if self.component_handler.borrow().0 == handler.as_raw_mut() as *mut _ {
-            return kResultTrue;
-        }
+        // Some hosts will explicitly pass a null pointer here when shutting down the plugin. We
+        // should respect their wishes.
+        *self.component_handler.borrow_mut() = handler.upgrade();
 
-        if !self.component_handler.borrow().0.is_null() {
-            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
-            component_handler.release();
-        }
-
-        self.component_handler.borrow_mut().0 = handler.as_raw_mut() as *mut _;
-        if !self.component_handler.borrow().0.is_null() {
-            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
-            component_handler.add_ref();
-        }
-
-        kResultTrue
+        kResultOk
     }
+
     unsafe fn create_view(&self, _name: FIDString) -> *mut c_void {
         info!("Called: AGainController::create_view()");
 
@@ -704,10 +695,10 @@ impl IPluginBase for AGainController {
     unsafe fn initialize(&self, context: *mut c_void) -> tresult {
         info!("Called: AGainController::initialize()");
 
-        if !self.context.borrow().0.is_null() {
+        if self.context.borrow().is_some() || context.is_null() {
             return kResultFalse;
         }
-        self.context.borrow_mut().0 = context;
+        *self.context.borrow_mut() = VstPtr::shared(context as *mut _);
 
         let mut unit_info = UnitInfo {
             id: 1,
@@ -753,15 +744,9 @@ impl IPluginBase for AGainController {
 
         self.units.borrow_mut().0.clear();
         self.parameters.borrow_mut().0.clear();
+        *self.context.borrow_mut() = None;
+        *self.component_handler.borrow_mut() = None;
 
-        if !self.component_handler.borrow().0.is_null() {
-            let component_handler = self.component_handler.borrow_mut().0 as *mut *mut _;
-            let component_handler: ComPtr<dyn IComponentHandler> = ComPtr::new(component_handler);
-            component_handler.release();
-            self.component_handler.borrow_mut().0 = null_mut();
-        }
-
-        self.context.borrow_mut().0 = null_mut();
         kResultOk
     }
 }
@@ -860,7 +845,7 @@ impl IUnitInfo for AGainController {
         &self,
         _list_or_unit: i32,
         _program_index: i32,
-        _data: VstPtr<dyn IBStream>,
+        _data: SharedVstPtr<dyn IBStream>,
     ) -> i32 {
         info!("Called: AGainController::set_unit_program_data()");
 

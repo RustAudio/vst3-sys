@@ -1,5 +1,5 @@
 use crate::base::{tresult, TBool};
-use crate::utils::VstPtr;
+use crate::utils::StaticVstPtr;
 use crate::vst::{
     BusDirection, CString, IEventList, IParameterChanges, ProcessContext, SpeakerArrangement,
 };
@@ -51,10 +51,10 @@ pub struct ProcessData {
     pub num_outputs: i32,
     pub inputs: *mut AudioBusBuffers,
     pub outputs: *mut AudioBusBuffers,
-    pub input_param_changes: VstPtr<dyn IParameterChanges>,
-    pub output_param_changes: VstPtr<dyn IParameterChanges>,
-    pub input_events: VstPtr<dyn IEventList>,
-    pub output_events: VstPtr<dyn IEventList>,
+    pub input_param_changes: StaticVstPtr<dyn IParameterChanges>,
+    pub output_param_changes: StaticVstPtr<dyn IParameterChanges>,
+    pub input_events: StaticVstPtr<dyn IEventList>,
+    pub output_events: StaticVstPtr<dyn IEventList>,
     pub context: *mut ProcessContext,
 }
 

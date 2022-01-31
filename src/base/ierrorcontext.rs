@@ -1,6 +1,6 @@
 use super::IUnknown;
 use crate::base::{tresult, IString};
-use crate::utils::VstPtr;
+use crate::utils::SharedVstPtr;
 
 use vst3_com::com_interface;
 
@@ -8,5 +8,5 @@ use vst3_com::com_interface;
 pub trait IErrorContext: IUnknown {
     unsafe fn disable_error_ui(&self, state: bool);
     unsafe fn error_message_shown(&self) -> tresult;
-    unsafe fn get_error_message(&self, message: VstPtr<dyn IString>) -> tresult;
+    unsafe fn get_error_message(&self, message: SharedVstPtr<dyn IString>) -> tresult;
 }
