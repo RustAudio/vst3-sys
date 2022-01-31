@@ -40,9 +40,8 @@ pub fn gen_add_ref() -> HelperTokenStream {
 pub fn gen_add_ref_implementation() -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
     quote!(
-        let value = self.#ref_count_ident.get().checked_add(1).expect("Overflow of reference count");
-        self.#ref_count_ident.set(value);
-        value
+        // This function should return the new count
+        self.#ref_count_ident.fetch_add(1, std::sync::atomic::Ordering::AcqRel) + 1
     )
 }
 
@@ -53,23 +52,21 @@ pub fn gen_release<S: ::std::hash::BuildHasher>(
     ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
+    let old_count_ident = quote::format_ident!("old_count");
 
-    let release_decrement = gen_release_decrement(&ref_count_ident);
-    let release_assign_new_count_to_var =
-        gen_release_assign_new_count_to_var(&ref_count_ident, &ref_count_ident);
-    let release_new_count_var_zero_check = gen_new_count_var_zero_check(&ref_count_ident);
+    let release_assign_fetch_sub = gen_release_assign_fetch_sub(&ref_count_ident, &old_count_ident);
+    let release_fetch_sub_result_check = gen_release_fetch_sub_result_check(&old_count_ident);
     let release_drops =
         gen_release_drops(base_interface_idents, aggr_map, struct_ident, ty_generics);
 
     quote! {
         unsafe fn release(&self) -> u32 {
-            #release_decrement
-            #release_assign_new_count_to_var
-            if #release_new_count_var_zero_check {
+            #release_assign_fetch_sub
+            if #release_fetch_sub_result_check {
                 #release_drops
             }
 
-            #ref_count_ident
+            #old_count_ident
         }
     }
 }
@@ -123,25 +120,20 @@ fn gen_com_object_drop(struct_ident: &Ident, ty_generics: &TypeGenerics) -> Help
     )
 }
 
-pub fn gen_release_decrement(ref_count_ident: &Ident) -> HelperTokenStream {
-    quote!(
-        let value = self.#ref_count_ident.get().checked_sub(1).expect("Underflow of reference count");
-        self.#ref_count_ident.set(value);
-    )
-}
-
-pub fn gen_release_assign_new_count_to_var(
+pub fn gen_release_assign_fetch_sub(
     ref_count_ident: &Ident,
-    new_count_ident: &Ident,
+    old_count_ident: &Ident,
 ) -> HelperTokenStream {
     quote!(
-        let #new_count_ident = self.#ref_count_ident.get();
+        let #old_count_ident = self.#ref_count_ident.fetch_sub(1, std::sync::atomic::Ordering::AcqRel);
     )
 }
 
-pub fn gen_new_count_var_zero_check(new_count_ident: &Ident) -> HelperTokenStream {
+pub fn gen_release_fetch_sub_result_check(old_count_ident: &Ident) -> HelperTokenStream {
+    // If the old count was 1, then that means the reference count after subtraction is zero and
+    // this was the last alive reference
     quote!(
-        #new_count_ident == 0
+        #old_count_ident == 1
     )
 }
 
