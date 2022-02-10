@@ -21,5 +21,5 @@ pub trait IParameterChanges: IUnknown {
         &self,
         id: *const u32,
         index: *mut i32,
-    ) -> StaticVstPtr<dyn IParameterChanges>;
+    ) -> StaticVstPtr<dyn IParamValueQueue>;
 }
