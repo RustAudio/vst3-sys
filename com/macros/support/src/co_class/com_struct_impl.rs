@@ -66,7 +66,7 @@ pub fn gen_allocate_function_parameters_signature(struct_item: &ItemStruct) -> H
         _ => panic!("Found non Named fields in struct."),
     };
 
-    // Attributes and comments need to be stripped out since those are not vallid in the middle of a
+    // Attributes and comments need to be stripped out since those are not valid in the middle of a
     // function signature
     for field in fields.iter_mut() {
         field.attrs.clear();

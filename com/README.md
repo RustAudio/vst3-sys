@@ -1,6 +1,6 @@
 # Forked from com-rs
 
-This is a fork of [com-rs](https://github.com/microsoft/com-rs) that's been modified to support COM APIs on non-Win32 targets. This was done to repurpose the macros specifically for the vst3-sys crate, and should probably not be used outside that context. 
+This is a fork of [com-rs](https://github.com/microsoft/com-rs) that's been modified to support COM APIs on non-Win32 targets. This was done to repurpose the macros specifically for the vst3-sys crate, and should probably not be used outside that context.
 
 # COM
 
@@ -127,9 +127,9 @@ impl BritishShortHairCat {
 
 ## Safety
 
-While COM specifies details about the ABI of method calls, it does little in terms of guranteeing the safety of those method calls. As such, it is left up to the programmer to verify the safety of COM APIs and to write safe wrappers for those APIs.
+While COM specifies details about the ABI of method calls, it does little in terms of guaranteeing the safety of those method calls. As such, it is left up to the programmer to verify the safety of COM APIs and to write safe wrappers for those APIs.
 
-You can read more about what gurantees this library makes in the [guide to safety](./docs/safety.md).
+You can read more about what guarantees this library makes in the [guide to safety](./docs/safety.md).
 
 ## Existing crates
 

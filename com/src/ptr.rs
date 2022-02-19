@@ -27,7 +27,7 @@ pub struct RawVstPtr<T: ComInterface + ?Sized> {
 
 impl<T: ComInterface + ?Sized> VstPtr<T> {
     /// Adopt a pointer returned by a VST3 method call. This will return a `None` if the pointer is
-    /// a null pointer. This function must be called whenever a method returns an interface opinter,
+    /// a null pointer. This function must be called whenever a method returns an interface pointer,
     /// even if you do not plan on using the value. Otherwise the object will leak.
     ///
     /// The object will be released when the last reference to it gets dropped.
@@ -66,7 +66,7 @@ impl<T: ComInterface + ?Sized> VstPtr<T> {
         Some(vst_ptr)
     }
 
-    /// Get the underlying interface pointer. This pointer is only guarnteed to live for as long as
+    /// Get the underlying interface pointer. This pointer is only guaranteed to live for as long as
     /// the current `VstPtr` is alive.
     pub fn as_ptr(&self) -> *mut *mut <T as ComInterface>::VTable {
         self.ptr.as_ptr()
@@ -78,7 +78,7 @@ impl<T: ComInterface + ?Sized> VstPtr<T> {
         let mut obj = std::ptr::null_mut::<c_void>();
         let result = unsafe { self.query_interface(&I::IID as *const IID, &mut obj) };
         if result == S_OK {
-            // There's no way to guarentee that the returned object actually impelemnts this
+            // There's no way to guarantee that the returned object actually implements this
             // interface, but you got to have a little faith
             unsafe { VstPtr::owned(obj as *mut *mut _) }
         } else {
@@ -117,7 +117,7 @@ impl<T: ComInterface + ?Sized> RawVstPtr<T> {
         })
     }
 
-    /// Get the underlying interface pointer. This pointer is only guarnteed to live for as long as
+    /// Get the underlying interface pointer. This pointer is only guaranteed to live for as long as
     /// the current `VstPtr` is alive.
     pub fn as_ptr(&self) -> *mut *mut <T as ComInterface>::VTable {
         self.ptr.as_ptr()
