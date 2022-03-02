@@ -64,32 +64,44 @@ pub fn generate(macro_attr: &TokenStream, interface_ident: &Ident) -> HelperToke
         .flat_map(|s| s.chars())
         .collect::<Vec<_>>();
 
-    #[cfg(target_os = "windows")]
-    let flat = {
-        let mut flat = flat;
-        flat.swap(0, 6);
-        flat.swap(1, 7);
-        flat.swap(2, 4);
-        flat.swap(3, 5);
-        flat.swap(8, 10);
-        flat.swap(9, 11);
-        flat.swap(12, 14);
-        flat.swap(13, 15);
-        flat
-    };
+    // The byte order is different on Windows compared to the other operating systems. Because this
+    // is a proc macro, `#[cfg(...)]` queries the _host's/compiler's_ environment, and not the
+    // actual target environment. Because of that cross compiling won't work if we try to do the
+    // byte swap here. To get around that, we'll generate both versions, and then emit the
+    // #[cfg(...)] attributes in the generated code.
+    let mut flat_windows = flat.clone();
+    flat_windows.swap(0, 6);
+    flat_windows.swap(1, 7);
+    flat_windows.swap(2, 4);
+    flat_windows.swap(3, 5);
+    flat_windows.swap(8, 10);
+    flat_windows.swap(9, 11);
+    flat_windows.swap(12, 14);
+    flat_windows.swap(13, 15);
 
-    let bytes = (0..32).step_by(2).map(|idx| {
-        let mut chars = ['0', 'x', '\0', '\0'];
-        chars[2] = flat[idx];
-        chars[3] = flat[idx + 1];
-        let string = chars.iter().collect::<String>();
-        LitInt::new(&string, Span::call_site())
-    });
+    let to_hex_int_array = |char_slice: Vec<char>| {
+        (0..32).step_by(2).map(move |idx| {
+            let mut chars = ['0', 'x', '\0', '\0'];
+            chars[2] = char_slice[idx];
+            chars[3] = char_slice[idx + 1];
+            let string = chars.iter().collect::<String>();
+            LitInt::new(&string, Span::call_site())
+        })
+    };
+    let bytes = to_hex_int_array(flat);
+    let bytes_windows = to_hex_int_array(flat_windows);
 
     quote!(
+        #[cfg(not(target_os = "windows"))]
         #[allow(non_upper_case_globals, missing_docs)]
         pub const #iid_ident: vst3_com::sys::IID = vst3_com::sys::IID {
             data: [#(#bytes),*]
+        };
+
+        #[cfg(target_os = "windows")]
+        #[allow(non_upper_case_globals, missing_docs)]
+        pub const #iid_ident: vst3_com::sys::IID = vst3_com::sys::IID {
+            data: [#(#bytes_windows),*]
         };
     )
 }

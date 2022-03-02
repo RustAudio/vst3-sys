@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream as HelperTokenStream;
 use quote::{format_ident, quote};
 use std::collections::HashMap;
-use syn::{Fields, Ident, ItemStruct, TypeGenerics};
+use syn::{Fields, Ident, ItemStruct, TypeGenerics, Visibility};
 
 pub fn generate<S: ::std::hash::BuildHasher>(
     aggr_map: &HashMap<Ident, Vec<Ident>, S>,
@@ -66,10 +66,13 @@ pub fn gen_allocate_function_parameters_signature(struct_item: &ItemStruct) -> H
         _ => panic!("Found non Named fields in struct."),
     };
 
-    // Attributes and comments need to be stripped out since those are not vallid in the middle of a
-    // function signature
     for field in fields.iter_mut() {
+        // Attributes and comments need to be stripped out since those are not vallid in the middle of a
+        // function signature
         field.attrs.clear();
+
+        // Visibility specifiers should obviously also not go in a function signature
+        field.vis = Visibility::Inherited;
     }
 
     quote!(#fields)
@@ -105,7 +108,7 @@ pub fn gen_allocate_user_fields(struct_item: &ItemStruct) -> HelperTokenStream {
 pub fn gen_allocate_ref_count_field() -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
     quote!(
-        #ref_count_ident: std::cell::Cell::new(1),
+        #ref_count_ident: std::sync::atomic::AtomicU32::new(1),
     )
 }
 

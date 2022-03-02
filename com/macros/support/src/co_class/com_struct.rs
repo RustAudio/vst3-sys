@@ -45,7 +45,7 @@ pub fn gen_base_fields(base_interface_idents: &[Ident]) -> HelperTokenStream {
 
 pub fn gen_ref_count_field() -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
-    quote!(#ref_count_ident: std::cell::Cell<u32>,)
+    quote!(#ref_count_ident: std::sync::atomic::AtomicU32,)
 }
 
 pub fn gen_aggregate_fields<S: ::std::hash::BuildHasher>(

@@ -87,15 +87,14 @@ pub fn gen_inner_release(
     ty_generics: &TypeGenerics,
 ) -> HelperTokenStream {
     let ref_count_ident = crate::utils::ref_count_ident();
+    let old_count_ident = quote::format_ident!("old_count");
 
-    let release_decrement = crate::co_class::iunknown_impl::gen_release_decrement(&ref_count_ident);
-    let release_assign_new_count_to_var =
-        crate::co_class::iunknown_impl::gen_release_assign_new_count_to_var(
-            &ref_count_ident,
-            &ref_count_ident,
-        );
-    let release_new_count_var_zero_check =
-        crate::co_class::iunknown_impl::gen_new_count_var_zero_check(&ref_count_ident);
+    let release_assign_fetch_sub = crate::co_class::iunknown_impl::gen_release_assign_fetch_sub(
+        &ref_count_ident,
+        &old_count_ident,
+    );
+    let release_fetch_sub_result_check =
+        crate::co_class::iunknown_impl::gen_release_fetch_sub_result_check(&old_count_ident);
     let release_drops = crate::co_class::iunknown_impl::gen_release_drops(
         base_interface_idents,
         aggr_map,
@@ -106,14 +105,14 @@ pub fn gen_inner_release(
 
     quote! {
         unsafe fn inner_release(&self) -> u32 {
-            #release_decrement
-            #release_assign_new_count_to_var
-            if #release_new_count_var_zero_check {
+            #release_assign_fetch_sub
+            if #release_fetch_sub_result_check {
                 #non_delegating_iunknown_drop
                 #release_drops
             }
 
-            #ref_count_ident
+            // This function should return the new count
+            #old_count_ident - 1
         }
     }
 }
