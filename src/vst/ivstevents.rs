@@ -32,8 +32,8 @@ pub struct NoteOffEvent {
     pub channel: i16,
     pub pitch: i16,
     pub velocity: f32,
-    pub length: i32,
     pub note_id: i32,
+    pub tuning: f32,
 }
 
 #[repr(C)]
