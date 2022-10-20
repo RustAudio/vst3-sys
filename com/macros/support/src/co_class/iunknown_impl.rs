@@ -107,7 +107,7 @@ fn gen_vptr_drops(base_interface_idents: &[Ident]) -> HelperTokenStream {
     let vptr_drops = base_interface_idents.iter().map(|base| {
         let vptr_field_ident = crate::utils::vptr_field_ident(base);
         quote!(
-            Box::from_raw(self.#vptr_field_ident as *mut <dyn #base as vst3_com::ComInterface>::VTable);
+            drop(Box::from_raw(self.#vptr_field_ident as *mut <dyn #base as vst3_com::ComInterface>::VTable));
         )
     });
 
@@ -116,7 +116,7 @@ fn gen_vptr_drops(base_interface_idents: &[Ident]) -> HelperTokenStream {
 
 fn gen_com_object_drop(struct_ident: &Ident, ty_generics: &TypeGenerics) -> HelperTokenStream {
     quote!(
-        Box::from_raw(self as *const _ as *mut #struct_ident #ty_generics);
+        drop(Box::from_raw(self as *const _ as *mut #struct_ident #ty_generics));
     )
 }
 

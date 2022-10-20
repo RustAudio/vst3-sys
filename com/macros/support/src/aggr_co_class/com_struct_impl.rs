@@ -120,7 +120,7 @@ pub fn gen_inner_release(
 fn gen_non_delegating_iunknown_drop() -> HelperTokenStream {
     let non_delegating_iunknown_field_ident = crate::utils::non_delegating_iunknown_field_ident();
     quote!(
-        Box::from_raw(self.#non_delegating_iunknown_field_ident as *mut <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable);
+        drop(Box::from_raw(self.#non_delegating_iunknown_field_ident as *mut <dyn vst3_com::interfaces::iunknown::IUnknown as vst3_com::ComInterface>::VTable));
     )
 }
 
