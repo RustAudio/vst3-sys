@@ -30,7 +30,11 @@ pub trait IPlugView: IUnknown {
 
 #[com_interface("367FAF01-AFA9-4693-8D4D-A2A0ED0882A3")]
 pub trait IPlugFrame: IUnknown {
-    unsafe fn resize_view(&self, view: SharedVstPtr<dyn IPlugView>, new_size: *mut ViewRect) -> tresult;
+    unsafe fn resize_view(
+        &self,
+        view: SharedVstPtr<dyn IPlugView>,
+        new_size: *mut ViewRect,
+    ) -> tresult;
 }
 
 #[cfg(target_os = "linux")]
@@ -61,8 +65,11 @@ pub mod linux {
             fd: FileDescriptor,
         ) -> tresult;
         unsafe fn unregister_event_handler(&self, h: SharedVstPtr<dyn IEventHandler>) -> tresult;
-        unsafe fn register_timer(&self, t: SharedVstPtr<dyn ITimerHandler>, ms: TimerInterval)
-            -> tresult;
+        unsafe fn register_timer(
+            &self,
+            t: SharedVstPtr<dyn ITimerHandler>,
+            ms: TimerInterval,
+        ) -> tresult;
         unsafe fn unregister_timer(&self, t: SharedVstPtr<dyn ITimerHandler>) -> tresult;
     }
 }

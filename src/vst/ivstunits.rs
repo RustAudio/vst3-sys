@@ -88,7 +88,12 @@ pub trait IProgramListData: IUnknown {
         program_idx: i32,
         stream: SharedVstPtr<dyn IBStream>,
     ) -> tresult;
-    unsafe fn set_program_data(&self, id: i32, idx: i32, stream: SharedVstPtr<dyn IBStream>) -> tresult;
+    unsafe fn set_program_data(
+        &self,
+        id: i32,
+        idx: i32,
+        stream: SharedVstPtr<dyn IBStream>,
+    ) -> tresult;
 }
 
 #[com_interface("6C389611-D391-455D-B870-B83394A0EFDD")]
