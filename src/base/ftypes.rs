@@ -18,3 +18,5 @@ pub type CStringA = *const char8;
 pub type CStringW = *const tchar;
 /// A string used for an FUnknown Identifier
 pub type FIDString = *const char8;
+/// An unsigned integer as wide as a pointer
+pub type TPtrInt = usize;

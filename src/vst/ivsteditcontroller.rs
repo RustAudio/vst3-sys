@@ -86,7 +86,8 @@ pub trait IEditController: IPluginBase {
     unsafe fn plain_param_to_normalized(&self, id: u32, plain_value: f64) -> f64;
     unsafe fn get_param_normalized(&self, id: u32) -> f64;
     unsafe fn set_param_normalized(&self, id: u32, value: f64) -> tresult;
-    unsafe fn set_component_handler(&self, handler: SharedVstPtr<dyn IComponentHandler>) -> tresult;
+    unsafe fn set_component_handler(&self, handler: SharedVstPtr<dyn IComponentHandler>)
+        -> tresult;
     unsafe fn create_view(&self, name: FIDString) -> *mut c_void;
 }
 
